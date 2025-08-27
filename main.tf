@@ -1,30 +1,68 @@
-# TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-resource "azurerm_resource_group" "TODO" {
-  location = var.location
-  name     = var.name # calling code must supply the name
-  tags     = var.tags
+// Naming module wiring
+
+data "azapi_client_config" "naming" {}
+
+locals {
+  naming_unique_seed = join("|", [
+    data.azapi_client_config.naming.subscription_id,
+    var.location,
+    var.environment,
+    var.workload_name,
+  ])
+
+  // Deterministic uniqueness token derived from subscription + inputs
+  naming_unique_id = substr(lower(replace(base64encode(sha256(local.naming_unique_seed)), "=", "")), 0, 13)
 }
 
-# required AVM resources interfaces
-resource "azurerm_management_lock" "this" {
-  count = var.lock != null ? 1 : 0
+module "naming" {
+  source = "./modules/naming"
 
-  lock_level = var.lock.kind
-  name       = coalesce(var.lock.name, "lock-${var.lock.kind}")
-  scope      = azurerm_resource_group.TODO.id # TODO: Replace with your azurerm resource name
-  notes      = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
+  workload_name             = var.workload_name
+  spoke_resource_group_name = var.spoke_resource_group_name
+  environment               = var.environment
+  location                  = var.location
+  unique_id                 = local.naming_unique_id
 }
 
-resource "azurerm_role_assignment" "this" {
-  for_each = var.role_assignments
+module "spoke_resource_group" {
+  source  = "Azure/avm-res-resources-resourcegroup/azurerm"
+  version = "~> 0.2"
 
-  principal_id                           = each.value.principal_id
-  scope                                  = azurerm_resource_group.TODO.id # TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-  condition                              = each.value.condition
-  condition_version                      = each.value.condition_version
-  delegated_managed_identity_resource_id = each.value.delegated_managed_identity_resource_id
-  principal_type                         = each.value.principal_type
-  role_definition_id                     = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? each.value.role_definition_id_or_name : null
-  role_definition_name                   = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? null : each.value.role_definition_id_or_name
-  skip_service_principal_aad_check       = each.value.skip_service_principal_aad_check
+  name             = module.naming.resources_names.resourceGroup
+  location         = var.location
+  enable_telemetry = var.enable_telemetry
+  tags             = var.tags
+}
+
+// Spoke composition module (Stage 2+: LAW first)
+module "spoke" {
+  source = "./modules/spoke"
+
+  resources_names     = module.naming.resources_names
+  location            = var.location
+  resource_group_id   = module.spoke_resource_group.resource_id
+  resource_group_name = module.naming.resources_names.resourceGroup
+  tags                = var.tags
+  enable_telemetry    = var.enable_telemetry
+
+  # Networking
+  hub_virtual_network_resource_id                 = var.hub_virtual_network_resource_id
+  spoke_vnet_address_prefixes                     = var.spoke_vnet_address_prefixes
+  spoke_infra_subnet_address_prefix               = var.spoke_infra_subnet_address_prefix
+  spoke_private_endpoints_subnet_address_prefix   = var.spoke_private_endpoints_subnet_address_prefix
+  spoke_application_gateway_subnet_address_prefix = var.spoke_application_gateway_subnet_address_prefix
+  deployment_subnet_address_prefix                = var.deployment_subnet_address_prefix
+  route_spoke_traffic_internally                  = var.route_spoke_traffic_internally
+  network_appliance_ip_address                    = var.network_appliance_ip_address
+
+  # Jumpbox VM
+  bastion_resource_id              = var.bastion_resource_id
+  vm_size                          = var.vm_size
+  storage_account_type             = var.storage_account_type
+  vm_admin_password                = var.vm_admin_password
+  vm_linux_ssh_authorized_key      = var.vm_linux_ssh_authorized_key
+  vm_authentication_type           = var.vm_authentication_type
+  vm_jumpbox_os_type               = var.vm_jumpbox_os_type
+  vm_jumpbox_subnet_address_prefix = var.vm_jumpbox_subnet_address_prefix
+  vm_zone                          = var.deploy_zone_redundant_resources ? 2 : 0
 }

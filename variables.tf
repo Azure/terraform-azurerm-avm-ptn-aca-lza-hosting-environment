@@ -1,237 +1,223 @@
+###############################################
+# Stage 0: Variables mirroring Bicep inputs  #
+###############################################
+
+# General
 variable "location" {
   type        = string
-  description = "Azure region where the resource should be deployed."
-  nullable    = false
+  description = "Optional. The location of the Azure Container Apps deployment."
 }
 
-variable "name" {
-  type        = string
-  description = "The name of the this resource."
-
-  validation {
-    condition     = can(regex("TODO", var.name))
-    error_message = "The name must be TODO." # TODO remove the example below once complete:
-    #condition     = can(regex("^[a-z0-9]{5,50}$", var.name))
-    #error_message = "The name must be between 5 and 50 characters long and can only contain lowercase letters and numbers."
-  }
-}
-
-# This is required for most resource modules
-variable "resource_group_name" {
-  type        = string
-  description = "The resource group where the resources will be deployed."
-}
-
-# required AVM interfaces
-# remove only if not supported by the resource
-# tflint-ignore: terraform_unused_declarations
-variable "customer_managed_key" {
-  type = object({
-    key_vault_resource_id = string
-    key_name              = string
-    key_version           = optional(string, null)
-    user_assigned_identity = optional(object({
-      resource_id = string
-    }), null)
-  })
-  default     = null
-  description = <<DESCRIPTION
-A map describing customer-managed keys to associate with the resource. This includes the following properties:
-- `key_vault_resource_id` - The resource ID of the Key Vault where the key is stored.
-- `key_name` - The name of the key.
-- `key_version` - (Optional) The version of the key. If not specified, the latest version is used.
-- `user_assigned_identity` - (Optional) An object representing a user-assigned identity with the following properties:
-  - `resource_id` - The resource ID of the user-assigned identity.
-DESCRIPTION
-}
-
-variable "diagnostic_settings" {
-  type = map(object({
-    name                                     = optional(string, null)
-    log_categories                           = optional(set(string), [])
-    log_groups                               = optional(set(string), ["allLogs"])
-    metric_categories                        = optional(set(string), ["AllMetrics"])
-    log_analytics_destination_type           = optional(string, "Dedicated")
-    workspace_resource_id                    = optional(string, null)
-    storage_account_resource_id              = optional(string, null)
-    event_hub_authorization_rule_resource_id = optional(string, null)
-    event_hub_name                           = optional(string, null)
-    marketplace_partner_resource_id          = optional(string, null)
-  }))
+variable "tags" {
+  type        = map(string)
   default     = {}
-  description = <<DESCRIPTION
-A map of diagnostic settings to create on the Key Vault. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-
-- `name` - (Optional) The name of the diagnostic setting. One will be generated if not set, however this will not be unique if you want to create multiple diagnostic setting resources.
-- `log_categories` - (Optional) A set of log categories to send to the log analytics workspace. Defaults to `[]`.
-- `log_groups` - (Optional) A set of log groups to send to the log analytics workspace. Defaults to `["allLogs"]`.
-- `metric_categories` - (Optional) A set of metric categories to send to the log analytics workspace. Defaults to `["AllMetrics"]`.
-- `log_analytics_destination_type` - (Optional) The destination type for the diagnostic setting. Possible values are `Dedicated` and `AzureDiagnostics`. Defaults to `Dedicated`.
-- `workspace_resource_id` - (Optional) The resource ID of the log analytics workspace to send logs and metrics to.
-- `storage_account_resource_id` - (Optional) The resource ID of the storage account to send logs and metrics to.
-- `event_hub_authorization_rule_resource_id` - (Optional) The resource ID of the event hub authorization rule to send logs and metrics to.
-- `event_hub_name` - (Optional) The name of the event hub. If none is specified, the default event hub will be selected.
-- `marketplace_partner_resource_id` - (Optional) The full ARM resource ID of the Marketplace resource to which you would like to send Diagnostic LogsLogs.
-DESCRIPTION
-  nullable    = false
-
-  validation {
-    condition     = alltrue([for _, v in var.diagnostic_settings : contains(["Dedicated", "AzureDiagnostics"], v.log_analytics_destination_type)])
-    error_message = "Log analytics destination type must be one of: 'Dedicated', 'AzureDiagnostics'."
-  }
-  validation {
-    condition = alltrue(
-      [
-        for _, v in var.diagnostic_settings :
-        v.workspace_resource_id != null || v.storage_account_resource_id != null || v.event_hub_authorization_rule_resource_id != null || v.marketplace_partner_resource_id != null
-      ]
-    )
-    error_message = "At least one of `workspace_resource_id`, `storage_account_resource_id`, `marketplace_partner_resource_id`, or `event_hub_authorization_rule_resource_id`, must be set."
-  }
+  description = "Optional. Tags related to the Azure Container Apps deployment. Default is empty."
 }
 
 variable "enable_telemetry" {
   type        = bool
   default     = true
-  description = <<DESCRIPTION
-This variable controls whether or not telemetry is enabled for the module.
-For more information see <https://aka.ms/avm/telemetryinfo>.
-If it is set to false, then no telemetry will be collected.
-DESCRIPTION
-  nullable    = false
+  description = "Optional. Enable/Disable usage telemetry for module."
 }
 
-variable "lock" {
-  type = object({
-    kind = string
-    name = optional(string, null)
-  })
-  default     = null
-  description = <<DESCRIPTION
-Controls the Resource Lock configuration for this resource. The following properties can be specified:
-
-- `kind` - (Required) The type of lock. Possible values are `\"CanNotDelete\"` and `\"ReadOnly\"`.
-- `name` - (Optional) The name of the lock. If not specified, a name will be generated based on the `kind` value. Changing this forces the creation of a new resource.
-DESCRIPTION
+# Naming/Env
+variable "workload_name" {
+  type        = string
+  default     = "aca-lza"
+  description = "Optional. The name of the workload that is being deployed. Up to 10 characters long."
 
   validation {
-    condition     = var.lock != null ? contains(["CanNotDelete", "ReadOnly"], var.lock.kind) : true
-    error_message = "The lock level must be one of: 'None', 'CanNotDelete', or 'ReadOnly'."
+    condition     = length(var.workload_name) >= 2 && length(var.workload_name) <= 10
+    error_message = "workload_name must be 2 to 10 characters."
   }
 }
 
-# tflint-ignore: terraform_unused_declarations
-variable "managed_identities" {
-  type = object({
-    system_assigned            = optional(bool, false)
-    user_assigned_resource_ids = optional(set(string), [])
-  })
-  default     = {}
-  description = <<DESCRIPTION
-Controls the Managed Identity configuration on this resource. The following properties can be specified:
+variable "environment" {
+  type        = string
+  default     = "test"
+  description = "Optional. The name of the environment (e.g. \"dev\", \"test\", \"prod\", \"uat\", \"dr\", \"qa\"). Up to 8 characters long. Default is \"test\"."
 
-- `system_assigned` - (Optional) Specifies if the System Assigned Managed Identity should be enabled.
-- `user_assigned_resource_ids` - (Optional) Specifies a list of User Assigned Managed Identity resource IDs to be assigned to this resource.
-DESCRIPTION
-  nullable    = false
+  validation {
+    condition     = length(var.environment) <= 8
+    error_message = "environment must be at most 8 characters."
+  }
 }
 
-variable "private_endpoints" {
-  type = map(object({
-    name = optional(string, null)
-    role_assignments = optional(map(object({
-      role_definition_id_or_name             = string
-      principal_id                           = string
-      description                            = optional(string, null)
-      skip_service_principal_aad_check       = optional(bool, false)
-      condition                              = optional(string, null)
-      condition_version                      = optional(string, null)
-      delegated_managed_identity_resource_id = optional(string, null)
-    })), {})
-    lock = optional(object({
-      kind = string
-      name = optional(string, null)
-    }), null)
-    tags                                    = optional(map(string), null)
-    subnet_resource_id                      = string
-    private_dns_zone_group_name             = optional(string, "default")
-    private_dns_zone_resource_ids           = optional(set(string), [])
-    application_security_group_associations = optional(map(string), {})
-    private_service_connection_name         = optional(string, null)
-    network_interface_name                  = optional(string, null)
-    location                                = optional(string, null)
-    resource_group_name                     = optional(string, null)
-    ip_configurations = optional(map(object({
-      name               = string
-      private_ip_address = string
-    })), {})
-  }))
-  default     = {}
-  description = <<DESCRIPTION
-A map of private endpoints to create on this resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-
-- `name` - (Optional) The name of the private endpoint. One will be generated if not set.
-- `role_assignments` - (Optional) A map of role assignments to create on the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time. See `var.role_assignments` for more information.
-- `lock` - (Optional) The lock level to apply to the private endpoint. Default is `None`. Possible values are `None`, `CanNotDelete`, and `ReadOnly`.
-- `tags` - (Optional) A mapping of tags to assign to the private endpoint.
-- `subnet_resource_id` - The resource ID of the subnet to deploy the private endpoint in.
-- `private_dns_zone_group_name` - (Optional) The name of the private DNS zone group. One will be generated if not set.
-- `private_dns_zone_resource_ids` - (Optional) A set of resource IDs of private DNS zones to associate with the private endpoint. If not set, no zone groups will be created and the private endpoint will not be associated with any private DNS zones. DNS records must be managed external to this module.
-- `application_security_group_resource_ids` - (Optional) A map of resource IDs of application security groups to associate with the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-- `private_service_connection_name` - (Optional) The name of the private service connection. One will be generated if not set.
-- `network_interface_name` - (Optional) The name of the network interface. One will be generated if not set.
-- `location` - (Optional) The Azure location where the resources will be deployed. Defaults to the location of the resource group.
-- `resource_group_name` - (Optional) The resource group where the resources will be deployed. Defaults to the resource group of this resource.
-- `ip_configurations` - (Optional) A map of IP configurations to create on the private endpoint. If not specified the platform will create one. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-  - `name` - The name of the IP configuration.
-  - `private_ip_address` - The private IP address of the IP configuration.
-DESCRIPTION
-  nullable    = false
+# Hub/Spoke integration
+variable "hub_virtual_network_resource_id" {
+  type        = string
+  default     = ""
+  description = "Optional. The resource ID of the hub virtual network. If set, the spoke virtual network will be peered with the hub virtual network. Default is empty."
 }
 
-# This variable is used to determine if the private_dns_zone_group block should be included,
-# or if it is to be managed externally, e.g. using Azure Policy.
-# https://github.com/Azure/terraform-azurerm-avm-res-keyvault-vault/issues/32
-# Alternatively you can use AzAPI, which does not have this issue.
-variable "private_endpoints_manage_dns_zone_group" {
+variable "bastion_resource_id" {
+  type        = string
+  default     = ""
+  description = "Optional. The resource ID of the bastion host. If set, the spoke virtual network will be peered with the hub virtual network and the bastion host will be allowed to connect to the jump box. Default is empty."
+}
+
+variable "network_appliance_ip_address" {
+  type        = string
+  default     = ""
+  description = "Optional. If set, the spoke virtual network will be peered with the hub virtual network and egress traffic will be routed through the network appliance. Default is empty."
+}
+
+variable "route_spoke_traffic_internally" {
+  type        = bool
+  default     = false
+  description = "Optional. Define whether to route spoke-internal traffic within the spoke network. If false, traffic will be sent to the hub network. Default is false."
+}
+
+variable "spoke_resource_group_name" {
+  type        = string
+  default     = ""
+  description = "Optional. The name of the resource group to create the resources in. If set, it overrides the name generated by the template. Default is empty."
+}
+
+variable "spoke_vnet_address_prefixes" {
+  type        = list(string)
+  description = "Required. CIDR of the Spoke Virtual Network."
+}
+
+variable "spoke_infra_subnet_address_prefix" {
+  type        = string
+  description = "Required. CIDR of the Spoke Infrastructure Subnet."
+}
+
+variable "spoke_private_endpoints_subnet_address_prefix" {
+  type        = string
+  description = "Required. CIDR of the Spoke Private Endpoints Subnet."
+}
+
+variable "spoke_application_gateway_subnet_address_prefix" {
+  type        = string
+  description = "Required. CIDR of the Spoke Application Gateway Subnet."
+}
+
+variable "deployment_subnet_address_prefix" {
+  type        = string
+  description = "Required. The CIDR to use for Deployment scripts subnet."
+}
+
+# Jumpbox VM controls
+variable "vm_size" {
+  type        = string
+  description = "Required. The size of the virtual machine to create. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information."
+}
+
+variable "storage_account_type" {
+  type        = string
+  default     = "Standard_LRS"
+  description = "Optional. The storage account type to use for the jump box. Defaults to `Standard_LRS`."
+}
+
+variable "vm_admin_password" {
+  type        = string
+  sensitive   = true
+  description = "Required. The password to use for the virtual machine."
+}
+
+variable "vm_linux_ssh_authorized_key" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Optional. The SSH public key to use for the virtual machine. If not provided one will be generated. Default is empty."
+}
+
+variable "vm_authentication_type" {
+  type        = string
+  default     = "password"
+  description = "Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended. Default is \"password\"."
+
+  validation {
+    condition     = contains(["sshPublicKey", "password"], var.vm_authentication_type)
+    error_message = "vm_authentication_type must be 'sshPublicKey' or 'password'."
+  }
+}
+
+variable "vm_jumpbox_os_type" {
+  type        = string
+  default     = "none"
+  description = "Optional. The operating system type of the virtual machine. Default is \"none\" which results in no VM deployment."
+
+  validation {
+    condition     = contains(["linux", "windows", "none"], var.vm_jumpbox_os_type)
+    error_message = "vm_jumpbox_os_type must be 'linux', 'windows', or 'none'."
+  }
+}
+
+variable "vm_jumpbox_subnet_address_prefix" {
+  type        = string
+  description = "Required. CIDR to use for the virtual machine subnet."
+}
+
+# Observability & ACA
+variable "enable_application_insights" {
+  type        = bool
+  description = "Required. Enable or disable the creation of Application Insights."
+}
+
+variable "enable_dapr_instrumentation" {
+  type        = bool
+  description = "Required. Enable or disable Dapr Application Instrumentation Key used for Dapr telemetry. If Application Insights is not enabled, this parameter is ignored."
+}
+
+# Ingress (Application Gateway path by default)
+variable "application_gateway_fqdn" {
+  type        = string
+  default     = ""
+  description = "Optional. The FQDN of the Application Gateway. Required and must match if the TLS Certificate is provided. Default is empty."
+}
+
+variable "base64_certificate" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Optional. The base64 encoded certificate to use for Application Gateway certificate. When not provided a self signed one will be generated, the certificate will be added to the Key Vault and assigned to the Application Gateway listener."
+}
+
+variable "application_gateway_certificate_key_name" {
+  type        = string
+  description = "Required. The name of the certificate key to use for Application Gateway certificate."
+}
+
+variable "application_gateway_backend_fqdn" {
+  type        = string
+  default     = ""
+  description = "Optional. The FQDN of the backend to use for the Application Gateway. Default is empty."
+}
+
+variable "deploy_zone_redundant_resources" {
   type        = bool
   default     = true
-  description = "Whether to manage private DNS zone groups with this module. If set to false, you must manage private DNS zone groups externally, e.g. using Azure Policy."
-  nullable    = false
+  description = "Optional. Default value is true. If true, any resources that support AZ will be deployed in all three AZ. However if the selected region is not supporting AZ, this parameter needs to be set to false. Default is true."
 }
 
-variable "role_assignments" {
-  type = map(object({
-    role_definition_id_or_name             = string
-    principal_id                           = string
-    description                            = optional(string, null)
-    skip_service_principal_aad_check       = optional(bool, false)
-    condition                              = optional(string, null)
-    condition_version                      = optional(string, null)
-    delegated_managed_identity_resource_id = optional(string, null)
-    principal_type                         = optional(string, null)
-  }))
-  default     = {}
-  description = <<DESCRIPTION
-A map of role assignments to create on this resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+variable "expose_container_apps_with" {
+  type        = string
+  default     = "applicationGateway"
+  description = "Optional. Specify the way container apps is going to be exposed. Options are applicationGateway or frontDoor. Default is \"applicationGateway\"."
 
-- `role_definition_id_or_name` - The ID or name of the role definition to assign to the principal.
-- `principal_id` - The ID of the principal to assign the role to.
-- `description` - The description of the role assignment.
-- `skip_service_principal_aad_check` - If set to true, skips the Azure Active Directory check for the service principal in the tenant. Defaults to false.
-- `condition` - The condition which will be used to scope the role assignment.
-- `condition_version` - The version of the condition syntax. Valid values are '2.0'.
-- `delegated_managed_identity_resource_id` - The delegated Azure Resource Id which contains a Managed Identity. Changing this forces a new resource to be created.
-- `principal_type` - The type of the principal_id. Possible values are `User`, `Group` and `ServicePrincipal`. Changing this forces a new resource to be created. It is necessary to explicitly set this attribute when creating role assignments if the principal creating the assignment is constrained by ABAC rules that filters on the PrincipalType attribute.
-
-> Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
-DESCRIPTION
-  nullable    = false
+  validation {
+    condition     = contains(["applicationGateway", "frontDoor", "none"], var.expose_container_apps_with)
+    error_message = "expose_container_apps_with must be one of: applicationGateway, frontDoor, none."
+  }
 }
 
-# tflint-ignore: terraform_unused_declarations
-variable "tags" {
-  type        = map(string)
-  default     = null
-  description = "(Optional) Tags of the resource."
+variable "deploy_sample_application" {
+  type        = bool
+  default     = false
+  description = "Optional. Deploy sample application to the container apps environment. Default is false."
+}
+
+variable "enable_ddos_protection" {
+  type        = bool
+  default     = false
+  description = "Optional. DDoS protection mode. see https://learn.microsoft.com/azure/ddos-protection/ddos-protection-sku-comparison#skus. Default is \"false\"."
+}
+
+variable "deploy_agent_pool" {
+  type        = bool
+  default     = true
+  description = "Optional. Deploy the agent pool for the container registry. Default value is true."
 }
