@@ -12,6 +12,11 @@ output "log_analytics_workspace_name" {
   value       = module.log_analytics.name
 }
 
+output "log_analytics_workspace_customer_id" {
+  description = "The customer ID (workspace ID) of the Azure Log Analytics Workspace."
+  value       = module.log_analytics.workspace_id
+}
+
 ###############################################
 # Networking outputs                          #
 ###############################################

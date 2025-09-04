@@ -31,28 +31,33 @@ locals {
     cosmosDbNoSql                          = lower(substr(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.cosmosDbNoSql), 0, 44))
     cosmosDbNoSqlPep                       = "${local.resource_type_abbreviations.privateEndpoint}-${lower(substr(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.cosmosDbNoSql), 0, 44))}"
     frontDoorProfile                       = replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.frontDoor)
-    keyVault                               = (substr(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.keyVault), length(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.keyVault)) - 1, 1) == "-" ? substr(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.keyVault), 0, 23) : replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.keyVault))
-    keyVaultPep                            = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.keyVault)}"
-    logAnalyticsWorkspace                  = replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.logAnalyticsWorkspace)
-    routeTable                             = replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.routeTable)
-    serviceBus                             = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.serviceBus)
-    serviceBusPep                          = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.serviceBus)}"
-    storageAccount                         = lower(substr(replace(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.storageAccount), "-", ""), 0, 24))
-    storageAccountPep                      = "${local.resource_type_abbreviations.privateEndpoint}-${lower(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.storageAccount))}"
-    vmJumpBox                              = replace(local.naming_base_no_workload, local.resource_type_token, local.resource_type_abbreviations.virtualMachine)
-    vmJumpBoxNsg                           = "${local.resource_type_abbreviations.networkSecurityGroup}-${replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.virtualMachine)}"
-    vmJumpBoxNic                           = "${local.resource_type_abbreviations.networkInterface}-${replace(local.naming_base_no_workload, local.resource_type_token, local.resource_type_abbreviations.virtualMachine)}"
-    frontDoor                              = replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.frontDoor)
-    frontDoorPrivateLinkService            = "${local.resource_type_abbreviations.privateLinkService}-${replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.frontDoor)}"
-    azureAISearch                          = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.azureAISearch)
-    azureAISearchPep                       = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.azureAISearch)}"
-    documentIntelligence                   = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.documentIntelligence)
-    documentIntelligencePep                = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.documentIntelligence)}"
-    eventGridSystemTopic                   = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.eventGridSystemTopic)
-    eventGridSystemTopicPep                = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.eventGridSystemTopic)}"
-    eventGridSubscription                  = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.eventGridSubscription)
-    workloadCertificate                    = "${var.workload_name}-cert"
-    acrDeploymentPoolNsg                   = "${local.resource_type_abbreviations.networkSecurityGroup}-${replace(local.naming_base, local.resource_type_token, "deploymentpool")}"
+    # Bicep parity: take 24, trim trailing hyphen
+    keyVault = (
+      endswith(substr(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.keyVault), 0, 24), "-")
+      ? substr(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.keyVault), 0, 23)
+      : substr(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.keyVault), 0, 24)
+    )
+    keyVaultPep                 = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.keyVault)}"
+    logAnalyticsWorkspace       = replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.logAnalyticsWorkspace)
+    routeTable                  = replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.routeTable)
+    serviceBus                  = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.serviceBus)
+    serviceBusPep               = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.serviceBus)}"
+    storageAccount              = lower(substr(replace(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.storageAccount), "-", ""), 0, 24))
+    storageAccountPep           = "${local.resource_type_abbreviations.privateEndpoint}-${lower(replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.storageAccount))}"
+    vmJumpBox                   = replace(local.naming_base_no_workload, local.resource_type_token, local.resource_type_abbreviations.virtualMachine)
+    vmJumpBoxNsg                = "${local.resource_type_abbreviations.networkSecurityGroup}-${replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.virtualMachine)}"
+    vmJumpBoxNic                = "${local.resource_type_abbreviations.networkInterface}-${replace(local.naming_base_no_workload, local.resource_type_token, local.resource_type_abbreviations.virtualMachine)}"
+    frontDoor                   = replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.frontDoor)
+    frontDoorPrivateLinkService = "${local.resource_type_abbreviations.privateLinkService}-${replace(local.naming_base, local.resource_type_token, local.resource_type_abbreviations.frontDoor)}"
+    azureAISearch               = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.azureAISearch)
+    azureAISearchPep            = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.azureAISearch)}"
+    documentIntelligence        = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.documentIntelligence)
+    documentIntelligencePep     = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.documentIntelligence)}"
+    eventGridSystemTopic        = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.eventGridSystemTopic)
+    eventGridSystemTopicPep     = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.eventGridSystemTopic)}"
+    eventGridSubscription       = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.eventGridSubscription)
+    workloadCertificate         = "${var.workload_name}-cert"
+    acrDeploymentPoolNsg        = "${local.resource_type_abbreviations.networkSecurityGroup}-${replace(local.naming_base, local.resource_type_token, "deploymentpool")}"
   }
 }
 

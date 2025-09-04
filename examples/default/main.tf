@@ -50,4 +50,7 @@ module "aca_lza_hosting" {
 
   # Required by module for Application Gateway path
   application_gateway_certificate_key_name = "${var.workload_name}-cert"
+
+  # Disable ingress by default to avoid requiring a TLS cert in Key Vault
+  expose_container_apps_with = "none"
 }
