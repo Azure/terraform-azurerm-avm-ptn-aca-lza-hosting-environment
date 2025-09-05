@@ -168,12 +168,12 @@ resource "azapi_resource" "certificate_deployment_script" {
       }
     }
     properties = {
-      azPowerShellVersion = "9.0"
+      forceUpdateTag = uuid()
+      azPowerShellVersion = "14.0"
       retentionInterval   = "P1D"
       arguments           = local.use_self_signed_cert ? "-KeyVaultName \"${local.kv_name}\" -CertName \"${var.certificate_key_name}\" -CertSubjectName \"${var.certificate_subject_name}\"" : "-KeyVaultName \"${local.kv_name}\" -CertName \"${var.certificate_key_name}\" -CertificateValue \"${var.base64_certificate}\""
       scriptContent       = local.use_self_signed_cert ? local.self_signed_cert_script : local.provided_cert_script
       cleanupPreference   = "OnExpiration"
-      retentionInterval    = "PT1H"
       storageAccountSettings = {
         storageAccountName = var.storage_account_name
       }

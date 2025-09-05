@@ -68,17 +68,26 @@ variable "route_spoke_traffic_internally" {
   description = "Optional. Define whether to route spoke-internal traffic within the spoke network. If false, traffic will be sent to the hub network. Default is false."
 }
 
-variable "resource_group_name" {
+variable "use_existing_resource_group"{
+  type        = bool
+  default     = false
+  description = "Optional. Whether to use an existing resource group or create a new one. If true, the module will use the resource group specified in existing_resource_group_id. If false, a new resource group will be created with the name specified in create_resource_group_name (or selected one for you if not specified). Default is false."
+}
+
+variable "created_resource_group_name" {
   type        = string
   default     = ""
-  description = "Optional. Name of an existing resource group to use. If provided, the module will use this existing resource group instead of creating a new one. Cannot be used together with existing_resource_group_id. Default is empty."
-
+  description = "Optional. Name to use when use_existing_resource_group is true and the module is creating a resource group. Leave blank for auto-generation."
 }
 
 variable "existing_resource_group_id" {
   type        = string
   default     = ""
-  description = "Optional. The resource ID of an existing resource group to use. If provided, the module will use this existing resource group instead of creating a new one. Cannot be used together with resource_group_name. Default is empty."
+  description = "Optional. The resource ID of an existing resource group to use when use_existing_resource_group is set to true. Default is empty."
+  validation {
+    condition     = var.use_existing_resource_group == true && trimspace(var.existing_resource_group_id) != ""
+    error_message = "existing_resource_group_id must be provided when use_existing_resource_group is true."
+  }
 
 }
 
@@ -210,11 +219,11 @@ variable "deploy_zone_redundant_resources" {
 variable "expose_container_apps_with" {
   type        = string
   default     = "applicationGateway"
-  description = "Optional. Specify the way container apps is going to be exposed. Options are applicationGateway or frontDoor. Default is \"applicationGateway\"."
+  description = "Optional. Specify the way container apps is going to be exposed. Options are applicationGateway or none. Default is \"applicationGateway\"."
 
   validation {
-    condition     = contains(["applicationGateway", "frontDoor", "none"], var.expose_container_apps_with)
-    error_message = "expose_container_apps_with must be one of: applicationGateway, frontDoor, none."
+    condition     = contains(["applicationGateway", "none"], var.expose_container_apps_with)
+    error_message = "expose_container_apps_with must be one of: applicationGateway, none."
   }
 }
 
