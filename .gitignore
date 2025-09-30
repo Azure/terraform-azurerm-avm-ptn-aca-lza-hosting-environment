@@ -53,3 +53,5 @@ examples/*/policy
 examples/smoke-spoke/variables.tf
 examples/smoke-spoke/main.tf
 .github/copilot-instructions.md
+*.mptfbackup
+.avm
