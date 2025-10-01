@@ -13,14 +13,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.21"
     }
-    modtm = {
-      source  = "azure/modtm"
-      version = "~> 0.3"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.5"
-    }
   }
 }
 
@@ -28,46 +20,39 @@ provider "azurerm" {
   features {}
 }
 
-
-## Section to provide a random Azure region for the resource group
-# This allows us to randomize the region for the resource group.
-module "regions" {
-  source  = "Azure/avm-utl-regions/azurerm"
-  version = "~> 0.1"
-}
-
-# This allows us to randomize the region for the resource group.
-resource "random_integer" "region_index" {
-  max = length(module.regions.regions) - 1
-  min = 0
-}
-## End of section to provide a random Azure region for the resource group
-
-# This ensures we have unique CAF compliant names for our resources.
-module "naming" {
-  source  = "Azure/naming/azurerm"
-  version = "~> 0.3"
-}
-
-# This is required for resource modules
 resource "azurerm_resource_group" "this" {
-  location = module.regions.regions[random_integer.region_index.result].name
-  name     = module.naming.resource_group.name_unique
+  location = var.location
+  name     = var.resource_group_name
 }
 
-# This is the module call
-# Do not specify location here due to the randomization above.
-# Leaving location as `null` will cause the module to use the resource group location
-# with a data source.
-module "test" {
+module "aca_lza_hosting" {
   source = "../../"
 
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  # ...
-  location            = azurerm_resource_group.this.location
-  name                = "TODO" # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
-  resource_group_name = azurerm_resource_group.this.name
-  enable_telemetry    = var.enable_telemetry # see variables.tf
+  # Required by module for Application Gateway path
+  application_gateway_certificate_key_name = "${var.workload_name}-cert"
+  deployment_subnet_address_prefix         = "10.30.4.0/24"
+  # Observability toggles
+  enable_application_insights                     = false
+  enable_dapr_instrumentation                     = false
+  location                                        = azurerm_resource_group.this.location
+  spoke_application_gateway_subnet_address_prefix = "10.30.3.0/24"
+  spoke_infra_subnet_address_prefix               = "10.30.1.0/24"
+  spoke_private_endpoints_subnet_address_prefix   = "10.30.2.0/24"
+  # Required networking
+  spoke_vnet_address_prefixes      = ["10.30.0.0/16"]
+  vm_admin_password                = "P@ssword1234!ChangeMe" # override via TF_VAR in real usage
+  vm_jumpbox_subnet_address_prefix = "10.30.5.0/24"
+  # VM controls (required variables); keep VM disabled via vm_jumpbox_os_type = "none"
+  vm_size          = "Standard_DS2_v2"
+  enable_telemetry = var.enable_telemetry
+  environment      = var.environment
+  # Disable ingress by default to avoid requiring a TLS cert in Key Vault
+  expose_container_apps_with  = "none"
+  tags                        = var.tags
+  vm_authentication_type      = "password"
+  vm_jumpbox_os_type          = "none"
+  vm_linux_ssh_authorized_key = ""
+  workload_name               = var.workload_name
 }
 ```
 
@@ -80,16 +65,11 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.21)
 
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
-
-- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
-
 ## Resources
 
 The following resources are used by this module:
 
 - [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
-- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -118,19 +98,7 @@ No outputs.
 
 The following Modules are called:
 
-### <a name="module_naming"></a> [naming](#module\_naming)
-
-Source: Azure/naming/azurerm
-
-Version: ~> 0.3
-
-### <a name="module_regions"></a> [regions](#module\_regions)
-
-Source: Azure/avm-utl-regions/azurerm
-
-Version: ~> 0.1
-
-### <a name="module_test"></a> [test](#module\_test)
+### <a name="module_aca_lza_hosting"></a> [aca\_lza\_hosting](#module\_aca\_lza\_hosting)
 
 Source: ../../
 

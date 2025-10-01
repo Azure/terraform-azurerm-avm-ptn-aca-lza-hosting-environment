@@ -1,11 +1,11 @@
+output "container_registry_agent_pool_name" {
+  description = "ACR agent pool name"
+  value       = try(module.container_registry[0].agent_pool_name, "")
+}
+
 output "container_registry_id" {
   description = "ACR resource ID"
   value       = try(module.container_registry[0].id, null)
-}
-
-output "container_registry_name" {
-  description = "ACR name"
-  value       = try(module.container_registry[0].name, null)
 }
 
 output "container_registry_login_server" {
@@ -13,9 +13,9 @@ output "container_registry_login_server" {
   value       = try(module.container_registry[0].login_server, null)
 }
 
-output "container_registry_agent_pool_name" {
-  description = "ACR agent pool name"
-  value       = try(module.container_registry[0].agent_pool_name, "")
+output "container_registry_name" {
+  description = "ACR name"
+  value       = try(module.container_registry[0].name, null)
 }
 
 output "container_registry_uai_id" {

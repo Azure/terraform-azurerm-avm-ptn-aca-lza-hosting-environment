@@ -5,13 +5,12 @@
 module "log_analytics" {
   source = "./log_analytics"
 
-  name              = var.resources_names["logAnalyticsWorkspace"]
   location          = var.location
+  name              = var.resources_names["logAnalyticsWorkspace"]
   resource_group_id = var.resource_group_id
-  tags              = var.tags
   retention_in_days = 30
   sku               = "PerGB2018"
-  # replication_enabled = true (default)
+  tags              = var.tags
 }
 
 ###############################################
@@ -27,12 +26,16 @@ module "nsg_container_apps_env" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
   version = "~> 0.5"
 
+  location            = var.location
   name                = var.resources_names["containerAppsEnvironmentNsg"]
   resource_group_name = var.resource_group_name
-  location            = var.location
-  enable_telemetry    = var.enable_telemetry
-  tags                = var.tags
-
+  diagnostic_settings = {
+    logAnalyticsSettings = {
+      name                  = "logAnalyticsSettings"
+      workspace_resource_id = module.log_analytics.id
+    }
+  }
+  enable_telemetry = var.enable_telemetry
   security_rules = {
     Allow_Internal_AKS_Connection_Between_Nodes_And_Control_Plane_UDP = {
       name                       = "Allow_Internal_AKS_Connection_Between_Nodes_And_Control_Plane_UDP"
@@ -118,13 +121,7 @@ module "nsg_container_apps_env" {
       destination_address_prefix = "*"
     }
   }
-
-  diagnostic_settings = {
-    logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
-    }
-  }
+  tags = var.tags
 }
 
 module "nsg_appgw" {
@@ -132,12 +129,16 @@ module "nsg_appgw" {
   version = "~> 0.5"
   count   = var.spoke_application_gateway_subnet_address_prefix != "" ? 1 : 0
 
+  location            = var.location
   name                = var.resources_names["applicationGatewayNsg"]
   resource_group_name = var.resource_group_name
-  location            = var.location
-  enable_telemetry    = var.enable_telemetry
-  tags                = var.tags
-
+  diagnostic_settings = {
+    logAnalyticsSettings = {
+      name                  = "logAnalyticsSettings"
+      workspace_resource_id = module.log_analytics.id
+    }
+  }
+  enable_telemetry = var.enable_telemetry
   security_rules = {
     HealthProbes = {
       name                       = "HealthProbes"
@@ -199,25 +200,23 @@ module "nsg_appgw" {
       destination_address_prefix = "*"
     }
   }
-
-  diagnostic_settings = {
-    logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
-    }
-  }
+  tags = var.tags
 }
 
 module "nsg_pep" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
   version = "~> 0.5"
 
+  location            = var.location
   name                = var.resources_names["pepNsg"]
   resource_group_name = var.resource_group_name
-  location            = var.location
-  enable_telemetry    = var.enable_telemetry
-  tags                = var.tags
-
+  diagnostic_settings = {
+    logAnalyticsSettings = {
+      name                  = "logAnalyticsSettings"
+      workspace_resource_id = module.log_analytics.id
+    }
+  }
+  enable_telemetry = var.enable_telemetry
   security_rules = {
     deny_hop_outbound = {
       name                       = "deny-hop-outbound"
@@ -231,25 +230,23 @@ module "nsg_pep" {
       destination_address_prefix = "*"
     }
   }
-
-  diagnostic_settings = {
-    logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
-    }
-  }
+  tags = var.tags
 }
 
 module "nsg_deployment" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
   version = "~> 0.5"
 
+  location            = var.location
   name                = var.resources_names["acrDeploymentPoolNsg"]
   resource_group_name = var.resource_group_name
-  location            = var.location
-  enable_telemetry    = var.enable_telemetry
-  tags                = var.tags
-
+  diagnostic_settings = {
+    logAnalyticsSettings = {
+      name                  = "logAnalyticsSettings"
+      workspace_resource_id = module.log_analytics.id
+    }
+  }
+  enable_telemetry = var.enable_telemetry
   security_rules = {
     Allow_HTTPS_Inbound = {
       name                       = "Allow_HTTPS_Inbound"
@@ -288,13 +285,7 @@ module "nsg_deployment" {
       direction                  = "Outbound"
     }
   }
-
-  diagnostic_settings = {
-    logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
-    }
-  }
+  tags = var.tags
 }
 
 ###############################################
@@ -310,12 +301,10 @@ module "route_table" {
   version = "~> 0.4"
   count   = local.create_egress_lockdown ? 1 : 0
 
+  location            = var.location
   name                = var.resources_names["routeTable"]
   resource_group_name = var.resource_group_name
-  location            = var.location
   enable_telemetry    = var.enable_telemetry
-  tags                = var.tags
-
   routes = merge({
     defaultEgressLockdown = {
       name                   = "defaultEgressLockdown"
@@ -332,6 +321,7 @@ module "route_table" {
       next_hop_type  = "VnetLocal"
     }
   } : {})
+  tags = var.tags
 }
 
 ###############################################
@@ -340,16 +330,29 @@ module "route_table" {
 
 module "vnet_spoke" {
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version = "~> 0.5"
+  version = "~> 0.12"
 
-  name                = var.resources_names["vnetSpoke"]
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  enable_telemetry    = var.enable_telemetry
-  tags                = var.tags
-
-  address_space = var.spoke_vnet_address_prefixes
-
+  address_space    = var.spoke_vnet_address_prefixes
+  location         = var.location
+  parent_id        = var.resource_group_id
+  enable_telemetry = var.enable_telemetry
+  name             = var.resources_names["vnetSpoke"]
+  peerings = var.hub_virtual_network_resource_id != "" ? {
+    spokeToHub = {
+      name                                 = "spokeToHub"
+      remote_virtual_network_resource_id   = var.hub_virtual_network_resource_id
+      allow_forwarded_traffic              = true
+      allow_gateway_transit                = false
+      allow_virtual_network_access         = true
+      use_remote_gateways                  = false
+      create_reverse_peering               = true
+      reverse_name                         = "hubToSpoke"
+      reverse_allow_forwarded_traffic      = true
+      reverse_allow_gateway_transit        = false
+      reverse_allow_virtual_network_access = true
+      reverse_use_remote_gateways          = false
+    }
+  } : null
   subnets = merge({
     infra = {
       name             = var.spoke_infra_subnet_name
@@ -402,23 +405,7 @@ module "vnet_spoke" {
       // NSG will be created and associated by the VM submodule
     }
   } : {})
-
-  peerings = var.hub_virtual_network_resource_id != "" ? {
-    spokeToHub = {
-      name                                 = "spokeToHub"
-      remote_virtual_network_resource_id   = var.hub_virtual_network_resource_id
-      allow_forwarded_traffic              = true
-      allow_gateway_transit                = false
-      allow_virtual_network_access         = true
-      use_remote_gateways                  = false
-      create_reverse_peering               = true
-      reverse_name                         = "hubToSpoke"
-      reverse_allow_forwarded_traffic      = true
-      reverse_allow_gateway_transit        = false
-      reverse_allow_virtual_network_access = true
-      reverse_use_remote_gateways          = false
-    }
-  } : null
+  tags = var.tags
 }
 
 ###############################################
@@ -429,41 +416,41 @@ module "vm_linux" {
   source = "./linux_vm"
   count  = var.vm_jumpbox_os_type == "linux" ? 1 : 0
 
-  name                        = var.resources_names["vmJumpBox"]
-  location                    = var.location
-  resource_group_name         = var.resource_group_name
   enable_telemetry            = var.enable_telemetry
-  tags                        = var.tags
-  vm_size                     = var.vm_size
-  vm_zone                     = var.vm_zone
-  storage_account_type        = var.storage_account_type
-  subnet_id                   = module.vnet_spoke.subnets["jumpbox"].resource_id
+  location                    = var.location
+  log_analytics_workspace_id  = module.log_analytics.id
+  name                        = var.resources_names["vmJumpBox"]
   network_interface_name      = var.resources_names["vmJumpBoxNic"]
   network_security_group_name = var.resources_names["vmJumpBoxNsg"]
-  bastion_resource_id         = var.bastion_resource_id
+  resource_group_name         = var.resource_group_name
+  subnet_id                   = module.vnet_spoke.subnets["jumpbox"].resource_id
   vm_admin_password           = var.vm_admin_password
-  vm_linux_ssh_authorized_key = var.vm_linux_ssh_authorized_key
+  vm_size                     = var.vm_size
+  bastion_resource_id         = var.bastion_resource_id
+  storage_account_type        = var.storage_account_type
+  tags                        = var.tags
   vm_authentication_type      = var.vm_authentication_type
-  log_analytics_workspace_id  = module.log_analytics.id
+  vm_linux_ssh_authorized_key = var.vm_linux_ssh_authorized_key
+  vm_zone                     = var.vm_zone
 }
 
 module "vm_windows" {
   source = "./windows_vm"
   count  = var.vm_jumpbox_os_type == "windows" ? 1 : 0
 
-  name                        = var.resources_names["vmJumpBox"]
-  location                    = var.location
-  resource_group_name         = var.resource_group_name
   enable_telemetry            = var.enable_telemetry
-  tags                        = var.tags
-  vm_size                     = var.vm_size
-  vm_zone                     = var.vm_zone
-  storage_account_type        = var.storage_account_type
-  subnet_id                   = module.vnet_spoke.subnets["jumpbox"].resource_id
+  location                    = var.location
+  log_analytics_workspace_id  = module.log_analytics.id
+  name                        = var.resources_names["vmJumpBox"]
   network_interface_name      = var.resources_names["vmJumpBoxNic"]
   network_security_group_name = var.resources_names["vmJumpBoxNsg"]
-  bastion_resource_id         = var.bastion_resource_id
+  resource_group_name         = var.resource_group_name
+  subnet_id                   = module.vnet_spoke.subnets["jumpbox"].resource_id
   vm_admin_password           = var.vm_admin_password
+  vm_size                     = var.vm_size
+  bastion_resource_id         = var.bastion_resource_id
+  storage_account_type        = var.storage_account_type
+  tags                        = var.tags
   vm_windows_os_version       = "2016-Datacenter"
-  log_analytics_workspace_id  = module.log_analytics.id
+  vm_zone                     = var.vm_zone
 }

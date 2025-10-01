@@ -38,7 +38,7 @@ module "st" {
   account_tier                  = "Standard"
   account_replication_type      = "ZRS"
   public_network_access_enabled = false
-  shared_access_key_enabled = true
+  shared_access_key_enabled     = true
 
   network_rules = {
     default_action = "Deny"

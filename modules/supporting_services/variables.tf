@@ -1,5 +1,24 @@
+variable "enable_telemetry" {
+  type        = bool
+  description = "Enable deployment telemetry"
+}
+
+variable "location" {
+  type        = string
+  description = "Azure location"
+}
+
+variable "resource_group_id" {
+  type        = string
+  description = "Resource Group ID where supporting services will be created"
+}
+
+variable "resource_group_name" {
+  type        = string
+  description = "Resource Group name where supporting services will be created"
+}
+
 variable "resources_names" {
-  description = "Resource names map (from naming module)"
   type = object({
     resourceGroup                         = string
     containerRegistry                     = string
@@ -9,70 +28,51 @@ variable "resources_names" {
     keyVaultPep                           = string
     storageAccount                        = string
   })
-}
-
-variable "resource_group_name" {
-  description = "Resource Group name where supporting services will be created"
-  type        = string
-}
-
-variable "resource_group_id" {
-  description = "Resource Group ID where supporting services will be created"
-  type        = string
-}
-
-variable "location" {
-  description = "Azure location"
-  type        = string
-}
-
-variable "tags" {
-  description = "Tags to apply"
-  type        = map(string)
-  default     = {}
-}
-
-variable "enable_telemetry" {
-  description = "Enable deployment telemetry"
-  type        = bool
-}
-
-variable "hub_vnet_resource_id" {
-  description = "Hub VNet resource ID (optional)"
-  type        = string
-  default     = ""
-}
-
-variable "spoke_vnet_resource_id" {
-  description = "Spoke VNet resource ID"
-  type        = string
+  description = "Resource names map (from naming module)"
 }
 
 variable "spoke_private_endpoint_subnet_resource_id" {
+  type        = string
   description = "Spoke Private Endpoint subnet ID"
+}
+
+variable "spoke_vnet_resource_id" {
   type        = string
-}
-
-variable "log_analytics_workspace_id" {
-  description = "Log Analytics Workspace resource ID (optional)"
-  type        = string
-  default     = ""
-}
-
-variable "enable_diagnostics" {
-  description = "Enable diagnostics settings for supporting services"
-  type        = bool
-  default     = true
-}
-
-variable "deploy_zone_redundant_resources" {
-  description = "If true, use AZ-enabled SKUs where supported"
-  type        = bool
-  default     = true
+  description = "Spoke VNet resource ID"
 }
 
 variable "deploy_agent_pool" {
-  description = "Deploy ACR agent pool"
   type        = bool
   default     = true
+  description = "Deploy ACR agent pool"
+}
+
+variable "deploy_zone_redundant_resources" {
+  type        = bool
+  default     = true
+  description = "If true, use AZ-enabled SKUs where supported"
+}
+
+variable "enable_diagnostics" {
+  type        = bool
+  default     = true
+  description = "Enable diagnostics settings for supporting services"
+}
+
+variable "hub_vnet_resource_id" {
+  type        = string
+  default     = ""
+  description = "Hub VNet resource ID (optional)"
+}
+
+variable "log_analytics_workspace_id" {
+  type        = string
+  default     = ""
+  description = "Log Analytics Workspace resource ID (optional)"
+}
+
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Tags to apply"
 }

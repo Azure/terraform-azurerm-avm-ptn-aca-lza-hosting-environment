@@ -1,7 +1,7 @@
 locals {
   dns_zone_name = "privatelink.vaultcore.azure.net"
 
-      # Azure CLI's first-party app ID (used when a user logs in interactively)
+  # Azure CLI's first-party app ID (used when a user logs in interactively)
   azure_cli_client_id = "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
 
   principal_type = (
