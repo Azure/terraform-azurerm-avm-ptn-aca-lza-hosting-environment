@@ -2,19 +2,6 @@
 # Front Door module: main implementation     #
 ###############################################
 
-terraform {
-  required_providers {
-    azapi = {
-      source  = "Azure/azapi"
-      version = "~> 2.4"
-    }
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 4.0"
-    }
-  }
-}
-
 # User Assigned Identity for Front Door to access Key Vault
 resource "azurerm_user_assigned_identity" "this" {
   location            = var.location

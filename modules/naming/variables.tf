@@ -15,6 +15,7 @@ variable "environment" {
 variable "location" {
   type        = string
   description = "Location for all Resources."
+  nullable    = false
 }
 
 variable "unique_id" {

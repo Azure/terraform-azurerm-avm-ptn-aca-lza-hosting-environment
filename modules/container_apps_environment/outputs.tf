@@ -28,6 +28,11 @@ output "private_dns_zone_name" {
   value       = module.aca_privatedns.name
 }
 
+output "resource_id" {
+  description = "Resource ID of the Container Apps managed environment."
+  value       = module.managed_environment.resource_id
+}
+
 output "static_ip_address" {
   description = "The static IP address of the Container Apps Managed Environment."
   value       = module.managed_environment.static_ip_address

@@ -15,6 +15,7 @@ variable "container_registry_user_assigned_identity_id" {
 variable "location" {
   type        = string
   description = "Azure region for the Container App."
+  nullable    = false
 }
 
 variable "resource_group_name" {
@@ -36,7 +37,7 @@ variable "name" {
 
 variable "tags" {
   type        = map(string)
-  default     = {}
+  default     = null
   description = "Tags to apply to the Container App."
 }
 

@@ -1,6 +1,10 @@
 ###############################################
 # Front Door module: variables               #
-###############################################
+########################variable "tags" {
+  type        = map(string)
+  default     = null
+  description = "Optional. Tags to apply."
+}##################
 
 variable "backend_fqdn" {
   type        = string
@@ -25,6 +29,7 @@ variable "key_vault_id" {
 variable "location" {
   type        = string
   description = "Required. Azure region for resources."
+  nullable    = false
 }
 
 variable "name" {
@@ -118,7 +123,7 @@ variable "sku_name" {
 
 variable "tags" {
   type        = map(string)
-  default     = {}
+  default     = null
   description = "Optional. Tags to apply."
 }
 

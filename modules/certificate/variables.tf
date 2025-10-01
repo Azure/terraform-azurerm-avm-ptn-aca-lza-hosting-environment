@@ -21,6 +21,7 @@ variable "key_vault_id" {
 variable "location" {
   type        = string
   description = "The Azure region where the resources will be created."
+  nullable    = false
 }
 
 variable "resource_group_name" {
@@ -53,6 +54,6 @@ variable "certificate_subject_name" {
 
 variable "tags" {
   type        = map(string)
-  default     = {}
+  default     = null
   description = "Optional. The tags to be assigned to the created resources."
 }

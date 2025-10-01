@@ -25,6 +25,7 @@ variable "key_vault_id" {
 variable "location" {
   type        = string
   description = "Required. Azure region for resources."
+  nullable    = false
 }
 
 variable "name" {
@@ -120,6 +121,6 @@ variable "log_analytics_workspace_id" {
 
 variable "tags" {
   type        = map(string)
-  default     = {}
+  default     = null
   description = "Optional. Tags to apply."
 }

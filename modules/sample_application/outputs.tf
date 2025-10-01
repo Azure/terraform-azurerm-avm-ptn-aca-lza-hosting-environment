@@ -12,3 +12,8 @@ output "name" {
   description = "Name of the Container App."
   value       = module.app.name
 }
+
+output "resource_id" {
+  description = "Resource ID of the Container App."
+  value       = module.app.resource_id
+}
