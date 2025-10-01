@@ -1,16 +1,3 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 4.0"
-    }
-    modtm = {
-      source  = "azure/modtm"
-      version = "~> 0.3"
-    }
-  }
-}
-
 # Azure Container App using AVM module
 module "app" {
   source  = "Azure/avm-res-app-containerapp/azurerm"

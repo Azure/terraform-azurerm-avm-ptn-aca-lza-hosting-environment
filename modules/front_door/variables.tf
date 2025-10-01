@@ -1,10 +1,6 @@
 ###############################################
 # Front Door module: variables               #
-########################variable "tags" {
-  type        = map(string)
-  default     = null
-  description = "Optional. Tags to apply."
-}##################
+###############################################
 
 variable "backend_fqdn" {
   type        = string
