@@ -363,7 +363,7 @@ module "vnet_spoke" {
       route_table = local.create_egress_lockdown ? {
         id = module.route_table[0].resource_id
       } : null
-      delegation = [{
+      delegations = [{
         name = "Microsoft.App/environments"
         service_delegation = {
           name = "Microsoft.App/environments"
@@ -376,7 +376,7 @@ module "vnet_spoke" {
       network_security_group = {
         id = module.nsg_deployment.resource_id
       }
-      delegation = [{
+      delegations = [{
         name = "Microsoft.ContainerInstance/containerGroups"
         service_delegation = {
           name = "Microsoft.ContainerInstance/containerGroups"
