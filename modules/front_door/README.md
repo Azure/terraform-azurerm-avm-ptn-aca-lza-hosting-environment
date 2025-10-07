@@ -33,6 +33,7 @@ The following resources are used by this module:
 - [azurerm_resource_group_template_deployment.telemetry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group_template_deployment) (resource)
 - [azurerm_user_assigned_identity.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) (resource)
 - [random_id.telemetry](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) (resource)
+- [azurerm_key_vault.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -123,6 +124,14 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_enable_diagnostics"></a> [enable\_diagnostics](#input\_enable\_diagnostics)
+
+Description: Enable diagnostics settings
+
+Type: `bool`
+
+Default: `true`
+
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
 Description: Optional. Enable module telemetry.
@@ -149,11 +158,11 @@ Default: `"MatchRequest"`
 
 ### <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id)
 
-Description: Optional. Log Analytics workspace ID for diagnostic settings.
+Description: Optional. Log Analytics workspace ID for diagnostic settings. Required if enable\_diagnostics is true.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name)
 

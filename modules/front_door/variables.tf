@@ -77,6 +77,12 @@ variable "caching_enabled" {
   description = "Optional. Enable caching for the route."
 }
 
+variable "enable_diagnostics" {
+  type        = bool
+  default     = true
+  description = "Enable diagnostics settings"
+}
+
 variable "enable_telemetry" {
   type        = bool
   default     = true
@@ -102,8 +108,13 @@ variable "forwarding_protocol" {
 
 variable "log_analytics_workspace_id" {
   type        = string
-  default     = ""
-  description = "Optional. Log Analytics workspace ID for diagnostic settings."
+  default     = null
+  description = "Optional. Log Analytics workspace ID for diagnostic settings. Required if enable_diagnostics is true."
+
+  validation {
+    condition     = !var.enable_diagnostics || (var.enable_diagnostics && var.log_analytics_workspace_id != null && var.log_analytics_workspace_id != "")
+    error_message = "log_analytics_workspace_id must be provided when enable_diagnostics is true."
+  }
 }
 
 variable "sku_name" {

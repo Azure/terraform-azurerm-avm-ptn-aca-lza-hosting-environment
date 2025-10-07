@@ -28,7 +28,7 @@ resource "azurerm_resource_group" "this" {
 module "aca_lza_hosting" {
   source = "../../"
 
-    # NO Application Gateway (COMPLEX edge case)
+  # NO Application Gateway (COMPLEX edge case)
   application_gateway_certificate_key_name = "${var.workload_name}-cert" # Required but unused
   deployment_subnet_address_prefix         = "172.16.0.64/28"            # /28 = 16 IPs
   # NO observability (COMPLEX edge case)
@@ -36,9 +36,9 @@ module "aca_lza_hosting" {
   enable_dapr_instrumentation = false
   # Core - minimal required configuration
   location                                        = azurerm_resource_group.this.location
-  spoke_application_gateway_subnet_address_prefix = "172.16.0.96/28"  # /28 = 16 IPs (minimum for App GW)
-  spoke_infra_subnet_address_prefix               = "172.16.0.0/27"   # /27 = 32 IPs (REQUIRED minimum for Container Apps)
-  spoke_private_endpoints_subnet_address_prefix   = "172.16.0.32/28"  # /28 = 16 IPs
+  spoke_application_gateway_subnet_address_prefix = "172.16.0.96/28" # /28 = 16 IPs (minimum for App GW)
+  spoke_infra_subnet_address_prefix               = "172.16.0.0/27"  # /27 = 32 IPs (REQUIRED minimum for Container Apps)
+  spoke_private_endpoints_subnet_address_prefix   = "172.16.0.32/28" # /28 = 16 IPs
   # Minimal networking - small address spaces
   spoke_vnet_address_prefixes      = ["172.16.0.0/24"] # Small /24
   vm_admin_password                = "NotUsed123!"     # Required but unused

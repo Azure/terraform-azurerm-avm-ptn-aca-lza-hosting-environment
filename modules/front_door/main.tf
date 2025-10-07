@@ -2,6 +2,19 @@
 # Front Door module: main implementation     #
 ###############################################
 
+# Parse Key Vault ID to get the vault name
+locals {
+  kv_id_segments = split("/", var.key_vault_id)
+  kv_name        = local.kv_id_segments[8]
+  kv_rg_name     = local.kv_id_segments[4]
+}
+
+# Get Key Vault details to construct the certificate URL
+data "azurerm_key_vault" "this" {
+  name                = local.kv_name
+  resource_group_name = local.kv_rg_name
+}
+
 # User Assigned Identity for Front Door to access Key Vault
 resource "azurerm_user_assigned_identity" "this" {
   location            = var.location
@@ -117,7 +130,7 @@ resource "azurerm_cdn_frontdoor_secret" "this" {
 
   secret {
     customer_certificate {
-      key_vault_certificate_id = "${var.key_vault_id}/certificates/${var.certificate_key_name}"
+      key_vault_certificate_id = "${data.azurerm_key_vault.this.vault_uri}certificates/${var.certificate_key_name}"
     }
   }
 
@@ -217,7 +230,7 @@ resource "azurerm_cdn_frontdoor_security_policy" "this" {
 
 # Diagnostic Settings
 resource "azurerm_monitor_diagnostic_setting" "front_door" {
-  count = var.log_analytics_workspace_id != "" ? 1 : 0
+  count = var.enable_diagnostics ? 1 : 0
 
   name                       = "front-door-diagnostics"
   target_resource_id         = azurerm_cdn_frontdoor_profile.this.id
