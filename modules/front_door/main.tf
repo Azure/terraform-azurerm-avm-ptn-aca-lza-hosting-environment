@@ -4,87 +4,133 @@
 # This module creates a Front Door with the default *.azurefd.net endpoint
 # which uses Microsoft-managed certificates automatically
 
+# Data source to get resource group ID for AzAPI resources
+data "azapi_resource_id" "resource_group" {
+  type      = "Microsoft.Resources/resourceGroups@2021-04-01"
+  name      = var.resource_group_name
+  parent_id = data.azapi_client_config.current.subscription_id
+}
+
+data "azapi_client_config" "current" {}
+
 # WAF Policy (if enabled and Premium SKU)
-resource "azurerm_cdn_frontdoor_firewall_policy" "this" {
+resource "azapi_resource" "waf_policy" {
   count = var.enable_waf ? 1 : 0
 
-  mode                = "Detection"
-  name                = var.waf_policy_name
-  resource_group_name = var.resource_group_name
-  sku_name            = var.sku_name
-  enabled             = true
-  tags                = var.tags
-
-  managed_rule {
-    action  = "Block"
-    type    = "DefaultRuleSet"
-    version = "1.0"
+  location  = var.location
+  name      = var.waf_policy_name
+  parent_id = data.azapi_resource_id.resource_group.id
+  type      = "Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2024-02-01"
+  body = {
+    properties = {
+      policySettings = {
+        enabledState = "Enabled"
+        mode         = "Detection"
+      }
+      managedRules = {
+        managedRuleSets = [
+          {
+            ruleSetType    = "DefaultRuleSet"
+            ruleSetVersion = "1.0"
+            ruleSetAction  = "Block"
+          },
+          {
+            ruleSetType    = "Microsoft_BotManagerRuleSet"
+            ruleSetVersion = "preview-0.1"
+            ruleSetAction  = "Block"
+          }
+        ]
+      }
+    }
+    sku = {
+      name = var.sku_name
+    }
   }
-  managed_rule {
-    action  = "Block"
-    type    = "BotProtection"
-    version = "preview-0.1"
-  }
+  tags = var.tags
 }
 
 # Front Door Profile
-resource "azurerm_cdn_frontdoor_profile" "this" {
-  name                     = var.name
-  resource_group_name      = var.resource_group_name
-  sku_name                 = var.sku_name
-  response_timeout_seconds = 120
-  tags                     = var.tags
+resource "azapi_resource" "profile" {
+  location  = var.location
+  name      = var.name
+  parent_id = data.azapi_resource_id.resource_group.id
+  type      = "Microsoft.Cdn/profiles@2024-09-01"
+  body = {
+    sku = {
+      name = var.sku_name
+    }
+    properties = {
+      originResponseTimeoutSeconds = 120
+    }
+  }
+  tags = var.tags
 }
 
 # Front Door Endpoint (uses default *.azurefd.net with Microsoft-managed certificate)
-resource "azurerm_cdn_frontdoor_endpoint" "this" {
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  name                     = "${var.name}-endpoint"
-  enabled                  = true
-  tags                     = var.tags
+resource "azapi_resource" "endpoint" {
+  name      = "${var.name}-endpoint"
+  parent_id = azapi_resource.profile.id
+  type      = "Microsoft.Cdn/profiles/afdEndpoints@2024-09-01"
+  body = {
+    properties = {
+      enabledState = "Enabled"
+    }
+  }
+  tags = var.tags
 }
 
 # Origin Group
-resource "azurerm_cdn_frontdoor_origin_group" "this" {
-  cdn_frontdoor_profile_id                                  = azurerm_cdn_frontdoor_profile.this.id
-  name                                                      = "${var.name}-origin-group"
-  restore_traffic_time_to_healed_or_new_endpoint_in_minutes = 5
-  session_affinity_enabled                                  = false
-
-  load_balancing {
-    additional_latency_in_milliseconds = 50
-    sample_size                        = 4
-    successful_samples_required        = 2
-  }
-  health_probe {
-    interval_in_seconds = 30
-    protocol            = var.backend_protocol
-    path                = var.backend_probe_path
-    request_type        = "HEAD"
+resource "azapi_resource" "origin_group" {
+  name      = "${var.name}-origin-group"
+  parent_id = azapi_resource.profile.id
+  type      = "Microsoft.Cdn/profiles/originGroups@2024-09-01"
+  body = {
+    properties = {
+      loadBalancingSettings = {
+        additionalLatencyInMilliseconds = 50
+        sampleSize                      = 4
+        successfulSamplesRequired       = 2
+      }
+      healthProbeSettings = {
+        probeIntervalInSeconds = 30
+        probePath              = var.backend_probe_path
+        probeProtocol          = var.backend_protocol
+        probeRequestType       = "HEAD"
+      }
+      sessionAffinityState                                  = "Disabled"
+      trafficRestorationTimeToHealedOrNewEndpointsInMinutes = 5
+    }
   }
 }
 
 # Origin (Backend) - Routes to Container Apps Environment
 # Always uses Private Link for secure connectivity to internal Container Apps Environment
-resource "azurerm_cdn_frontdoor_origin" "this" {
-  cdn_frontdoor_origin_group_id  = azurerm_cdn_frontdoor_origin_group.this.id
-  certificate_name_check_enabled = false # Disabled for private link origins
-  host_name                      = var.backend_fqdn
-  name                           = "${var.name}-origin"
-  enabled                        = true
-  http_port                      = 80
-  https_port                     = var.backend_port
-  origin_host_header             = var.backend_fqdn
-  priority                       = 1
-  weight                         = 1000
+resource "azapi_resource" "origin" {
+  name      = "${var.name}-origin"
+  parent_id = azapi_resource.origin_group.id
+  type      = "Microsoft.Cdn/profiles/originGroups/origins@2024-09-01"
+  body = {
+    properties = {
+      hostName                    = var.backend_fqdn
+      httpPort                    = 80
+      httpsPort                   = var.backend_port
+      originHostHeader            = var.backend_fqdn
+      priority                    = 1
+      weight                      = 1000
+      enabledState                = "Enabled"
+      enforceCertificateNameCheck = false # Disabled for private link origins
 
-  # Private Link configuration for Container Apps Environment
-  # Required for internal Container Apps Environment connectivity
-  private_link {
-    location               = var.location
-    private_link_target_id = var.container_apps_environment_id
-    request_message        = "Front Door Private Link Request for Container Apps"
-    target_type            = "managedEnvironments"
+      # Private Link configuration for Container Apps Environment
+      # Required for internal Container Apps Environment connectivity
+      sharedPrivateLinkResource = {
+        privateLinkLocation = var.location
+        privateLink = {
+          id = var.container_apps_environment_id
+        }
+        requestMessage = "Front Door Private Link Request for Container Apps"
+        groupId        = "managedEnvironments"
+      }
+    }
   }
 
   lifecycle {
@@ -104,7 +150,7 @@ resource "azurerm_cdn_frontdoor_origin" "this" {
 resource "null_resource" "approve_private_endpoint" {
   # Trigger whenever the origin changes
   triggers = {
-    origin_id = azurerm_cdn_frontdoor_origin.this.id
+    origin_id = azapi_resource.origin.id
   }
 
   provisioner "local-exec" {
@@ -123,118 +169,144 @@ resource "null_resource" "approve_private_endpoint" {
   }
 
   depends_on = [
-    azurerm_cdn_frontdoor_origin.this
+    azapi_resource.origin
   ]
 }
 
 # Route - Uses the default Front Door endpoint (no custom domain needed)
-resource "azurerm_cdn_frontdoor_route" "this" {
-  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.this.id
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
-  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.this.id]
-  name                          = "${var.name}-route"
-  patterns_to_match             = ["/*"]
-  supported_protocols           = ["Http", "Https"]
-  enabled                       = true
-  forwarding_protocol           = var.forwarding_protocol
-  https_redirect_enabled        = true
+resource "azapi_resource" "route" {
+  name      = "${var.name}-route"
+  parent_id = azapi_resource.endpoint.id
+  type      = "Microsoft.Cdn/profiles/afdEndpoints/routes@2024-09-01"
+  body = {
+    properties = {
+      originGroup = {
+        id = azapi_resource.origin_group.id
+      }
+      originPath          = null
+      ruleSets            = []
+      supportedProtocols  = ["Http", "Https"]
+      patternsToMatch     = ["/*"]
+      forwardingProtocol  = var.forwarding_protocol
+      linkToDefaultDomain = "Enabled"
+      httpsRedirect       = "Enabled"
+      enabledState        = "Enabled"
 
-  dynamic "cache" {
-    for_each = var.caching_enabled ? [1] : []
-
-    content {
-      compression_enabled = true
-      content_types_to_compress = [
-        "application/eot",
-        "application/font",
-        "application/font-sfnt",
-        "application/javascript",
-        "application/json",
-        "application/opentype",
-        "application/otf",
-        "application/pkcs7-mime",
-        "application/truetype",
-        "application/ttf",
-        "application/vnd.ms-fontobject",
-        "application/xhtml+xml",
-        "application/xml",
-        "application/xml+rss",
-        "application/x-font-opentype",
-        "application/x-font-truetype",
-        "application/x-font-ttf",
-        "application/x-httpd-cgi",
-        "application/x-javascript",
-        "application/x-mpegurl",
-        "application/x-opentype",
-        "application/x-otf",
-        "application/x-perl",
-        "application/x-ttf",
-        "font/eot",
-        "font/ttf",
-        "font/otf",
-        "font/opentype",
-        "image/svg+xml",
-        "text/css",
-        "text/csv",
-        "text/html",
-        "text/javascript",
-        "text/js",
-        "text/plain",
-        "text/richtext",
-        "text/tab-separated-values",
-        "text/xml",
-        "text/x-script",
-        "text/x-component",
-        "text/x-java-source"
-      ]
-      query_string_caching_behavior = "IgnoreQueryString"
-      query_strings                 = []
+      cacheConfiguration = var.caching_enabled ? {
+        queryStringCachingBehavior = "IgnoreQueryString"
+        queryParameters            = null
+        compressionSettings = {
+          contentTypesToCompress = [
+            "application/eot",
+            "application/font",
+            "application/font-sfnt",
+            "application/javascript",
+            "application/json",
+            "application/opentype",
+            "application/otf",
+            "application/pkcs7-mime",
+            "application/truetype",
+            "application/ttf",
+            "application/vnd.ms-fontobject",
+            "application/xhtml+xml",
+            "application/xml",
+            "application/xml+rss",
+            "application/x-font-opentype",
+            "application/x-font-truetype",
+            "application/x-font-ttf",
+            "application/x-httpd-cgi",
+            "application/x-javascript",
+            "application/x-mpegurl",
+            "application/x-opentype",
+            "application/x-otf",
+            "application/x-perl",
+            "application/x-ttf",
+            "font/eot",
+            "font/ttf",
+            "font/otf",
+            "font/opentype",
+            "image/svg+xml",
+            "text/css",
+            "text/csv",
+            "text/html",
+            "text/javascript",
+            "text/js",
+            "text/plain",
+            "text/richtext",
+            "text/tab-separated-values",
+            "text/xml",
+            "text/x-script",
+            "text/x-component",
+            "text/x-java-source"
+          ]
+          isCompressionEnabled = true
+        }
+      } : null
     }
   }
 }
 
 # Security Policy (WAF Association) - Only for Premium SKU
 # Note: WAF policy is associated with the default endpoint, not a custom domain
-resource "azurerm_cdn_frontdoor_security_policy" "this" {
+resource "azapi_resource" "security_policy" {
   count = var.enable_waf ? 1 : 0
 
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  name                     = "${var.name}-security-policy"
-
-  security_policies {
-    firewall {
-      cdn_frontdoor_firewall_policy_id = azurerm_cdn_frontdoor_firewall_policy.this[0].id
-
-      association {
-        patterns_to_match = ["/*"]
-
-        domain {
-          cdn_frontdoor_domain_id = azurerm_cdn_frontdoor_endpoint.this.id
+  name      = "${var.name}-security-policy"
+  parent_id = azapi_resource.profile.id
+  type      = "Microsoft.Cdn/profiles/securityPolicies@2024-09-01"
+  body = {
+    properties = {
+      parameters = {
+        type = "WebApplicationFirewall"
+        wafPolicy = {
+          id = azapi_resource.waf_policy[0].id
         }
+        associations = [
+          {
+            domains = [
+              {
+                id = azapi_resource.endpoint.id
+              }
+            ]
+            patternsToMatch = ["/*"]
+          }
+        ]
       }
     }
   }
 }
 
 # Diagnostic Settings
-resource "azurerm_monitor_diagnostic_setting" "front_door" {
+resource "azapi_resource" "diagnostic_settings" {
   count = var.enable_diagnostics ? 1 : 0
 
-  name                       = "front-door-diagnostics"
-  target_resource_id         = azurerm_cdn_frontdoor_profile.this.id
-  log_analytics_workspace_id = var.log_analytics_workspace_id
-
-  enabled_log {
-    category = "FrontDoorAccessLog"
-  }
-  enabled_log {
-    category = "FrontDoorHealthProbeLog"
-  }
-  enabled_log {
-    category = "FrontDoorWebApplicationFirewallLog"
-  }
-  enabled_metric {
-    category = "AllMetrics"
+  name      = "front-door-diagnostics"
+  parent_id = azapi_resource.profile.id
+  type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
+  body = {
+    properties = {
+      workspaceId = var.log_analytics_workspace_id
+      logs = [
+        {
+          category = "FrontDoorAccessLog"
+          enabled  = true
+        },
+        {
+          category = "FrontDoorHealthProbeLog"
+          enabled  = true
+        },
+        {
+          category = "FrontDoorWebApplicationFirewallLog"
+          enabled  = true
+        }
+      ]
+      metrics = [
+        {
+          category = "AllMetrics"
+          enabled  = true
+        }
+      ]
+    }
   }
 }
 
