@@ -68,7 +68,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "this" {
 # Always uses Private Link for secure connectivity to internal Container Apps Environment
 resource "azurerm_cdn_frontdoor_origin" "this" {
   cdn_frontdoor_origin_group_id  = azurerm_cdn_frontdoor_origin_group.this.id
-  certificate_name_check_enabled = true
+  certificate_name_check_enabled = false # Disabled for private link origins
   host_name                      = var.backend_fqdn
   name                           = "${var.name}-origin"
   enabled                        = true
@@ -84,6 +84,7 @@ resource "azurerm_cdn_frontdoor_origin" "this" {
     location               = var.location
     private_link_target_id = var.container_apps_environment_id
     request_message        = "Front Door Private Link Request for Container Apps"
+    target_type            = "managedEnvironments"
   }
 
   lifecycle {

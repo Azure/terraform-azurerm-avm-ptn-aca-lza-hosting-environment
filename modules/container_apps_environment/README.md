@@ -21,6 +21,8 @@ The following requirements are needed by this module:
 
 The following resources are used by this module:
 
+- [azapi_update_resource.approve_private_endpoint](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/update_resource) (resource)
+- [azapi_resource.managed_environment_connections](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/resource) (data source)
 - [azapi_resource_action.law_shared_keys](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/resource_action) (data source)
 
 <!-- markdownlint-disable MD013 -->
@@ -85,6 +87,14 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
+
+### <a name="input_auto_approve_private_endpoint_connections"></a> [auto\_approve\_private\_endpoint\_connections](#input\_auto\_approve\_private\_endpoint\_connections)
+
+Description: Whether to automatically approve pending private endpoint connections to the Container Apps Environment (e.g., from Front Door). Set to true when using Front Door with Private Link.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_container_apps_environment_storages"></a> [container\_apps\_environment\_storages](#input\_container\_apps\_environment\_storages)
 

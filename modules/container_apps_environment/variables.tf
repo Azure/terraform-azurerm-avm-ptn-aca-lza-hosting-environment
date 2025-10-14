@@ -43,6 +43,12 @@ variable "spoke_virtual_network_id" {
   description = "Spoke VNet resource ID to link to the private DNS zone."
 }
 
+variable "auto_approve_private_endpoint_connections" {
+  type        = bool
+  default     = false
+  description = "Whether to automatically approve pending private endpoint connections to the Container Apps Environment (e.g., from Front Door). Set to true when using Front Door with Private Link."
+}
+
 variable "container_apps_environment_storages" {
   type = map(object({
     access_mode  = string

@@ -107,3 +107,40 @@ data "azapi_resource_action" "law_shared_keys" {
   type                   = "Microsoft.OperationalInsights/workspaces@2022-10-01"
   response_export_values = ["primarySharedKey"]
 }
+
+# Data source to read the Container Apps Environment to get private endpoint connections
+data "azapi_resource" "managed_environment_connections" {
+  count = var.auto_approve_private_endpoint_connections ? 1 : 0
+
+  resource_id            = module.managed_environment.resource_id
+  type                   = "Microsoft.App/managedEnvironments@2024-08-02-preview"
+  response_export_values = ["properties.privateEndpointConnections"]
+
+  depends_on = [
+    module.managed_environment
+  ]
+}
+
+# Auto-approve private endpoint connections (e.g., from Front Door)
+resource "azapi_update_resource" "approve_private_endpoint" {
+  for_each = var.auto_approve_private_endpoint_connections ? {
+    for conn in try(data.azapi_resource.managed_environment_connections[0].output.properties.privateEndpointConnections, []) :
+    conn.name => conn
+    if try(conn.properties.privateLinkServiceConnectionState.status, "") == "Pending"
+  } : {}
+
+  resource_id = "${module.managed_environment.resource_id}/privateEndpointConnections/${each.key}"
+  type        = "Microsoft.App/managedEnvironments/privateEndpointConnections@2024-08-02-preview"
+  body = {
+    properties = {
+      privateLinkServiceConnectionState = {
+        status      = "Approved"
+        description = "Auto-approved by Terraform"
+      }
+    }
+  }
+
+  depends_on = [
+    data.azapi_resource.managed_environment_connections
+  ]
+}
