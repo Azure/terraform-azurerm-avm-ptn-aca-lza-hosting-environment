@@ -117,8 +117,6 @@ module "container_apps_environment" {
   resource_group_name        = local.resource_group_name
   # Networking
   spoke_virtual_network_id = module.spoke.spoke_vnet_id
-  # Auto-approve private endpoint connections when using Front Door
-  auto_approve_private_endpoint_connections = var.expose_container_apps_with == "front_door"
   # Optional storage mounts (none by default)
   container_apps_environment_storages = {}
   # Zone redundancy per workload setting

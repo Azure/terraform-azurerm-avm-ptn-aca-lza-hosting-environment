@@ -99,6 +99,41 @@ resource "azurerm_cdn_frontdoor_origin" "this" {
   }
 }
 
+# Data source to read the Container Apps Environment to get the private endpoint connection created by Front Door
+data "azapi_resource" "managed_environment_connections" {
+  resource_id            = var.container_apps_environment_id
+  type                   = "Microsoft.App/managedEnvironments@2024-08-02-preview"
+  response_export_values = ["properties.privateEndpointConnections"]
+
+  depends_on = [
+    azurerm_cdn_frontdoor_origin.this
+  ]
+}
+
+# Auto-approve the private endpoint connection created by Front Door
+resource "azapi_update_resource" "approve_private_endpoint" {
+  for_each = {
+    for conn in try(data.azapi_resource.managed_environment_connections.output.properties.privateEndpointConnections, []) :
+    conn.name => conn
+    if try(conn.properties.privateLinkServiceConnectionState.status, "") == "Pending"
+  }
+
+  resource_id = "${var.container_apps_environment_id}/privateEndpointConnections/${each.key}"
+  type        = "Microsoft.App/managedEnvironments/privateEndpointConnections@2024-08-02-preview"
+  body = {
+    properties = {
+      privateLinkServiceConnectionState = {
+        status      = "Approved"
+        description = "Auto-approved by Terraform for Front Door Private Link"
+      }
+    }
+  }
+
+  depends_on = [
+    data.azapi_resource.managed_environment_connections
+  ]
+}
+
 # Route - Uses the default Front Door endpoint (no custom domain needed)
 resource "azurerm_cdn_frontdoor_route" "this" {
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.this.id
