@@ -3,18 +3,6 @@ locals {
   zones = var.deploy_zone_redundant_resources ? ["1", "2", "3"] : []
 }
 
-# UAI for App Gateway to read Key Vault secret
-module "appgw_uai" {
-  source  = "Azure/avm-res-managedidentity-userassignedidentity/azurerm"
-  version = "~> 0.2"
-
-  location            = var.location
-  name                = var.user_assigned_identity_name
-  resource_group_name = var.resource_group_name
-  enable_telemetry    = var.enable_telemetry
-  tags                = var.tags
-}
-
 # Public IP for Application Gateway
 module "appgw_pip" {
   source  = "Azure/avm-res-network-publicipaddress/azurerm"
@@ -38,21 +26,33 @@ module "appgw_pip" {
   zones            = local.zones
 }
 
-# Certificate module for handling TLS certificates with VNet integration
-module "certificate" {
-  source = "../certificate"
+# Generate a simple self-signed certificate for demo purposes
+# This avoids the complexity of Key Vault integration for a hosting environment module
+resource "tls_private_key" "appgw" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
 
-  app_gateway_principal_id = module.appgw_uai.principal_id
-  certificate_key_name     = var.certificate_key_name
-  deployment_subnet_id     = var.deployment_subnet_id
-  key_vault_id             = var.key_vault_id
-  location                 = var.location
-  resource_group_name      = var.resource_group_name
-  resource_prefix          = substr(replace(var.name, "-", ""), 0, 8)
-  storage_account_name     = var.storage_account_name
-  base64_certificate       = var.base64_certificate
-  certificate_subject_name = var.certificate_subject_name
-  tags                     = var.tags
+resource "tls_self_signed_cert" "appgw" {
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+  ]
+  private_key_pem       = tls_private_key.appgw.private_key_pem
+  validity_period_hours = 8760 # 1 year
+
+  subject {
+    common_name  = "aca-demo.local"
+    organization = "Azure Container Apps Demo"
+  }
+}
+
+# Convert to PKCS12 format for Application Gateway
+resource "pkcs12_from_pem" "appgw" {
+  password        = "AzureDemo123!" # Simple password for demo cert
+  cert_pem        = tls_self_signed_cert.appgw.cert_pem
+  private_key_pem = tls_private_key.appgw.private_key_pem
 }
 
 # WAF policy - use native resource as AVM equivalent isn't published in TF registry yet
@@ -113,10 +113,10 @@ module "app_gateway" {
   http_listeners = {
     https = {
       name                           = "https-listener"
-      host_name                      = length(trimspace(var.application_gateway_fqdn)) > 0 ? var.application_gateway_fqdn : null
       frontend_port_name             = "port_443"
       frontend_ip_configuration_name = "appGwPublicFrontendIp"
-      ssl_certificate_name           = var.certificate_key_name
+      ssl_certificate_name           = "appgw-demo-cert"
+      protocol                       = "Https"
     }
   }
   location = var.location
@@ -144,9 +144,6 @@ module "app_gateway" {
   } : {}
   enable_telemetry                      = var.enable_telemetry
   frontend_ip_configuration_public_name = "appGwPublicFrontendIp"
-  managed_identities = {
-    user_assigned_resource_ids = [module.appgw_uai.resource_id]
-  }
   probe_configurations = length(trimspace(var.backend_fqdn)) > 0 ? {
     https = {
       name                                      = "webProbe"
@@ -169,9 +166,10 @@ module "app_gateway" {
     capacity = 3
   }
   ssl_certificates = {
-    (var.certificate_key_name) = {
-      name                = var.certificate_key_name
-      key_vault_secret_id = module.certificate.secret_uri
+    "appgw-demo-cert" = {
+      name     = "appgw-demo-cert"
+      data     = pkcs12_from_pem.appgw.result
+      password = "AzureDemo123!"
     }
   }
   ssl_policy = {

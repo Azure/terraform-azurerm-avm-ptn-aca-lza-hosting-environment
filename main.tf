@@ -148,27 +148,19 @@ module "sample_application" {
 
 
 # Ingress via Application Gateway (default path)
+# Routes to the sample app if deployed, providing a working demo
 module "application_gateway" {
   source = "./modules/application_gateway"
   count  = var.expose_container_apps_with == "applicationGateway" ? 1 : 0
 
-  certificate_key_name = var.application_gateway_certificate_key_name
-  # Required for deployment script
-  deployment_subnet_id        = module.spoke.deployment_subnet_id
-  key_vault_id                = module.supporting_services.key_vault_id
-  location                    = var.location
-  name                        = module.naming.resources_names.applicationGateway
-  public_ip_name              = module.naming.resources_names.applicationGatewayPip
-  resource_group_name         = local.resource_group_name
-  storage_account_name        = module.supporting_services.storage_account_name
-  subnet_id                   = module.spoke.spoke_application_gateway_subnet_id
-  user_assigned_identity_name = module.naming.resources_names.applicationGatewayUserAssignedIdentity
-  # TLS and FQDN
-  application_gateway_fqdn = var.application_gateway_fqdn
-  # Backend
-  backend_fqdn                    = var.application_gateway_backend_fqdn
+  location            = var.location
+  name                = module.naming.resources_names.applicationGateway
+  public_ip_name      = module.naming.resources_names.applicationGatewayPip
+  resource_group_name = local.resource_group_name
+  subnet_id           = module.spoke.spoke_application_gateway_subnet_id
+  # Backend - route to sample app if deployed, otherwise leave empty
+  backend_fqdn                    = var.deploy_sample_application ? module.sample_application[0].fqdn : ""
   backend_probe_path              = "/"
-  base64_certificate              = var.base64_certificate
   deploy_zone_redundant_resources = var.deploy_zone_redundant_resources
   enable_ddos_protection          = var.enable_ddos_protection
   enable_diagnostics              = true
@@ -179,24 +171,20 @@ module "application_gateway" {
 }
 
 # Ingress via Front Door (alternative path)
+# Uses default *.azurefd.net endpoint with Microsoft-managed certificate
+# Routes to Container Apps Environment which includes the sample app if deployed
 module "front_door" {
   source = "./modules/front_door"
   count  = var.expose_container_apps_with == "frontDoor" ? 1 : 0
 
   # Backend Configuration - Connect to Container Apps Environment
-  backend_fqdn         = module.container_apps_environment.default_domain
-  certificate_key_name = var.front_door_certificate_key_name
-  # Domain and Certificate
-  front_door_fqdn     = var.front_door_fqdn
-  key_vault_id        = module.supporting_services.key_vault_id
+  backend_fqdn        = module.container_apps_environment.default_domain
   location            = var.location
   name                = module.naming.resources_names.frontDoor
   resource_group_name = local.resource_group_name
-  # Identity
-  user_assigned_identity_name = module.naming.resources_names.frontDoorUserAssignedIdentity
-  backend_port                = 443
-  backend_protocol            = "Https"
-  enable_telemetry            = var.enable_telemetry
+  backend_port        = 443
+  backend_protocol    = "Https"
+  enable_telemetry    = var.enable_telemetry
   # WAF Configuration
   enable_waf = var.front_door_enable_waf
   # Diagnostics

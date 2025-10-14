@@ -19,21 +19,16 @@ The following requirements are needed by this module:
 
 The following resources are used by this module:
 
-- [azurerm_cdn_frontdoor_custom_domain.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_custom_domain) (resource)
 - [azurerm_cdn_frontdoor_endpoint.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_endpoint) (resource)
 - [azurerm_cdn_frontdoor_firewall_policy.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_firewall_policy) (resource)
 - [azurerm_cdn_frontdoor_origin.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin) (resource)
 - [azurerm_cdn_frontdoor_origin_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin_group) (resource)
 - [azurerm_cdn_frontdoor_profile.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_profile) (resource)
 - [azurerm_cdn_frontdoor_route.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_route) (resource)
-- [azurerm_cdn_frontdoor_secret.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_secret) (resource)
 - [azurerm_cdn_frontdoor_security_policy.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_security_policy) (resource)
 - [azurerm_monitor_diagnostic_setting.front_door](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) (resource)
 - [azurerm_resource_group_template_deployment.telemetry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group_template_deployment) (resource)
-- [azurerm_role_assignment.front_door_secrets_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
-- [azurerm_user_assigned_identity.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) (resource)
 - [random_id.telemetry](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) (resource)
-- [azurerm_key_vault.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -43,24 +38,6 @@ The following input variables are required:
 ### <a name="input_backend_fqdn"></a> [backend\_fqdn](#input\_backend\_fqdn)
 
 Description: Required. The backend FQDN that Front Door will route traffic to (Container Apps Environment default domain).
-
-Type: `string`
-
-### <a name="input_certificate_key_name"></a> [certificate\_key\_name](#input\_certificate\_key\_name)
-
-Description: Required. The name of the certificate key in Key Vault for TLS termination.
-
-Type: `string`
-
-### <a name="input_front_door_fqdn"></a> [front\_door\_fqdn](#input\_front\_door\_fqdn)
-
-Description: Required. The custom domain FQDN for the Front Door endpoint.
-
-Type: `string`
-
-### <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id)
-
-Description: Required. The resource ID of the Key Vault containing the TLS certificate.
 
 Type: `string`
 
@@ -79,12 +56,6 @@ Type: `string`
 ### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
 
 Description: Required. Resource group name to deploy resources into.
-
-Type: `string`
-
-### <a name="input_user_assigned_identity_name"></a> [user\_assigned\_identity\_name](#input\_user\_assigned\_identity\_name)
-
-Description: Required. Name of the User Assigned Identity used by Front Door to read Key Vault secrets.
 
 Type: `string`
 
@@ -192,13 +163,9 @@ Default: `""`
 
 The following outputs are exported:
 
-### <a name="output_custom_domain_fqdn"></a> [custom\_domain\_fqdn](#output\_custom\_domain\_fqdn)
-
-Description: Custom domain FQDN configured for Front Door
-
 ### <a name="output_endpoint_hostname"></a> [endpoint\_hostname](#output\_endpoint\_hostname)
 
-Description: Front Door endpoint hostname
+Description: Front Door endpoint hostname (*.azurefd.net with Microsoft-managed certificate)
 
 ### <a name="output_endpoint_id"></a> [endpoint\_id](#output\_endpoint\_id)
 

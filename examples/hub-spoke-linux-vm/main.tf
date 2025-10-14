@@ -69,9 +69,8 @@ resource "azurerm_resource_group" "this" {
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Application Gateway with custom certificate
-  application_gateway_certificate_key_name = "${var.workload_name}-cert"
-  deployment_subnet_address_prefix         = "10.20.4.0/24"
+  # Application Gateway with self-signed certificate
+  deployment_subnet_address_prefix = "10.20.4.0/24"
   # Full observability stack (COMPLEX)
   enable_application_insights = true
   enable_dapr_instrumentation = true
@@ -85,10 +84,8 @@ module "aca_lza_hosting" {
   vm_admin_password                = "NotUsedForSSH123!" # Required but not used for SSH
   vm_jumpbox_subnet_address_prefix = "10.20.5.0/24"
   # Linux VM with SSH authentication (COMPLEX)
-  vm_size                                      = "Standard_DS2_v2"
-  application_gateway_certificate_subject_name = "CN=aca-test.contoso.com"
-  application_gateway_fqdn                     = "aca-test.contoso.com"
-  deploy_agent_pool                            = true
+  vm_size           = "Standard_DS2_v2"
+  deploy_agent_pool = true
   # Deploy sample app and agent pool
   deploy_sample_application = true
   # Zone redundancy for high availability (COMPLEX)

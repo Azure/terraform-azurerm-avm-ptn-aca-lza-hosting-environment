@@ -36,8 +36,7 @@ module "aca_lza_hosting" {
   source = "../../"
 
   # NO Application Gateway (COMPLEX edge case)
-  application_gateway_certificate_key_name = "${var.workload_name}-cert" # Required but unused
-  deployment_subnet_address_prefix         = "172.16.0.64/28"            # /28 = 16 IPs
+  deployment_subnet_address_prefix = "172.16.0.64/28" # /28 = 16 IPs
   # NO observability (COMPLEX edge case)
   enable_application_insights = false
   enable_dapr_instrumentation = false
@@ -51,9 +50,7 @@ module "aca_lza_hosting" {
   vm_admin_password                = "NotUsed123!"     # Required but unused
   vm_jumpbox_subnet_address_prefix = "172.16.0.128/28" # Required but unused
   # NO VM deployment (COMPLEX edge case)
-  vm_size                                      = "Standard_DS2_v2" # Required but unused
-  application_gateway_certificate_subject_name = "CN=contoso.com"  # Default
-  application_gateway_fqdn                     = ""                # Empty
+  vm_size = "Standard_DS2_v2" # Required but unused
   # NO agent pool to minimize resources
   deploy_agent_pool = false
   # NO sample application

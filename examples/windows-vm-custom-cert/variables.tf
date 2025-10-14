@@ -1,22 +1,3 @@
-variable "certificate_common_name" {
-  type        = string
-  default     = "wintest.contoso.com"
-  description = "The common name for the custom certificate."
-}
-
-variable "certificate_key_name" {
-  type        = string
-  default     = "wintest-custom-cert"
-  description = "The name of the certificate key in Key Vault."
-}
-
-variable "certificate_password" {
-  type        = string
-  default     = "CertP@ssw0rd123!"
-  description = "The password for the certificate private key."
-  sensitive   = true
-}
-
 variable "enable_telemetry" {
   type        = bool
   default     = true

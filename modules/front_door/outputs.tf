@@ -1,10 +1,5 @@
-output "custom_domain_fqdn" {
-  description = "Custom domain FQDN configured for Front Door"
-  value       = var.front_door_fqdn
-}
-
 output "endpoint_hostname" {
-  description = "Front Door endpoint hostname"
+  description = "Front Door endpoint hostname (*.azurefd.net with Microsoft-managed certificate)"
   value       = azurerm_cdn_frontdoor_endpoint.this.host_name
 }
 

@@ -36,8 +36,7 @@ module "aca_lza_hosting" {
   source = "../../"
 
   # Required by module
-  application_gateway_certificate_key_name = "${var.workload_name}-cert"
-  deployment_subnet_address_prefix         = "10.10.4.0/24"
+  deployment_subnet_address_prefix = "10.10.4.0/24"
   # Observability toggles (as per variables): ensure required flags provided
   enable_application_insights = false
   enable_dapr_instrumentation = false

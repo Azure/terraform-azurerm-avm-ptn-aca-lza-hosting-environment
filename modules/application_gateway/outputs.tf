@@ -1,8 +1,3 @@
-output "fqdn" {
-  description = "Application Gateway FQDN (input)"
-  value       = var.application_gateway_fqdn
-}
-
 output "id" {
   description = "Application Gateway resource ID"
   value       = module.app_gateway.application_gateway_id

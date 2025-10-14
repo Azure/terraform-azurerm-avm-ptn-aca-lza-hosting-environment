@@ -24,13 +24,12 @@ resource "azurerm_resource_group" "this" {
   name     = var.resource_group_name
 }
 
-# Front Door Standard scenario with TLS termination
+# Front Door Standard scenario with default *.azurefd.net endpoint
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Application Gateway (still required even when not used)
-  application_gateway_certificate_key_name = "${var.workload_name}-agw-cert" # Not used but required
-  deployment_subnet_address_prefix         = "10.20.4.0/24"
+  # Core networking
+  deployment_subnet_address_prefix = "10.20.4.0/24"
   # Observability
   enable_application_insights = true
   enable_dapr_instrumentation = false
@@ -52,15 +51,13 @@ module "aca_lza_hosting" {
   enable_telemetry                = var.enable_telemetry
   environment                     = var.environment
   existing_resource_group_id      = azurerm_resource_group.this.id
-  # Front Door Configuration
-  expose_container_apps_with      = "frontDoor"
-  front_door_certificate_key_name = var.certificate_key_name
-  front_door_enable_waf           = false # Standard SKU doesn't support WAF
-  front_door_fqdn                 = var.front_door_fqdn
-  front_door_sku_name             = "Standard_AzureFrontDoor"
-  tags                            = var.tags
-  use_existing_resource_group     = true
-  vm_jumpbox_os_type              = "none" # disable VM for this example
+  # Front Door Configuration - uses default *.azurefd.net endpoint with Microsoft-managed certificate
+  expose_container_apps_with  = "frontDoor"
+  front_door_enable_waf       = false # Standard SKU doesn't support WAF
+  front_door_sku_name         = "Standard_AzureFrontDoor"
+  tags                        = var.tags
+  use_existing_resource_group = true
+  vm_jumpbox_os_type          = "none" # disable VM for this example
   # Naming
   workload_name = var.workload_name
 }

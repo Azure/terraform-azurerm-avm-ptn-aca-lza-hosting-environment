@@ -31,13 +31,12 @@ resource "azurerm_resource_group" "this" {
   name     = var.resource_group_name
 }
 
-# Front Door Standard scenario with TLS termination
+# Front Door Standard scenario with default *.azurefd.net endpoint
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Application Gateway (still required even when not used)
-  application_gateway_certificate_key_name = "${var.workload_name}-agw-cert" # Not used but required
-  deployment_subnet_address_prefix         = "10.20.4.0/24"
+  # Core networking
+  deployment_subnet_address_prefix = "10.20.4.0/24"
   # Observability
   enable_application_insights = true
   enable_dapr_instrumentation = false
@@ -59,15 +58,13 @@ module "aca_lza_hosting" {
   enable_telemetry                = var.enable_telemetry
   environment                     = var.environment
   existing_resource_group_id      = azurerm_resource_group.this.id
-  # Front Door Configuration
-  expose_container_apps_with      = "frontDoor"
-  front_door_certificate_key_name = var.certificate_key_name
-  front_door_enable_waf           = false # Standard SKU doesn't support WAF
-  front_door_fqdn                 = var.front_door_fqdn
-  front_door_sku_name             = "Standard_AzureFrontDoor"
-  tags                            = var.tags
-  use_existing_resource_group     = true
-  vm_jumpbox_os_type              = "none" # disable VM for this example
+  # Front Door Configuration - uses default *.azurefd.net endpoint with Microsoft-managed certificate
+  expose_container_apps_with  = "frontDoor"
+  front_door_enable_waf       = false # Standard SKU doesn't support WAF
+  front_door_sku_name         = "Standard_AzureFrontDoor"
+  tags                        = var.tags
+  use_existing_resource_group = true
+  vm_jumpbox_os_type          = "none" # disable VM for this example
   # Naming
   workload_name = var.workload_name
 }
@@ -106,14 +103,6 @@ No required inputs.
 
 The following input variables are optional (have default values):
 
-### <a name="input_certificate_key_name"></a> [certificate\_key\_name](#input\_certificate\_key\_name)
-
-Description: The name of the certificate key in Key Vault for Front Door TLS termination.
-
-Type: `string`
-
-Default: `"app-contoso-com-cert"`
-
 ### <a name="input_deploy_zone_redundant_resources"></a> [deploy\_zone\_redundant\_resources](#input\_deploy\_zone\_redundant\_resources)
 
 Description: Enable zone redundant resources where supported.
@@ -137,14 +126,6 @@ Description: The environment identifier for the module.
 Type: `string`
 
 Default: `"test"`
-
-### <a name="input_front_door_fqdn"></a> [front\_door\_fqdn](#input\_front\_door\_fqdn)
-
-Description: The custom domain FQDN for the Front Door endpoint.
-
-Type: `string`
-
-Default: `"app.contoso.com"`
 
 ### <a name="input_location"></a> [location](#input\_location)
 

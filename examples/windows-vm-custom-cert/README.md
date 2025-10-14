@@ -17,14 +17,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
-    pkcs12 = {
-      source  = "chilicat/pkcs12"
-      version = "~> 0.0.7"
-    }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~> 4.0"
-    }
   }
 }
 
@@ -33,46 +25,12 @@ provider "azurerm" {
   storage_use_azuread = true
 }
 
-# Generate a custom certificate for testing
-resource "tls_private_key" "cert_key" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-resource "tls_self_signed_cert" "cert" {
-  allowed_uses = [
-    "key_encipherment",
-    "digital_signature",
-    "server_auth",
-  ]
-  private_key_pem       = tls_private_key.cert_key.private_key_pem
-  validity_period_hours = 8760 # 1 year
-  dns_names             = [var.certificate_common_name]
-
-  subject {
-    common_name         = var.certificate_common_name
-    country             = "US"
-    locality            = "Seattle"
-    organization        = "Contoso Test Corp"
-    organizational_unit = "IT Department"
-    province            = "WA"
-  }
-}
-
-# Convert to PKCS12 format for Azure
-resource "pkcs12_from_pem" "cert_pkcs12" {
-  password        = var.certificate_password
-  cert_pem        = tls_self_signed_cert.cert.cert_pem
-  private_key_pem = tls_private_key.cert_key.private_key_pem
-}
-
-# Complex scenario: Windows VM with custom certificate and no Application Gateway
+# Windows VM scenario - Application Gateway now uses inline self-signed certificate
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Custom certificate configuration (COMPLEX)
-  application_gateway_certificate_key_name = var.certificate_key_name
-  deployment_subnet_address_prefix         = "10.30.4.0/24"
+  # Core networking
+  deployment_subnet_address_prefix = "10.30.4.0/24"
   # Observability - mixed configuration
   enable_application_insights = true
   enable_dapr_instrumentation = false # Test mixed observability
@@ -86,12 +44,9 @@ module "aca_lza_hosting" {
   vm_admin_password                = var.vm_admin_password
   vm_jumpbox_subnet_address_prefix = "10.30.5.0/24"
   # Windows VM with password authentication (COMPLEX)
-  vm_size                                      = "Standard_DS2_v2"
-  application_gateway_certificate_subject_name = "CN=${var.certificate_common_name}"
-  application_gateway_fqdn                     = var.certificate_common_name
-  base64_certificate                           = pkcs12_from_pem.cert_pkcs12.result
-  created_resource_group_name                  = var.resource_group_name
-  deploy_agent_pool                            = true
+  vm_size                     = "Standard_DS2_v2"
+  created_resource_group_name = var.resource_group_name
+  deploy_agent_pool           = true
   # No sample app to test minimal deployment
   deploy_sample_application = false
   # No zone redundancy for cost optimization (COMPLEX test case)
@@ -131,17 +86,9 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
-- <a name="requirement_pkcs12"></a> [pkcs12](#requirement\_pkcs12) (~> 0.0.7)
-
-- <a name="requirement_tls"></a> [tls](#requirement\_tls) (~> 4.0)
-
 ## Resources
 
-The following resources are used by this module:
-
-- [pkcs12_from_pem.cert_pkcs12](https://registry.terraform.io/providers/chilicat/pkcs12/latest/docs/resources/from_pem) (resource)
-- [tls_private_key.cert_key](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) (resource)
-- [tls_self_signed_cert.cert](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert) (resource)
+No resources.
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -151,30 +98,6 @@ No required inputs.
 ## Optional Inputs
 
 The following input variables are optional (have default values):
-
-### <a name="input_certificate_common_name"></a> [certificate\_common\_name](#input\_certificate\_common\_name)
-
-Description: The common name for the custom certificate.
-
-Type: `string`
-
-Default: `"wintest.contoso.com"`
-
-### <a name="input_certificate_key_name"></a> [certificate\_key\_name](#input\_certificate\_key\_name)
-
-Description: The name of the certificate key in Key Vault.
-
-Type: `string`
-
-Default: `"wintest-custom-cert"`
-
-### <a name="input_certificate_password"></a> [certificate\_password](#input\_certificate\_password)
-
-Description: The password for the certificate private key.
-
-Type: `string`
-
-Default: `"CertP@ssw0rd123!"`
 
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 

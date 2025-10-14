@@ -1,37 +1,8 @@
 ###############################################
 # Front Door module: main implementation     #
 ###############################################
-
-# Parse Key Vault ID to get the vault name and resource group
-locals {
-  kv_id_segments         = split("/", var.key_vault_id)
-  kv_name                = local.kv_id_segments[8]
-  kv_resource_group_name = local.kv_id_segments[4]
-  kv_rg_name             = local.kv_id_segments[4]
-}
-
-# Get Key Vault details to construct the certificate URL
-data "azurerm_key_vault" "this" {
-  name                = local.kv_name
-  resource_group_name = local.kv_rg_name
-}
-
-# User Assigned Identity for Front Door to access Key Vault
-resource "azurerm_user_assigned_identity" "this" {
-  location            = var.location
-  name                = var.user_assigned_identity_name
-  resource_group_name = var.resource_group_name
-  tags                = var.tags
-}
-
-# RBAC role assignment for the User Assigned Identity to access Key Vault secrets
-# Note: The Azure Front Door CDN service principal permissions are granted in the Key Vault module
-resource "azurerm_role_assignment" "front_door_secrets_user" {
-  principal_id         = azurerm_user_assigned_identity.this.principal_id
-  scope                = var.key_vault_id
-  principal_type       = "ServicePrincipal"
-  role_definition_name = "Key Vault Secrets User"
-}
+# This module creates a Front Door with the default *.azurefd.net endpoint
+# which uses Microsoft-managed certificates automatically
 
 # WAF Policy (if enabled and Premium SKU)
 resource "azurerm_cdn_frontdoor_firewall_policy" "this" {
@@ -65,7 +36,7 @@ resource "azurerm_cdn_frontdoor_profile" "this" {
   tags                     = var.tags
 }
 
-# Front Door Endpoint
+# Front Door Endpoint (uses default *.azurefd.net with Microsoft-managed certificate)
 resource "azurerm_cdn_frontdoor_endpoint" "this" {
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
   name                     = "${var.name}-endpoint"
@@ -93,7 +64,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "this" {
   }
 }
 
-# Origin (Backend)
+# Origin (Backend) - Routes to Container Apps Environment
 resource "azurerm_cdn_frontdoor_origin" "this" {
   cdn_frontdoor_origin_group_id  = azurerm_cdn_frontdoor_origin_group.this.id
   certificate_name_check_enabled = true
@@ -107,47 +78,17 @@ resource "azurerm_cdn_frontdoor_origin" "this" {
   weight                         = 1000
 }
 
-# Custom Domain
-resource "azurerm_cdn_frontdoor_custom_domain" "this" {
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  host_name                = var.front_door_fqdn
-  name                     = replace(var.front_door_fqdn, ".", "-")
-  dns_zone_id              = null
-
-  tls {
-    cdn_frontdoor_secret_id = azurerm_cdn_frontdoor_secret.this.id
-    certificate_type        = "CustomerCertificate"
-  }
-}
-
-# Secret for Custom Certificate
-resource "azurerm_cdn_frontdoor_secret" "this" {
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  name                     = "${var.name}-cert-secret"
-
-  secret {
-    customer_certificate {
-      key_vault_certificate_id = "${data.azurerm_key_vault.this.vault_uri}certificates/${var.certificate_key_name}"
-    }
-  }
-
-  depends_on = [
-    azurerm_role_assignment.front_door_secrets_user
-  ]
-}
-
-# Route
+# Route - Uses the default Front Door endpoint (no custom domain needed)
 resource "azurerm_cdn_frontdoor_route" "this" {
-  cdn_frontdoor_endpoint_id       = azurerm_cdn_frontdoor_endpoint.this.id
-  cdn_frontdoor_origin_group_id   = azurerm_cdn_frontdoor_origin_group.this.id
-  cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.this.id]
-  name                            = "${var.name}-route"
-  patterns_to_match               = ["/*"]
-  supported_protocols             = ["Http", "Https"]
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.this.id]
-  enabled                         = true
-  forwarding_protocol             = var.forwarding_protocol
-  https_redirect_enabled          = true
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.this.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
+  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.this.id]
+  name                          = "${var.name}-route"
+  patterns_to_match             = ["/*"]
+  supported_protocols           = ["Http", "Https"]
+  enabled                       = true
+  forwarding_protocol           = var.forwarding_protocol
+  https_redirect_enabled        = true
 
   dynamic "cache" {
     for_each = var.caching_enabled ? [1] : []
@@ -204,6 +145,7 @@ resource "azurerm_cdn_frontdoor_route" "this" {
 }
 
 # Security Policy (WAF Association) - Only for Premium SKU
+# Note: WAF policy is associated with the default endpoint, not a custom domain
 resource "azurerm_cdn_frontdoor_security_policy" "this" {
   count = var.enable_waf ? 1 : 0
 
@@ -218,7 +160,7 @@ resource "azurerm_cdn_frontdoor_security_policy" "this" {
         patterns_to_match = ["/*"]
 
         domain {
-          cdn_frontdoor_domain_id = azurerm_cdn_frontdoor_custom_domain.this.id
+          cdn_frontdoor_domain_id = azurerm_cdn_frontdoor_endpoint.this.id
         }
       }
     }

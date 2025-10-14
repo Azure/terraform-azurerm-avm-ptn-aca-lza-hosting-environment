@@ -21,9 +21,8 @@ resource "azurerm_resource_group" "this" {
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Required by module for Application Gateway path
-  application_gateway_certificate_key_name = "${var.workload_name}-cert"
-  deployment_subnet_address_prefix         = "10.30.4.0/24"
+  # Required by module
+  deployment_subnet_address_prefix = "10.30.4.0/24"
   # Observability toggles
   enable_application_insights                     = false
   enable_dapr_instrumentation                     = false

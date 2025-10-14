@@ -1,9 +1,3 @@
-variable "certificate_key_name" {
-  type        = string
-  default     = "app-contoso-com-cert"
-  description = "The name of the certificate key in Key Vault for Front Door TLS termination."
-}
-
 variable "deploy_zone_redundant_resources" {
   type        = bool
   default     = true
@@ -20,12 +14,6 @@ variable "environment" {
   type        = string
   default     = "test"
   description = "The environment identifier for the module."
-}
-
-variable "front_door_fqdn" {
-  type        = string
-  default     = "app.contoso.com"
-  description = "The custom domain FQDN for the Front Door endpoint."
 }
 
 variable "location" {

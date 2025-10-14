@@ -193,9 +193,8 @@ resource "azurerm_route_table" "spoke" {
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Application Gateway with custom domain (COMPLEX)
-  application_gateway_certificate_key_name = "${var.workload_name}-complex-cert"
-  deployment_subnet_address_prefix         = "10.50.4.0/24"
+  # Application Gateway with self-signed certificate (COMPLEX)
+  deployment_subnet_address_prefix = "10.50.4.0/24"
   # Full observability with custom configuration (COMPLEX)
   enable_application_insights = true
   enable_dapr_instrumentation = true
@@ -209,11 +208,9 @@ module "aca_lza_hosting" {
   vm_admin_password                = "NotUsedForSSH123!"
   vm_jumpbox_subnet_address_prefix = "10.50.5.0/24"
   # Linux VM with SSH for testing appliance connectivity (COMPLEX)
-  vm_size                                      = "Standard_D4s_v3" # Larger VM for testing
-  application_gateway_certificate_subject_name = "CN=${var.custom_fqdn}"
-  application_gateway_fqdn                     = var.custom_fqdn
-  created_resource_group_name                  = var.custom_resource_group_name
-  deploy_agent_pool                            = true
+  vm_size                     = "Standard_D4s_v3" # Larger VM for testing
+  created_resource_group_name = var.custom_resource_group_name
+  deploy_agent_pool           = true
   # All features enabled (COMPLEX)
   deploy_sample_application = true
   # Zone redundancy for production-like setup (COMPLEX)

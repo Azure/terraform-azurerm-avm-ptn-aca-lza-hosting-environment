@@ -2,10 +2,7 @@
 # Stage 0: Variables mirroring Bicep inputs  #
 ###############################################
 
-variable "application_gateway_certificate_key_name" {
-  type        = string
-  description = "Required. The name of the certificate key to use for Application Gateway certificate."
-}
+# Ingress (Application Gateway uses self-signed certificate for demo)
 
 variable "deployment_subnet_address_prefix" {
   type        = string
@@ -64,32 +61,6 @@ variable "vm_jumpbox_subnet_address_prefix" {
 variable "vm_size" {
   type        = string
   description = "Required. The size of the virtual machine to create. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information."
-}
-
-variable "application_gateway_backend_fqdn" {
-  type        = string
-  default     = ""
-  description = "Optional. The FQDN of the backend to use for the Application Gateway. Default is empty."
-}
-
-variable "application_gateway_certificate_subject_name" {
-  type        = string
-  default     = "CN=contoso.com"
-  description = "Optional. The certificate subject name for self-signed certificates. Default is 'CN=contoso.com'."
-}
-
-# Ingress (Application Gateway path by default)
-variable "application_gateway_fqdn" {
-  type        = string
-  default     = ""
-  description = "Optional. The FQDN of the Application Gateway. Required and must match if the TLS Certificate is provided. Default is empty."
-}
-
-variable "base64_certificate" {
-  type        = string
-  default     = ""
-  description = "Optional. The base64 encoded certificate to use for Application Gateway certificate. When not provided a self signed one will be generated, the certificate will be added to the Key Vault and assigned to the Application Gateway listener."
-  sensitive   = true
 }
 
 variable "bastion_resource_id" {
@@ -172,22 +143,10 @@ variable "expose_container_apps_with" {
   }
 }
 
-variable "front_door_certificate_key_name" {
-  type        = string
-  default     = ""
-  description = "Optional. The name of the certificate key in Key Vault for Front Door TLS termination. Required when expose_container_apps_with is \"frontDoor\". Default is empty."
-}
-
 variable "front_door_enable_waf" {
   type        = bool
   default     = false
   description = "Optional. Enable Web Application Firewall for Front Door. Requires Premium SKU. Default is false."
-}
-
-variable "front_door_fqdn" {
-  type        = string
-  default     = ""
-  description = "Optional. The custom domain FQDN for the Front Door endpoint. Required when expose_container_apps_with is \"frontDoor\". Default is empty."
 }
 
 # Front Door (alternative ingress option)

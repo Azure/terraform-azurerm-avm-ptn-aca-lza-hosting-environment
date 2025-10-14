@@ -13,35 +13,24 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0)
 
+- <a name="requirement_pkcs12"></a> [pkcs12](#requirement\_pkcs12) (~> 0.0.7)
+
+- <a name="requirement_tls"></a> [tls](#requirement\_tls) (~> 4.0)
+
 ## Resources
 
 The following resources are used by this module:
 
 - [azurerm_web_application_firewall_policy.waf](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/web_application_firewall_policy) (resource)
+- [pkcs12_from_pem.appgw](https://registry.terraform.io/providers/chilicat/pkcs12/latest/docs/resources/from_pem) (resource)
+- [tls_private_key.appgw](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) (resource)
+- [tls_self_signed_cert.appgw](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert) (resource)
 - [azurerm_public_ip.pip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/public_ip) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
 
 The following input variables are required:
-
-### <a name="input_certificate_key_name"></a> [certificate\_key\_name](#input\_certificate\_key\_name)
-
-Description: Required. Key Vault secret/certificate name to use.
-
-Type: `string`
-
-### <a name="input_deployment_subnet_id"></a> [deployment\_subnet\_id](#input\_deployment\_subnet\_id)
-
-Description: Required. The subnet resource ID where the deployment script container will be deployed.
-
-Type: `string`
-
-### <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id)
-
-Description: Required. Resource ID of the Key Vault holding/receiving the TLS certificate.
-
-Type: `string`
 
 ### <a name="input_location"></a> [location](#input\_location)
 
@@ -67,35 +56,15 @@ Description: Required. Resource group name to deploy resources into.
 
 Type: `string`
 
-### <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name)
-
-Description: Required. Name of the storage account where the deployment script will be stored.
-
-Type: `string`
-
 ### <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id)
 
 Description: Required. Subnet ID for the Application Gateway.
 
 Type: `string`
 
-### <a name="input_user_assigned_identity_name"></a> [user\_assigned\_identity\_name](#input\_user\_assigned\_identity\_name)
-
-Description: Required. Name of the User Assigned Identity used by Application Gateway to read Key Vault secrets.
-
-Type: `string`
-
 ## Optional Inputs
 
 The following input variables are optional (have default values):
-
-### <a name="input_application_gateway_fqdn"></a> [application\_gateway\_fqdn](#input\_application\_gateway\_fqdn)
-
-Description: Optional. The FQDN of the Application Gateway (must match TLS cert if provided).
-
-Type: `string`
-
-Default: `""`
 
 ### <a name="input_backend_fqdn"></a> [backend\_fqdn](#input\_backend\_fqdn)
 
@@ -112,22 +81,6 @@ Description: Optional. Path for backend health probe.
 Type: `string`
 
 Default: `"/"`
-
-### <a name="input_base64_certificate"></a> [base64\_certificate](#input\_base64\_certificate)
-
-Description: Optional. Base64-encoded PFX certificate to store in Key Vault and attach to the listener.
-
-Type: `string`
-
-Default: `""`
-
-### <a name="input_certificate_subject_name"></a> [certificate\_subject\_name](#input\_certificate\_subject\_name)
-
-Description: Optional. The certificate subject name for self-signed certificates.
-
-Type: `string`
-
-Default: `"CN=contoso.com"`
 
 ### <a name="input_deploy_zone_redundant_resources"></a> [deploy\_zone\_redundant\_resources](#input\_deploy\_zone\_redundant\_resources)
 
@@ -181,10 +134,6 @@ Default: `null`
 
 The following outputs are exported:
 
-### <a name="output_fqdn"></a> [fqdn](#output\_fqdn)
-
-Description: Application Gateway FQDN (input)
-
 ### <a name="output_id"></a> [id](#output\_id)
 
 Description: Application Gateway resource ID
@@ -212,18 +161,6 @@ Version: ~> 0.2
 Source: Azure/avm-res-network-publicipaddress/azurerm
 
 Version: ~> 0.2
-
-### <a name="module_appgw_uai"></a> [appgw\_uai](#module\_appgw\_uai)
-
-Source: Azure/avm-res-managedidentity-userassignedidentity/azurerm
-
-Version: ~> 0.2
-
-### <a name="module_certificate"></a> [certificate](#module\_certificate)
-
-Source: ../certificate
-
-Version:
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->

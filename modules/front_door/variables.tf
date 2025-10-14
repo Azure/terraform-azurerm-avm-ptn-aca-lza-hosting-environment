@@ -7,21 +7,6 @@ variable "backend_fqdn" {
   description = "Required. The backend FQDN that Front Door will route traffic to (Container Apps Environment default domain)."
 }
 
-variable "certificate_key_name" {
-  type        = string
-  description = "Required. The name of the certificate key in Key Vault for TLS termination."
-}
-
-variable "front_door_fqdn" {
-  type        = string
-  description = "Required. The custom domain FQDN for the Front Door endpoint."
-}
-
-variable "key_vault_id" {
-  type        = string
-  description = "Required. The resource ID of the Key Vault containing the TLS certificate."
-}
-
 variable "location" {
   type        = string
   description = "Required. Azure region for resources."
@@ -36,11 +21,6 @@ variable "name" {
 variable "resource_group_name" {
   type        = string
   description = "Required. Resource group name to deploy resources into."
-}
-
-variable "user_assigned_identity_name" {
-  type        = string
-  description = "Required. Name of the User Assigned Identity used by Front Door to read Key Vault secrets."
 }
 
 variable "backend_port" {

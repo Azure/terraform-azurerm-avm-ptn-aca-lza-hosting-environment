@@ -35,12 +35,6 @@ The following resources are used by this module:
 
 The following input variables are required:
 
-### <a name="input_application_gateway_certificate_key_name"></a> [application\_gateway\_certificate\_key\_name](#input\_application\_gateway\_certificate\_key\_name)
-
-Description: Required. The name of the certificate key to use for Application Gateway certificate.
-
-Type: `string`
-
 ### <a name="input_deployment_subnet_address_prefix"></a> [deployment\_subnet\_address\_prefix](#input\_deployment\_subnet\_address\_prefix)
 
 Description: Required. The CIDR to use for Deployment scripts subnet.
@@ -110,38 +104,6 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
-
-### <a name="input_application_gateway_backend_fqdn"></a> [application\_gateway\_backend\_fqdn](#input\_application\_gateway\_backend\_fqdn)
-
-Description: Optional. The FQDN of the backend to use for the Application Gateway. Default is empty.
-
-Type: `string`
-
-Default: `""`
-
-### <a name="input_application_gateway_certificate_subject_name"></a> [application\_gateway\_certificate\_subject\_name](#input\_application\_gateway\_certificate\_subject\_name)
-
-Description: Optional. The certificate subject name for self-signed certificates. Default is 'CN=contoso.com'.
-
-Type: `string`
-
-Default: `"CN=contoso.com"`
-
-### <a name="input_application_gateway_fqdn"></a> [application\_gateway\_fqdn](#input\_application\_gateway\_fqdn)
-
-Description: Optional. The FQDN of the Application Gateway. Required and must match if the TLS Certificate is provided. Default is empty.
-
-Type: `string`
-
-Default: `""`
-
-### <a name="input_base64_certificate"></a> [base64\_certificate](#input\_base64\_certificate)
-
-Description: Optional. The base64 encoded certificate to use for Application Gateway certificate. When not provided a self signed one will be generated, the certificate will be added to the Key Vault and assigned to the Application Gateway listener.
-
-Type: `string`
-
-Default: `""`
 
 ### <a name="input_bastion_resource_id"></a> [bastion\_resource\_id](#input\_bastion\_resource\_id)
 
@@ -225,14 +187,6 @@ Type: `string`
 
 Default: `"applicationGateway"`
 
-### <a name="input_front_door_certificate_key_name"></a> [front\_door\_certificate\_key\_name](#input\_front\_door\_certificate\_key\_name)
-
-Description: Optional. The name of the certificate key in Key Vault for Front Door TLS termination. Required when expose\_container\_apps\_with is "frontDoor". Default is empty.
-
-Type: `string`
-
-Default: `""`
-
 ### <a name="input_front_door_enable_waf"></a> [front\_door\_enable\_waf](#input\_front\_door\_enable\_waf)
 
 Description: Optional. Enable Web Application Firewall for Front Door. Requires Premium SKU. Default is false.
@@ -240,14 +194,6 @@ Description: Optional. Enable Web Application Firewall for Front Door. Requires 
 Type: `bool`
 
 Default: `false`
-
-### <a name="input_front_door_fqdn"></a> [front\_door\_fqdn](#input\_front\_door\_fqdn)
-
-Description: Optional. The custom domain FQDN for the Front Door endpoint. Required when expose\_container\_apps\_with is "frontDoor". Default is empty.
-
-Type: `string`
-
-Default: `""`
 
 ### <a name="input_front_door_sku_name"></a> [front\_door\_sku\_name](#input\_front\_door\_sku\_name)
 
@@ -349,10 +295,6 @@ Default: `"aca-lza"`
 
 The following outputs are exported:
 
-### <a name="output_application_gateway_fqdn"></a> [application\_gateway\_fqdn](#output\_application\_gateway\_fqdn)
-
-Description: The FQDN of the Application Gateway (input, when used).
-
 ### <a name="output_application_gateway_id"></a> [application\_gateway\_id](#output\_application\_gateway\_id)
 
 Description: The resource ID of the Application Gateway (when deployed).
@@ -397,13 +339,9 @@ Description: The name of the Azure Container Registry.
 
 Description: The resource ID of the user-assigned managed identity for ACR pulls.
 
-### <a name="output_front_door_custom_domain_fqdn"></a> [front\_door\_custom\_domain\_fqdn](#output\_front\_door\_custom\_domain\_fqdn)
-
-Description: The custom domain FQDN configured for Front Door (when deployed).
-
 ### <a name="output_front_door_endpoint_hostname"></a> [front\_door\_endpoint\_hostname](#output\_front\_door\_endpoint\_hostname)
 
-Description: The hostname of the Front Door endpoint (when deployed).
+Description: The hostname of the Front Door endpoint (*.azurefd.net with Microsoft-managed certificate, when deployed).
 
 ### <a name="output_front_door_id"></a> [front\_door\_id](#output\_front\_door\_id)
 

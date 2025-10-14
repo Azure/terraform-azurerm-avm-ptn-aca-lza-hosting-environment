@@ -1,8 +1,3 @@
-output "application_gateway_fqdn" {
-  description = "The FQDN of the Application Gateway (input, when used)."
-  value       = try(module.application_gateway[0].fqdn, null)
-}
-
 output "application_gateway_id" {
   description = "The resource ID of the Application Gateway (when deployed)."
   value       = try(module.application_gateway[0].id, null)
@@ -58,13 +53,8 @@ output "container_registry_user_assigned_identity_id" {
   value       = module.supporting_services.container_registry_uai_id
 }
 
-output "front_door_custom_domain_fqdn" {
-  description = "The custom domain FQDN configured for Front Door (when deployed)."
-  value       = try(module.front_door[0].custom_domain_fqdn, null)
-}
-
 output "front_door_endpoint_hostname" {
-  description = "The hostname of the Front Door endpoint (when deployed)."
+  description = "The hostname of the Front Door endpoint (*.azurefd.net with Microsoft-managed certificate, when deployed)."
   value       = try(module.front_door[0].endpoint_hostname, null)
 }
 
