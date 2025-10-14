@@ -36,6 +36,7 @@ module "key_vault" {
   spoke_vnet_resource_id     = var.spoke_vnet_resource_id
   enable_diagnostics         = var.enable_diagnostics
   enable_telemetry           = var.enable_telemetry
+  expose_container_apps_with = var.expose_container_apps_with
   hub_vnet_resource_id       = var.hub_vnet_resource_id
   log_analytics_workspace_id = var.log_analytics_workspace_id
   tags                       = local.tags

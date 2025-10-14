@@ -2,14 +2,19 @@
 
 data "azapi_client_config" "naming" {}
 
+# Validation to ensure only one resource group approach is used
+resource "null_resource" "resource_group_validation" {
+  lifecycle {
+    precondition {
+      condition     = !(trimspace(var.created_resource_group_name) != "" && trimspace(var.existing_resource_group_id) != "")
+      error_message = "Cannot specify both created_resource_group_name (for new RG) and existing_resource_group_id (for existing RG). Please provide only one, or leave both empty for auto-generation."
+    }
+  }
+}
 
 locals {
-  create_auto_named_rg   = !var.use_existing_resource_group && trimspace(var.created_resource_group_name) == ""
-  create_custom_named_rg = !var.use_existing_resource_group && trimspace(var.created_resource_group_name) != ""
-  // For existing resource groups, extract the name from the ID
-  existing_resource_group_name = var.use_existing_resource_group ? split("/", var.existing_resource_group_id)[4] : ""
-  // Input to the naming module (empty for auto-generation)
-  naming_module_resource_group_input = var.use_existing_resource_group ? local.existing_resource_group_name : local.create_custom_named_rg ? var.created_resource_group_name : ""
+  create_auto_named_rg   = !local.use_existing_resource_group && trimspace(var.created_resource_group_name) == ""
+  create_custom_named_rg = !local.use_existing_resource_group && trimspace(var.created_resource_group_name) != ""
   // Deterministic uniqueness token derived from subscription + inputs
   naming_unique_id = substr(lower(replace(base64encode(sha256(local.naming_unique_seed)), "=", "")), 0, 13)
   naming_unique_seed = join("|", [
@@ -19,7 +24,11 @@ locals {
     var.workload_name,
   ])
   // Resource group ID logic
-  resource_group_id = var.use_existing_resource_group ? var.existing_resource_group_id : (length(module.spoke_resource_group) > 0 ? module.spoke_resource_group[0].resource_id : "")
+  resource_group_id = local.use_existing_resource_group ? var.existing_resource_group_id : module.spoke_resource_group[0].resource_id
+  // Resource group name logic
+  resource_group_name = local.use_existing_resource_group ? regex("/resourceGroups/([^/]+)", var.existing_resource_group_id)[0] : local.create_custom_named_rg ? var.created_resource_group_name : ""
+  // Determine the resource group scenario
+  use_existing_resource_group = trimspace(var.existing_resource_group_id) != ""
 }
 
 module "naming" {
@@ -29,31 +38,19 @@ module "naming" {
   location                  = var.location
   unique_id                 = local.naming_unique_id
   workload_name             = var.workload_name
-  spoke_resource_group_name = local.naming_module_resource_group_input
-}
-
-# Final resource group name calculation (must be after naming module)
-locals {
-  final_resource_group_name = (
-    var.use_existing_resource_group
-    ? local.existing_resource_group_name
-    : module.naming.resources_names.resourceGroup
-  )
+  spoke_resource_group_name = local.resource_group_name
 }
 
 module "spoke_resource_group" {
   source  = "Azure/avm-res-resources-resourcegroup/azurerm"
   version = "~> 0.2"
-  count   = var.use_existing_resource_group ? 0 : 1
+  count   = local.use_existing_resource_group ? 0 : 1
 
   location         = var.location
-  name             = local.create_custom_named_rg ? var.created_resource_group_name : module.naming.resources_names.resourceGroup
+  name             = local.resource_group_name
   enable_telemetry = var.enable_telemetry
   tags             = var.tags
 }
-
-
-
 
 // Spoke composition module (Stage 2+: LAW first)
 module "spoke" {
@@ -62,7 +59,7 @@ module "spoke" {
   deployment_subnet_address_prefix              = var.deployment_subnet_address_prefix
   location                                      = var.location
   resource_group_id                             = local.resource_group_id
-  resource_group_name                           = local.final_resource_group_name
+  resource_group_name                           = local.resource_group_name
   resources_names                               = module.naming.resources_names
   spoke_infra_subnet_address_prefix             = var.spoke_infra_subnet_address_prefix
   spoke_private_endpoints_subnet_address_prefix = var.spoke_private_endpoints_subnet_address_prefix
@@ -93,12 +90,13 @@ module "supporting_services" {
   enable_telemetry                          = var.enable_telemetry
   location                                  = var.location
   resource_group_id                         = local.resource_group_id
-  resource_group_name                       = local.final_resource_group_name
+  resource_group_name                       = local.resource_group_name
   resources_names                           = module.naming.resources_names
   spoke_private_endpoint_subnet_resource_id = module.spoke.spoke_private_endpoints_subnet_id
   spoke_vnet_resource_id                    = module.spoke.spoke_vnet_id
   deploy_agent_pool                         = var.deploy_agent_pool
   deploy_zone_redundant_resources           = var.deploy_zone_redundant_resources
+  expose_container_apps_with                = var.expose_container_apps_with
   hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
   log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id
   tags                                      = var.tags
@@ -117,7 +115,7 @@ module "container_apps_environment" {
   log_analytics_workspace_id = module.spoke.log_analytics_workspace_id
   name                       = module.naming.resources_names.containerAppsEnvironment
   resource_group_id          = local.resource_group_id
-  resource_group_name        = local.final_resource_group_name
+  resource_group_name        = local.resource_group_name
   # Networking
   spoke_virtual_network_id = module.spoke.spoke_vnet_id
   # Optional storage mounts (none by default)
@@ -142,7 +140,7 @@ module "sample_application" {
   container_registry_user_assigned_identity_id = module.supporting_services.container_registry_uai_id
   location                                     = var.location
   // Where to deploy
-  resource_group_name   = local.final_resource_group_name
+  resource_group_name   = local.resource_group_name
   enable_telemetry      = var.enable_telemetry
   tags                  = var.tags
   workload_profile_name = module.container_apps_environment.workload_profile_names[0]
@@ -155,13 +153,13 @@ module "application_gateway" {
   count  = var.expose_container_apps_with == "applicationGateway" ? 1 : 0
 
   certificate_key_name = var.application_gateway_certificate_key_name
-  deployment_subnet_id = module.spoke.deployment_subnet_id
-  key_vault_id         = module.supporting_services.key_vault_id
-  location             = var.location
-  name                 = module.naming.resources_names.applicationGateway
-  public_ip_name       = module.naming.resources_names.applicationGatewayPip
-  resource_group_name  = local.final_resource_group_name
-  # Certificate deployment requirements
+  # Required for deployment script
+  deployment_subnet_id        = module.spoke.deployment_subnet_id
+  key_vault_id                = module.supporting_services.key_vault_id
+  location                    = var.location
+  name                        = module.naming.resources_names.applicationGateway
+  public_ip_name              = module.naming.resources_names.applicationGatewayPip
+  resource_group_name         = local.resource_group_name
   storage_account_name        = module.supporting_services.storage_account_name
   subnet_id                   = module.spoke.spoke_application_gateway_subnet_id
   user_assigned_identity_name = module.naming.resources_names.applicationGatewayUserAssignedIdentity
@@ -171,7 +169,6 @@ module "application_gateway" {
   backend_fqdn                    = var.application_gateway_backend_fqdn
   backend_probe_path              = "/"
   base64_certificate              = var.base64_certificate
-  certificate_subject_name        = var.application_gateway_certificate_subject_name
   deploy_zone_redundant_resources = var.deploy_zone_redundant_resources
   enable_ddos_protection          = var.enable_ddos_protection
   enable_diagnostics              = true
@@ -194,7 +191,7 @@ module "front_door" {
   key_vault_id        = module.supporting_services.key_vault_id
   location            = var.location
   name                = module.naming.resources_names.frontDoor
-  resource_group_name = local.final_resource_group_name
+  resource_group_name = local.resource_group_name
   # Identity
   user_assigned_identity_name = module.naming.resources_names.frontDoorUserAssignedIdentity
   backend_port                = 443
@@ -209,5 +206,4 @@ module "front_door" {
   tags            = var.tags
   waf_policy_name = var.front_door_waf_policy_name != "" ? var.front_door_waf_policy_name : "${module.naming.resources_names.frontDoor}-waf"
 }
-
 

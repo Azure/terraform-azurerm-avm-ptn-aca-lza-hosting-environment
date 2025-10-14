@@ -59,6 +59,12 @@ variable "enable_diagnostics" {
   description = "Enable diagnostics settings for supporting services"
 }
 
+variable "expose_container_apps_with" {
+  type        = string
+  default     = "applicationGateway"
+  description = "Ingress method: 'applicationGateway', 'frontDoor', or 'none'"
+}
+
 variable "hub_vnet_resource_id" {
   type        = string
   default     = ""

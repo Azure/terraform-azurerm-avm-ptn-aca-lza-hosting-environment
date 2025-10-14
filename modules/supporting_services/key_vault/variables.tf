@@ -53,3 +53,9 @@ variable "enable_diagnostics" {
   type        = bool
   default     = true
 }
+
+variable "expose_container_apps_with" {
+  type        = string
+  default     = "applicationGateway"
+  description = "Ingress method: 'applicationGateway', 'frontDoor', or 'none'. Determines if Front Door CDN needs Key Vault access."
+}

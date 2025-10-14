@@ -2,11 +2,12 @@
 # Front Door module: main implementation     #
 ###############################################
 
-# Parse Key Vault ID to get the vault name
+# Parse Key Vault ID to get the vault name and resource group
 locals {
-  kv_id_segments = split("/", var.key_vault_id)
-  kv_name        = local.kv_id_segments[8]
-  kv_rg_name     = local.kv_id_segments[4]
+  kv_id_segments         = split("/", var.key_vault_id)
+  kv_name                = local.kv_id_segments[8]
+  kv_resource_group_name = local.kv_id_segments[4]
+  kv_rg_name             = local.kv_id_segments[4]
 }
 
 # Get Key Vault details to construct the certificate URL
@@ -23,17 +24,13 @@ resource "azurerm_user_assigned_identity" "this" {
   tags                = var.tags
 }
 
-# Key Vault access policy for the User Assigned Identity
-resource "azurerm_key_vault_access_policy" "front_door" {
-  key_vault_id = var.key_vault_id
-  object_id    = azurerm_user_assigned_identity.this.principal_id
-  tenant_id    = azurerm_user_assigned_identity.this.tenant_id
-  certificate_permissions = [
-    "Get",
-  ]
-  secret_permissions = [
-    "Get",
-  ]
+# RBAC role assignment for the User Assigned Identity to access Key Vault secrets
+# Note: The Azure Front Door CDN service principal permissions are granted in the Key Vault module
+resource "azurerm_role_assignment" "front_door_secrets_user" {
+  principal_id         = azurerm_user_assigned_identity.this.principal_id
+  scope                = var.key_vault_id
+  principal_type       = "ServicePrincipal"
+  role_definition_name = "Key Vault Secrets User"
 }
 
 # WAF Policy (if enabled and Premium SKU)
@@ -135,7 +132,7 @@ resource "azurerm_cdn_frontdoor_secret" "this" {
   }
 
   depends_on = [
-    azurerm_key_vault_access_policy.front_door
+    azurerm_role_assignment.front_door_secrets_user
   ]
 }
 

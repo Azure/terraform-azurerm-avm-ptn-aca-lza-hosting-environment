@@ -1,3 +1,5 @@
+
+
 locals {
   # Map storages input into the AVM module's storages shape when account_name/share_name/access_key present
   storages_map = {

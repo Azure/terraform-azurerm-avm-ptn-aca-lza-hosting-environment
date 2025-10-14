@@ -95,7 +95,7 @@ output "log_analytics_workspace_name" {
 
 output "resource_group_name" {
   description = "The name of the resource group where resources are deployed."
-  value       = local.final_resource_group_name
+  value       = local.resource_group_name
 }
 
 output "resource_type_abbreviations" {

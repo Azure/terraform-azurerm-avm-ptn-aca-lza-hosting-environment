@@ -104,6 +104,14 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_expose_container_apps_with"></a> [expose\_container\_apps\_with](#input\_expose\_container\_apps\_with)
+
+Description: Ingress method: 'applicationGateway', 'frontDoor', or 'none'
+
+Type: `string`
+
+Default: `"applicationGateway"`
+
 ### <a name="input_hub_vnet_resource_id"></a> [hub\_vnet\_resource\_id](#input\_hub\_vnet\_resource\_id)
 
 Description: Hub VNet resource ID (optional)
