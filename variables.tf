@@ -137,6 +137,12 @@ variable "expose_container_apps_with" {
   }
 }
 
+variable "front_door_enable_private_link" {
+  type        = bool
+  default     = false
+  description = "Optional. Enable private link integration between Front Door and Container Apps Environment. Requires Premium SKU. Default is false."
+}
+
 variable "front_door_enable_waf" {
   type        = bool
   default     = false

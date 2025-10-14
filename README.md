@@ -179,6 +179,14 @@ Type: `string`
 
 Default: `"applicationGateway"`
 
+### <a name="input_front_door_enable_private_link"></a> [front\_door\_enable\_private\_link](#input\_front\_door\_enable\_private\_link)
+
+Description: Optional. Enable private link integration between Front Door and Container Apps Environment. Requires Premium SKU. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_front_door_enable_waf"></a> [front\_door\_enable\_waf](#input\_front\_door\_enable\_waf)
 
 Description: Optional. Enable Web Application Firewall for Front Door. Requires Premium SKU. Default is false.

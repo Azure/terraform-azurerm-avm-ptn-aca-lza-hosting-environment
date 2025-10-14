@@ -4,6 +4,26 @@
 
 This module creates an Azure Front Door (Standard or Premium) with custom domain support and TLS termination using certificates from Azure Key Vault.
 
+## Features
+
+- Support for Standard and Premium SKUs
+- Optional Web Application Firewall (WAF) protection (Premium SKU only)
+- Optional Private Link integration with Azure Container Apps Environment (Premium SKU only)
+- Health probes and load balancing
+- Diagnostic settings integration with Log Analytics
+- Caching configuration
+
+## Private Link Integration
+
+When `enable_private_link` is set to `true`, the module configures Azure Front Door to connect to the Container Apps Environment via Azure Private Link instead of over the public internet. This provides enhanced security by keeping traffic within the Microsoft backbone network.
+
+**Requirements for Private Link:**
+- Front Door SKU must be `Premium_AzureFrontDoor`
+- `container_apps_environment_id` must be provided
+- The Container Apps Environment must support private link connections
+
+For more information, see [Integrate Azure Front Door with Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/how-to-integrate-with-azure-front-door).
+
 <!-- markdownlint-disable MD033 -->
 ## Requirements
 
@@ -95,6 +115,14 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_container_apps_environment_id"></a> [container\_apps\_environment\_id](#input\_container\_apps\_environment\_id)
+
+Description: Optional. The resource ID of the Container Apps Environment for private link integration. Required if enable\_private\_link is true.
+
+Type: `string`
+
+Default: `""`
+
 ### <a name="input_enable_diagnostics"></a> [enable\_diagnostics](#input\_enable\_diagnostics)
 
 Description: Enable diagnostics settings
@@ -102,6 +130,14 @@ Description: Enable diagnostics settings
 Type: `bool`
 
 Default: `true`
+
+### <a name="input_enable_private_link"></a> [enable\_private\_link](#input\_enable\_private\_link)
+
+Description: Optional. Enable private link integration with Container Apps Environment. Requires Premium SKU and container\_apps\_environment\_id to be set.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
@@ -182,6 +218,14 @@ Description: Front Door profile name
 ### <a name="output_origin_group_id"></a> [origin\_group\_id](#output\_origin\_group\_id)
 
 Description: Front Door origin group resource ID
+
+### <a name="output_origin_id"></a> [origin\_id](#output\_origin\_id)
+
+Description: Front Door origin resource ID
+
+### <a name="output_private_link_enabled"></a> [private\_link\_enabled](#output\_private\_link\_enabled)
+
+Description: Whether private link is enabled for the Front Door origin
 
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 

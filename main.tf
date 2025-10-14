@@ -183,7 +183,10 @@ module "front_door" {
   resource_group_name = local.resource_group_name
   backend_port        = 443
   backend_protocol    = "Https"
-  enable_telemetry    = var.enable_telemetry
+  # Private Link Configuration
+  container_apps_environment_id = module.container_apps_environment.managed_environment_id
+  enable_private_link           = var.front_door_enable_private_link
+  enable_telemetry              = var.enable_telemetry
   # WAF Configuration
   enable_waf = var.front_door_enable_waf
   # Diagnostics
