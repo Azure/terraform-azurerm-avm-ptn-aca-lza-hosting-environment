@@ -171,13 +171,9 @@ Description: The default domain of the Container Apps Environment
 
 Description: The resource ID of the Container Apps Environment
 
-### <a name="output_front_door_custom_domain_fqdn"></a> [front\_door\_custom\_domain\_fqdn](#output\_front\_door\_custom\_domain\_fqdn)
-
-Description: The custom domain FQDN configured for Front Door
-
 ### <a name="output_front_door_endpoint_hostname"></a> [front\_door\_endpoint\_hostname](#output\_front\_door\_endpoint\_hostname)
 
-Description: The hostname of the Front Door endpoint
+Description: The default *.azurefd.net hostname of the Front Door endpoint with Microsoft-managed certificate
 
 ### <a name="output_front_door_id"></a> [front\_door\_id](#output\_front\_door\_id)
 

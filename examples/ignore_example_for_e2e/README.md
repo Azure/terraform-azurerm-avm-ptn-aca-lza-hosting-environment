@@ -89,6 +89,46 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_environment"></a> [environment](#input\_environment)
+
+Description: The environment identifier for the module.
+
+Type: `string`
+
+Default: `"test"`
+
+### <a name="input_location"></a> [location](#input\_location)
+
+Description: The Azure region where the resources will be deployed.
+
+Type: `string`
+
+Default: `"East US"`
+
+### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
+
+Description: The name of the resource group to create.
+
+Type: `string`
+
+Default: `"rg-aca-lza-ignore-test"`
+
+### <a name="input_tags"></a> [tags](#input\_tags)
+
+Description: Map of tags to assign to the resources.
+
+Type: `map(string)`
+
+Default: `{}`
+
+### <a name="input_workload_name"></a> [workload\_name](#input\_workload\_name)
+
+Description: The name of the workload.
+
+Type: `string`
+
+Default: `"ignoretest"`
+
 ## Outputs
 
 No outputs.

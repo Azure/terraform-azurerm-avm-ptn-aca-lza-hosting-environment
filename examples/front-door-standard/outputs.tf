@@ -8,13 +8,8 @@ output "container_apps_environment_id" {
   value       = module.aca_lza_hosting.container_apps_environment_id
 }
 
-output "front_door_custom_domain_fqdn" {
-  description = "The custom domain FQDN configured for Front Door"
-  value       = module.aca_lza_hosting.front_door_custom_domain_fqdn
-}
-
 output "front_door_endpoint_hostname" {
-  description = "The hostname of the Front Door endpoint"
+  description = "The default *.azurefd.net hostname of the Front Door endpoint with Microsoft-managed certificate"
   value       = module.aca_lza_hosting.front_door_endpoint_hostname
 }
 
