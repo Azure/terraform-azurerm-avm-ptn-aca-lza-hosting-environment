@@ -99,38 +99,31 @@ resource "azurerm_cdn_frontdoor_origin" "this" {
   }
 }
 
-# Data source to read the Container Apps Environment to get the private endpoint connection created by Front Door
-data "azapi_resource" "managed_environment_connections" {
-  resource_id            = var.container_apps_environment_id
-  type                   = "Microsoft.App/managedEnvironments@2024-08-02-preview"
-  response_export_values = ["properties.privateEndpointConnections"]
+# Use null_resource with local-exec to approve the private endpoint connection
+# This runs after the origin is created and approves any pending connections
+resource "null_resource" "approve_private_endpoint" {
+  # Trigger whenever the origin changes
+  triggers = {
+    origin_id = azurerm_cdn_frontdoor_origin.this.id
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Get all private endpoint connections for the Container Apps Environment
+      connections=$(az rest --method get --url "${var.container_apps_environment_id}?api-version=2024-08-02-preview" --query "properties.privateEndpointConnections[?properties.privateLinkServiceConnectionState.status=='Pending'].name" -o tsv)
+      
+      # Approve each pending connection
+      for conn in $connections; do
+        echo "Approving private endpoint connection: $conn"
+        az rest --method put \
+          --url "${var.container_apps_environment_id}/privateEndpointConnections/$conn?api-version=2024-08-02-preview" \
+          --body '{"properties":{"privateLinkServiceConnectionState":{"status":"Approved","description":"Auto-approved by Terraform for Front Door Private Link"}}}'
+      done
+    EOT
+  }
 
   depends_on = [
     azurerm_cdn_frontdoor_origin.this
-  ]
-}
-
-# Auto-approve the private endpoint connection created by Front Door
-resource "azapi_update_resource" "approve_private_endpoint" {
-  for_each = {
-    for conn in try(data.azapi_resource.managed_environment_connections.output.properties.privateEndpointConnections, []) :
-    conn.name => conn
-    if try(conn.properties.privateLinkServiceConnectionState.status, "") == "Pending"
-  }
-
-  resource_id = "${var.container_apps_environment_id}/privateEndpointConnections/${each.key}"
-  type        = "Microsoft.App/managedEnvironments/privateEndpointConnections@2024-08-02-preview"
-  body = {
-    properties = {
-      privateLinkServiceConnectionState = {
-        status      = "Approved"
-        description = "Auto-approved by Terraform for Front Door Private Link"
-      }
-    }
-  }
-
-  depends_on = [
-    data.azapi_resource.managed_environment_connections
   ]
 }
 
