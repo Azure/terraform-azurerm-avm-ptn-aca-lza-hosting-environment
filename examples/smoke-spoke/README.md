@@ -53,7 +53,6 @@ module "aca_lza_hosting" {
   # VM/jumpbox minimal required inputs, keep VM disabled by default (vm_jumpbox_os_type = "none")
   vm_size = "Standard_DS2_v2"
   # Container Registry
-  deploy_agent_pool           = false
   deploy_sample_application   = true
   enable_telemetry            = var.enable_telemetry
   environment                 = var.environment

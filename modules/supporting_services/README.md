@@ -80,14 +80,6 @@ Type: `string`
 
 The following input variables are optional (have default values):
 
-### <a name="input_deploy_agent_pool"></a> [deploy\_agent\_pool](#input\_deploy\_agent\_pool)
-
-Description: Deploy ACR agent pool
-
-Type: `bool`
-
-Default: `true`
-
 ### <a name="input_deploy_zone_redundant_resources"></a> [deploy\_zone\_redundant\_resources](#input\_deploy\_zone\_redundant\_resources)
 
 Description: If true, use AZ-enabled SKUs where supported
@@ -139,10 +131,6 @@ Default: `{}`
 ## Outputs
 
 The following outputs are exported:
-
-### <a name="output_container_registry_agent_pool_name"></a> [container\_registry\_agent\_pool\_name](#output\_container\_registry\_agent\_pool\_name)
-
-Description: ACR agent pool name
 
 ### <a name="output_container_registry_id"></a> [container\_registry\_id](#output\_container\_registry\_id)
 

@@ -41,12 +41,6 @@ variable "spoke_vnet_resource_id" {
   description = "Spoke VNet resource ID"
 }
 
-variable "deploy_agent_pool" {
-  type        = bool
-  default     = true
-  description = "Deploy ACR agent pool"
-}
-
 variable "deploy_zone_redundant_resources" {
   type        = bool
   default     = true

@@ -1,8 +1,3 @@
-output "container_registry_agent_pool_name" {
-  description = "ACR agent pool name"
-  value       = try(module.container_registry[0].agent_pool_name, "")
-}
-
 output "container_registry_id" {
   description = "ACR resource ID"
   value       = try(module.container_registry[0].id, null)

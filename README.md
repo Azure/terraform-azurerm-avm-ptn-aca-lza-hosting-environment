@@ -121,14 +121,6 @@ Type: `string`
 
 Default: `""`
 
-### <a name="input_deploy_agent_pool"></a> [deploy\_agent\_pool](#input\_deploy\_agent\_pool)
-
-Description: Optional. Deploy the agent pool for the container registry. Default value is true.
-
-Type: `bool`
-
-Default: `true`
-
 ### <a name="input_deploy_sample_application"></a> [deploy\_sample\_application](#input\_deploy\_sample\_application)
 
 Description: Optional. Deploy sample application to the container apps environment. Default is false.
@@ -318,10 +310,6 @@ Description: The resource ID of the Private DNS Zone for the ACA environment def
 ### <a name="output_container_apps_environment_static_ip"></a> [container\_apps\_environment\_static\_ip](#output\_container\_apps\_environment\_static\_ip)
 
 Description: The static IP address of the Container Apps Managed Environment.
-
-### <a name="output_container_registry_agent_pool_name"></a> [container\_registry\_agent\_pool\_name](#output\_container\_registry\_agent\_pool\_name)
-
-Description: The name of the internal agent pool for the container registry.
 
 ### <a name="output_container_registry_id"></a> [container\_registry\_id](#output\_container\_registry\_id)
 

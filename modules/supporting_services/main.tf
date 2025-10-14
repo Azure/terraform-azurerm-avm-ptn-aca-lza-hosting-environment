@@ -14,7 +14,6 @@ module "container_registry" {
   resource_group_name         = var.resource_group_name
   spoke_vnet_resource_id      = var.spoke_vnet_resource_id
   user_assigned_identity_name = var.resources_names.containerRegistryUserAssignedIdentity
-  deploy_agent_pool           = var.deploy_agent_pool
   enable_diagnostics          = var.enable_diagnostics
   enable_telemetry            = var.enable_telemetry
   hub_vnet_resource_id        = var.hub_vnet_resource_id

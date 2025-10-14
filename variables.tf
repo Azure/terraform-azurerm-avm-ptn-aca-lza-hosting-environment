@@ -75,12 +75,6 @@ variable "created_resource_group_name" {
   description = "Optional. Name to use when use_existing_resource_group is true and the module is creating a resource group. Leave blank for auto-generation."
 }
 
-variable "deploy_agent_pool" {
-  type        = bool
-  default     = true
-  description = "Optional. Deploy the agent pool for the container registry. Default value is true."
-}
-
 variable "deploy_sample_application" {
   type        = bool
   default     = false

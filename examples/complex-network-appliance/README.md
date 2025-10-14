@@ -210,7 +210,6 @@ module "aca_lza_hosting" {
   # Linux VM with SSH for testing appliance connectivity (COMPLEX)
   vm_size                     = "Standard_D4s_v3" # Larger VM for testing
   created_resource_group_name = var.custom_resource_group_name
-  deploy_agent_pool           = true
   # All features enabled (COMPLEX)
   deploy_sample_application = true
   # Zone redundancy for production-like setup (COMPLEX)

@@ -28,11 +28,6 @@ output "container_apps_environment_static_ip" {
   value       = module.container_apps_environment.static_ip_address
 }
 
-output "container_registry_agent_pool_name" {
-  description = "The name of the internal agent pool for the container registry."
-  value       = module.supporting_services.container_registry_agent_pool_name
-}
-
 output "container_registry_id" {
   description = "The resource ID of the Azure Container Registry."
   value       = module.supporting_services.container_registry_id

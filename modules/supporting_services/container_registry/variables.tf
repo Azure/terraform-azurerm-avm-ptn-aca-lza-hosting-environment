@@ -73,9 +73,3 @@ variable "zone_redundant_enabled" {
   type        = bool
   default     = true
 }
-
-variable "deploy_agent_pool" {
-  description = "Deploy ACR agent pool"
-  type        = bool
-  default     = true
-}

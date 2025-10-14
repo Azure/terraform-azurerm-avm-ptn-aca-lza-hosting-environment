@@ -94,7 +94,6 @@ module "supporting_services" {
   resources_names                           = module.naming.resources_names
   spoke_private_endpoint_subnet_resource_id = module.spoke.spoke_private_endpoints_subnet_id
   spoke_vnet_resource_id                    = module.spoke.spoke_vnet_id
-  deploy_agent_pool                         = var.deploy_agent_pool
   deploy_zone_redundant_resources           = var.deploy_zone_redundant_resources
   expose_container_apps_with                = var.expose_container_apps_with
   hub_vnet_resource_id                      = var.hub_virtual_network_resource_id

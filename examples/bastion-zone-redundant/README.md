@@ -115,7 +115,6 @@ module "aca_lza_hosting" {
   # Linux VM with SSH for Bastion testing (COMPLEX)
   vm_size             = "Standard_DS2_v2"
   bastion_resource_id = azurerm_bastion_host.this.id
-  deploy_agent_pool   = true
   # Deploy all optional features
   deploy_sample_application = true
   # Zone redundancy for maximum availability (COMPLEX)

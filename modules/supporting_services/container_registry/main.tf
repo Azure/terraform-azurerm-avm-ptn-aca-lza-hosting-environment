@@ -87,26 +87,3 @@ module "acr" {
     }
   } : {}
 }
-
-# Optional agent pool via AzAPI (preview)
-resource "azapi_resource" "agent_pool" {
-  count     = var.deploy_agent_pool ? 1 : 0
-  type      = "Microsoft.ContainerRegistry/registries/agentPools@2025-03-01-preview"
-  name      = "agentpool"
-  parent_id = module.acr.resource_id
-  location  = var.location
-  body = {
-    properties = {
-      count                          = 2
-      virtualNetworkSubnetResourceId = var.private_endpoint_subnet_id
-      os                             = "Linux"
-      tier                           = "S2"
-    }
-  }
-
-  timeouts {
-    create = "30m"
-    delete = "30m"
-    update = "30m"
-  }
-}

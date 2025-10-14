@@ -91,9 +91,8 @@ module "aca_lza_hosting" {
   vm_admin_password                = "NotUsedForSSH123!" # Required but not used for SSH
   vm_jumpbox_subnet_address_prefix = "10.20.5.0/24"
   # Linux VM with SSH authentication (COMPLEX)
-  vm_size           = "Standard_DS2_v2"
-  deploy_agent_pool = true
-  # Deploy sample app and agent pool
+  vm_size = "Standard_DS2_v2"
+  # Deploy sample app
   deploy_sample_application = true
   # Zone redundancy for high availability (COMPLEX)
   deploy_zone_redundant_resources = true

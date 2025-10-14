@@ -46,7 +46,6 @@ module "aca_lza_hosting" {
   # Windows VM with password authentication (COMPLEX)
   vm_size                     = "Standard_DS2_v2"
   created_resource_group_name = var.resource_group_name
-  deploy_agent_pool           = true
   # No sample app to test minimal deployment
   deploy_sample_application = false
   # No zone redundancy for cost optimization (COMPLEX test case)

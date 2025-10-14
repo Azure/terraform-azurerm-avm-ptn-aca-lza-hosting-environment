@@ -51,8 +51,6 @@ module "aca_lza_hosting" {
   vm_jumpbox_subnet_address_prefix = "172.16.0.128/28" # Required but unused
   # NO VM deployment (COMPLEX edge case)
   vm_size = "Standard_DS2_v2" # Required but unused
-  # NO agent pool to minimize resources
-  deploy_agent_pool = false
   # NO sample application
   deploy_sample_application = false
   # Minimal availability - single zone
