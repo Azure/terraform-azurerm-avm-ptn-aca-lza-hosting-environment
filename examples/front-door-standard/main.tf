@@ -24,7 +24,8 @@ resource "azurerm_resource_group" "this" {
   name     = var.resource_group_name
 }
 
-# Front Door Standard scenario with default *.azurefd.net endpoint
+# Front Door Premium with Private Link scenario
+# Note: Front Door automatically uses Premium SKU with Private Link for internal Container Apps Environment
 module "aca_lza_hosting" {
   source = "../../"
 
@@ -51,10 +52,10 @@ module "aca_lza_hosting" {
   enable_telemetry                = var.enable_telemetry
   environment                     = var.environment
   existing_resource_group_id      = azurerm_resource_group.this.id
-  # Front Door Configuration - uses default *.azurefd.net endpoint with Microsoft-managed certificate
+  # Front Door Configuration
+  # Front Door automatically uses Premium SKU with Private Link enabled
   expose_container_apps_with  = "frontDoor"
-  front_door_enable_waf       = false # Standard SKU doesn't support WAF
-  front_door_sku_name         = "Standard_AzureFrontDoor"
+  front_door_enable_waf       = false # WAF is optional, defaults to disabled
   tags                        = var.tags
   use_existing_resource_group = true
   vm_jumpbox_os_type          = "none" # disable VM for this example

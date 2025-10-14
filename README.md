@@ -179,29 +179,13 @@ Type: `string`
 
 Default: `"applicationGateway"`
 
-### <a name="input_front_door_enable_private_link"></a> [front\_door\_enable\_private\_link](#input\_front\_door\_enable\_private\_link)
-
-Description: Optional. Enable private link integration between Front Door and Container Apps Environment. Requires Premium SKU. Default is false.
-
-Type: `bool`
-
-Default: `false`
-
 ### <a name="input_front_door_enable_waf"></a> [front\_door\_enable\_waf](#input\_front\_door\_enable\_waf)
 
-Description: Optional. Enable Web Application Firewall for Front Door. Requires Premium SKU. Default is false.
+Description: Optional. Enable Web Application Firewall for Front Door. Default is false.
 
 Type: `bool`
 
 Default: `false`
-
-### <a name="input_front_door_sku_name"></a> [front\_door\_sku\_name](#input\_front\_door\_sku\_name)
-
-Description: Optional. SKU name for the Front Door profile. Options: Standard\_AzureFrontDoor, Premium\_AzureFrontDoor. Default is "Standard\_AzureFrontDoor".
-
-Type: `string`
-
-Default: `"Standard_AzureFrontDoor"`
 
 ### <a name="input_front_door_waf_policy_name"></a> [front\_door\_waf\_policy\_name](#input\_front\_door\_waf\_policy\_name)
 

@@ -137,28 +137,10 @@ variable "expose_container_apps_with" {
   }
 }
 
-variable "front_door_enable_private_link" {
-  type        = bool
-  default     = false
-  description = "Optional. Enable private link integration between Front Door and Container Apps Environment. Requires Premium SKU. Default is false."
-}
-
 variable "front_door_enable_waf" {
   type        = bool
   default     = false
-  description = "Optional. Enable Web Application Firewall for Front Door. Requires Premium SKU. Default is false."
-}
-
-# Front Door (alternative ingress option)
-variable "front_door_sku_name" {
-  type        = string
-  default     = "Standard_AzureFrontDoor"
-  description = "Optional. SKU name for the Front Door profile. Options: Standard_AzureFrontDoor, Premium_AzureFrontDoor. Default is \"Standard_AzureFrontDoor\"."
-
-  validation {
-    condition     = contains(["Standard_AzureFrontDoor", "Premium_AzureFrontDoor"], var.front_door_sku_name)
-    error_message = "front_door_sku_name must be either Standard_AzureFrontDoor or Premium_AzureFrontDoor."
-  }
+  description = "Optional. Enable Web Application Firewall for Front Door. Default is false."
 }
 
 variable "front_door_waf_policy_name" {

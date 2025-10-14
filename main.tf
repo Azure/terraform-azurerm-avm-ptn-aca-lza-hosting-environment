@@ -172,6 +172,7 @@ module "application_gateway" {
 # Ingress via Front Door (alternative path)
 # Uses default *.azurefd.net endpoint with Microsoft-managed certificate
 # Routes to Container Apps Environment which includes the sample app if deployed
+# Note: Front Door always uses Premium SKU with Private Link for internal Container Apps Environment
 module "front_door" {
   source = "./modules/front_door"
   count  = var.expose_container_apps_with == "frontDoor" ? 1 : 0
@@ -183,16 +184,16 @@ module "front_door" {
   resource_group_name = local.resource_group_name
   backend_port        = 443
   backend_protocol    = "Https"
-  # Private Link Configuration
+  # Private Link Configuration - Always enabled for internal Container Apps Environment
   container_apps_environment_id = module.container_apps_environment.managed_environment_id
-  enable_private_link           = var.front_door_enable_private_link
+  enable_private_link           = true # Required for internal Container Apps Environment
   enable_telemetry              = var.enable_telemetry
-  # WAF Configuration
+  # WAF Configuration - Optional
   enable_waf = var.front_door_enable_waf
   # Diagnostics
   log_analytics_workspace_id = module.spoke.log_analytics_workspace_id
-  # SKU Configuration
-  sku_name        = var.front_door_sku_name
+  # SKU Configuration - Always Premium for Private Link support
+  sku_name        = "Premium_AzureFrontDoor" # Required for Private Link
   tags            = var.tags
   waf_policy_name = var.front_door_waf_policy_name != "" ? var.front_door_waf_policy_name : "${module.naming.resources_names.frontDoor}-waf"
 }
