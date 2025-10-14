@@ -65,7 +65,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "this" {
 }
 
 # Origin (Backend) - Routes to Container Apps Environment
-# Supports optional private link integration for secure connectivity
+# Always uses Private Link for secure connectivity to internal Container Apps Environment
 resource "azurerm_cdn_frontdoor_origin" "this" {
   cdn_frontdoor_origin_group_id  = azurerm_cdn_frontdoor_origin_group.this.id
   certificate_name_check_enabled = true
@@ -79,24 +79,21 @@ resource "azurerm_cdn_frontdoor_origin" "this" {
   weight                         = 1000
 
   # Private Link configuration for Container Apps Environment
-  dynamic "private_link" {
-    for_each = var.enable_private_link ? [1] : []
-
-    content {
-      location               = var.location
-      private_link_target_id = var.container_apps_environment_id
-      request_message        = "Front Door Private Link Request for Container Apps"
-    }
+  # Required for internal Container Apps Environment connectivity
+  private_link {
+    location               = var.location
+    private_link_target_id = var.container_apps_environment_id
+    request_message        = "Front Door Private Link Request for Container Apps"
   }
 
   lifecycle {
     precondition {
-      condition     = !var.enable_private_link || (var.enable_private_link && var.sku_name == "Premium_AzureFrontDoor")
+      condition     = var.sku_name == "Premium_AzureFrontDoor"
       error_message = "Private link integration requires Premium_AzureFrontDoor SKU. Current SKU: ${var.sku_name}"
     }
     precondition {
-      condition     = !var.enable_private_link || (var.enable_private_link && var.container_apps_environment_id != "")
-      error_message = "container_apps_environment_id must be provided when enable_private_link is true."
+      condition     = var.container_apps_environment_id != ""
+      error_message = "container_apps_environment_id must be provided for Private Link connectivity."
     }
   }
 }

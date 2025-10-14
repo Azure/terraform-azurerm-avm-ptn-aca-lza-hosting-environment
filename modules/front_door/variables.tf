@@ -60,19 +60,13 @@ variable "caching_enabled" {
 variable "container_apps_environment_id" {
   type        = string
   default     = ""
-  description = "Optional. The resource ID of the Container Apps Environment for private link integration. Required if enable_private_link is true."
+  description = "Required. The resource ID of the Container Apps Environment for private link integration."
 }
 
 variable "enable_diagnostics" {
   type        = bool
   default     = true
   description = "Enable diagnostics settings"
-}
-
-variable "enable_private_link" {
-  type        = bool
-  default     = false
-  description = "Optional. Enable private link integration with Container Apps Environment. Requires Premium SKU and container_apps_environment_id to be set."
 }
 
 variable "enable_telemetry" {

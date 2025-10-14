@@ -117,7 +117,7 @@ Default: `true`
 
 ### <a name="input_container_apps_environment_id"></a> [container\_apps\_environment\_id](#input\_container\_apps\_environment\_id)
 
-Description: Optional. The resource ID of the Container Apps Environment for private link integration. Required if enable\_private\_link is true.
+Description: Required. The resource ID of the Container Apps Environment for private link integration.
 
 Type: `string`
 
@@ -130,14 +130,6 @@ Description: Enable diagnostics settings
 Type: `bool`
 
 Default: `true`
-
-### <a name="input_enable_private_link"></a> [enable\_private\_link](#input\_enable\_private\_link)
-
-Description: Optional. Enable private link integration with Container Apps Environment. Requires Premium SKU and container\_apps\_environment\_id to be set.
-
-Type: `bool`
-
-Default: `false`
 
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
@@ -222,10 +214,6 @@ Description: Front Door origin group resource ID
 ### <a name="output_origin_id"></a> [origin\_id](#output\_origin\_id)
 
 Description: Front Door origin resource ID
-
-### <a name="output_private_link_enabled"></a> [private\_link\_enabled](#output\_private\_link\_enabled)
-
-Description: Whether private link is enabled for the Front Door origin
 
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 

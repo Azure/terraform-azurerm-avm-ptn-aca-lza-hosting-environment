@@ -28,11 +28,6 @@ output "origin_id" {
   value       = azurerm_cdn_frontdoor_origin.this.id
 }
 
-output "private_link_enabled" {
-  description = "Whether private link is enabled for the Front Door origin"
-  value       = var.enable_private_link
-}
-
 output "resource_id" {
   description = "Front Door profile resource ID"
   value       = azurerm_cdn_frontdoor_profile.this.id

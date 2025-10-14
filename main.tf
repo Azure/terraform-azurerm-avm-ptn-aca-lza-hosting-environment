@@ -186,7 +186,6 @@ module "front_door" {
   backend_protocol    = "Https"
   # Private Link Configuration - Always enabled for internal Container Apps Environment
   container_apps_environment_id = module.container_apps_environment.managed_environment_id
-  enable_private_link           = true # Required for internal Container Apps Environment
   enable_telemetry              = var.enable_telemetry
   # WAF Configuration - Optional
   enable_waf = var.front_door_enable_waf
