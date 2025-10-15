@@ -31,7 +31,13 @@ variable "subnet_id" {
 variable "backend_fqdn" {
   type        = string
   default     = ""
-  description = "Optional. Backend FQDN to route traffic to (e.g., your Container App or internal endpoint)."
+  description = "Optional. Backend FQDN to route traffic to (e.g., your Container App or internal endpoint). Required if enable_backend is true."
+}
+
+variable "enable_backend" {
+  type        = bool
+  default     = false
+  description = "Optional. Enable backend configuration including HTTPS listener and certificate. Set to true when a backend is available."
 }
 
 variable "backend_probe_path" {

@@ -45,7 +45,7 @@ module "aca_lza_hosting" {
   vm_size          = "Standard_DS2_v2"
   enable_telemetry = var.enable_telemetry
   environment      = var.environment
-  # Disable ingress by default to avoid requiring a TLS cert in Key Vault
+  # Disable ingress - no Application Gateway or Front Door
   expose_container_apps_with  = "none"
   tags                        = var.tags
   vm_authentication_type      = "password"
@@ -81,8 +81,8 @@ The following input variables are optional (have default values):
 
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
-Description: This variable controls whether or not telemetry is enabled for the module.  
-For more information see <https://aka.ms/avm/telemetryinfo>.  
+Description: This variable controls whether or not telemetry is enabled for the module.
+For more information see <https://aka.ms/avm/telemetryinfo>.
 If it is set to false, then no telemetry will be collected.
 
 Type: `bool`

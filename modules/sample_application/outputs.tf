@@ -1,6 +1,6 @@
 output "fqdn" {
-  description = "Public FQDN of the latest revision of the Container App."
-  value       = try(module.app.latest_revision_fqdn, module.app.fqdn)
+  description = "Public FQDN of the Container App (base hostname without revision suffix)."
+  value       = module.app.fqdn_url
 }
 
 output "id" {

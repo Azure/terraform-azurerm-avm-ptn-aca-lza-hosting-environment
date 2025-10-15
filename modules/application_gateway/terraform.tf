@@ -14,6 +14,10 @@ terraform {
       source  = "chilicat/pkcs12"
       version = "~> 0.0.7"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
     tls = {
       source  = "hashicorp/tls"
       version = "~> 4.0"

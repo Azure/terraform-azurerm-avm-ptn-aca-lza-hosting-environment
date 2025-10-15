@@ -18,7 +18,8 @@ provider "azurerm" {
   storage_use_azuread = true
 }
 
-# Windows VM scenario - Application Gateway now uses inline self-signed certificate
+# Windows VM scenario - No Application Gateway deployed
+# When Application Gateway is deployed, it automatically generates self-signed certificates
 module "aca_lza_hosting" {
   source = "../../"
 

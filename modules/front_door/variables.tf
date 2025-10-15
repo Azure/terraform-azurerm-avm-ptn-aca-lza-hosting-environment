@@ -4,7 +4,14 @@
 
 variable "backend_fqdn" {
   type        = string
-  description = "Required. The backend FQDN that Front Door will route traffic to (Container Apps Environment default domain)."
+  default     = ""
+  description = "Optional. The backend FQDN that Front Door will route traffic to (Container App FQDN, not the environment). If not provided, no origin or route will be created."
+}
+
+variable "enable_backend" {
+  type        = bool
+  default     = false
+  description = "Optional. Enable backend origin and route creation. Set to true when a Container App backend is available."
 }
 
 variable "location" {
@@ -60,7 +67,13 @@ variable "caching_enabled" {
 variable "container_apps_environment_id" {
   type        = string
   default     = ""
-  description = "Required. The resource ID of the Container Apps Environment for private link integration."
+  description = "Optional. The resource ID of the Container Apps Environment for private link integration. This is used as the private link target. Required if enable_backend is true."
+}
+
+variable "container_app_id" {
+  type        = string
+  default     = ""
+  description = "Optional. The resource ID of the Container App (deprecated - not used, private link targets the environment). Kept for backward compatibility."
 }
 
 variable "enable_diagnostics" {

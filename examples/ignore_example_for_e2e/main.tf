@@ -38,7 +38,7 @@ module "aca_lza_hosting" {
   vm_size          = "Standard_DS2_v2"
   enable_telemetry = var.enable_telemetry
   environment      = var.environment
-  # Disable ingress by default to avoid requiring a TLS cert in Key Vault
+  # Disable ingress - no Application Gateway or Front Door
   expose_container_apps_with  = "none"
   tags                        = var.tags
   vm_authentication_type      = "password"

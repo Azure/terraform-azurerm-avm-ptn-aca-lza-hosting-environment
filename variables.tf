@@ -121,7 +121,7 @@ variable "existing_resource_group_id" {
   description = "Optional. The resource ID of an existing resource group to use when use_existing_resource_group is set to true. Default is empty."
 
   validation {
-    condition     = var.use_existing_resource_group == true && trimspace(var.existing_resource_group_id) != ""
+    condition     = !var.use_existing_resource_group || (var.use_existing_resource_group && trimspace(var.existing_resource_group_id) != "")
     error_message = "existing_resource_group_id must be provided when use_existing_resource_group is true."
   }
 }

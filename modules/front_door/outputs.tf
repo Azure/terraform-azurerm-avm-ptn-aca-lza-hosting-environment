@@ -1,6 +1,6 @@
 output "endpoint_hostname" {
   description = "Front Door endpoint hostname (*.azurefd.net with Microsoft-managed certificate)"
-  value       = jsondecode(azapi_resource.endpoint.output).properties.hostName
+  value       = azapi_resource.endpoint.output.properties.hostName
 }
 
 output "endpoint_id" {
@@ -20,12 +20,12 @@ output "name" {
 
 output "origin_group_id" {
   description = "Front Door origin group resource ID"
-  value       = azapi_resource.origin_group.id
+  value       = var.enable_backend ? azapi_resource.origin_group[0].id : null
 }
 
 output "origin_id" {
   description = "Front Door origin resource ID"
-  value       = azapi_resource.origin.id
+  value       = var.enable_backend ? azapi_resource.origin[0].id : null
 }
 
 output "resource_id" {

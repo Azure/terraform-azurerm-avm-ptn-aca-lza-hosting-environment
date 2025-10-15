@@ -5,19 +5,19 @@
 # which uses Microsoft-managed certificates automatically
 
 # Data source to get resource group ID for AzAPI resources
+data "azapi_client_config" "current" {}
+
 data "azapi_resource_id" "resource_group" {
   type      = "Microsoft.Resources/resourceGroups@2021-04-01"
   name      = var.resource_group_name
-  parent_id = data.azapi_client_config.current.subscription_id
+  parent_id = "/subscriptions/${data.azapi_client_config.current.subscription_id}"
 }
-
-data "azapi_client_config" "current" {}
 
 # WAF Policy (if enabled and Premium SKU)
 resource "azapi_resource" "waf_policy" {
   count = var.enable_waf ? 1 : 0
 
-  location  = var.location
+  location  = "Global"
   name      = var.waf_policy_name
   parent_id = data.azapi_resource_id.resource_group.id
   type      = "Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2024-02-01"
@@ -51,7 +51,7 @@ resource "azapi_resource" "waf_policy" {
 
 # Front Door Profile
 resource "azapi_resource" "profile" {
-  location  = var.location
+  location  = "Global"
   name      = var.name
   parent_id = data.azapi_resource_id.resource_group.id
   type      = "Microsoft.Cdn/profiles@2024-09-01"
@@ -69,6 +69,7 @@ resource "azapi_resource" "profile" {
 # Front Door Endpoint (uses default *.azurefd.net with Microsoft-managed certificate)
 resource "azapi_resource" "endpoint" {
   name      = "${var.name}-endpoint"
+  location  = "Global"
   parent_id = azapi_resource.profile.id
   type      = "Microsoft.Cdn/profiles/afdEndpoints@2024-09-01"
   body = {
@@ -81,6 +82,8 @@ resource "azapi_resource" "endpoint" {
 
 # Origin Group
 resource "azapi_resource" "origin_group" {
+  count = var.enable_backend ? 1 : 0
+
   name      = "${var.name}-origin-group"
   parent_id = azapi_resource.profile.id
   type      = "Microsoft.Cdn/profiles/originGroups@2024-09-01"
@@ -103,22 +106,26 @@ resource "azapi_resource" "origin_group" {
   }
 }
 
-# Origin (Backend) - Routes to Container Apps Environment
+# Origin (Backend) - Routes to Container App
 # Always uses Private Link for secure connectivity to internal Container Apps Environment
 resource "azapi_resource" "origin" {
+  count = var.enable_backend ? 1 : 0
+
   name      = "${var.name}-origin"
-  parent_id = azapi_resource.origin_group.id
+  parent_id = azapi_resource.origin_group[0].id
   type      = "Microsoft.Cdn/profiles/originGroups/origins@2024-09-01"
+
   body = {
     properties = {
-      hostName                    = var.backend_fqdn
+      hostName                    = replace(replace(var.backend_fqdn, "https://", ""), "http://", "")
       httpPort                    = 80
       httpsPort                   = var.backend_port
-      originHostHeader            = var.backend_fqdn
+      originHostHeader            = replace(replace(var.backend_fqdn, "https://", ""), "http://", "")
       priority                    = 1
       weight                      = 1000
       enabledState                = "Enabled"
-      enforceCertificateNameCheck = false # Disabled for private link origins
+      enforceCertificateNameCheck = true # Required for private link origins
+
 
       # Private Link configuration for Container Apps Environment
       # Required for internal Container Apps Environment connectivity
@@ -127,11 +134,13 @@ resource "azapi_resource" "origin" {
         privateLink = {
           id = var.container_apps_environment_id
         }
-        requestMessage = "Front Door Private Link Request for Container Apps"
+        requestMessage = "Front Door Private Link Request for Container App"
         groupId        = "managedEnvironments"
       }
     }
   }
+
+  response_export_values = ["*"]
 
   lifecycle {
     precondition {
@@ -142,22 +151,28 @@ resource "azapi_resource" "origin" {
       condition     = var.container_apps_environment_id != ""
       error_message = "container_apps_environment_id must be provided for Private Link connectivity."
     }
+    precondition {
+      condition     = var.backend_fqdn != ""
+      error_message = "backend_fqdn must be provided when enable_backend is true."
+    }
   }
 }
 
 # Use null_resource with local-exec to approve the private endpoint connection
 # This runs after the origin is created and approves any pending connections
 resource "null_resource" "approve_private_endpoint" {
+  count = var.enable_backend ? 1 : 0
+
   # Trigger whenever the origin changes
   triggers = {
-    origin_id = azapi_resource.origin.id
+    origin_id = azapi_resource.origin[0].id
   }
 
   provisioner "local-exec" {
     command = <<-EOT
       # Get all private endpoint connections for the Container Apps Environment
       connections=$(az rest --method get --url "${var.container_apps_environment_id}?api-version=2024-08-02-preview" --query "properties.privateEndpointConnections[?properties.privateLinkServiceConnectionState.status=='Pending'].name" -o tsv)
-      
+
       # Approve each pending connection
       for conn in $connections; do
         echo "Approving private endpoint connection: $conn"
@@ -169,19 +184,21 @@ resource "null_resource" "approve_private_endpoint" {
   }
 
   depends_on = [
-    azapi_resource.origin
+    azapi_resource.origin[0]
   ]
 }
 
 # Route - Uses the default Front Door endpoint (no custom domain needed)
 resource "azapi_resource" "route" {
+  count = var.enable_backend ? 1 : 0
+
   name      = "${var.name}-route"
   parent_id = azapi_resource.endpoint.id
   type      = "Microsoft.Cdn/profiles/afdEndpoints/routes@2024-09-01"
   body = {
     properties = {
       originGroup = {
-        id = azapi_resource.origin_group.id
+        id = azapi_resource.origin_group[0].id
       }
       originPath          = null
       ruleSets            = []
@@ -244,6 +261,10 @@ resource "azapi_resource" "route" {
       } : null
     }
   }
+
+  depends_on = [
+    azapi_resource.origin[0]
+  ]
 }
 
 # Security Policy (WAF Association) - Only for Premium SKU

@@ -1,6 +1,8 @@
 
 locals {
-  zones = var.deploy_zone_redundant_resources ? ["1", "2", "3"] : []
+  zones                = var.deploy_zone_redundant_resources ? ["1", "2", "3"] : []
+  has_backend          = var.enable_backend
+  certificate_password = local.has_backend ? random_password.cert_password[0].result : ""
 }
 
 # Public IP for Application Gateway
@@ -26,20 +28,33 @@ module "appgw_pip" {
   zones            = local.zones
 }
 
+# Generate a secure random password for the certificate
+resource "random_password" "cert_password" {
+  count = local.has_backend ? 1 : 0
+
+  length  = 24
+  special = true
+}
+
 # Generate a simple self-signed certificate for demo purposes
 # This avoids the complexity of Key Vault integration for a hosting environment module
+# Only created when a backend is configured (demo app deployed)
 resource "tls_private_key" "appgw" {
+  count = local.has_backend ? 1 : 0
+
   algorithm = "RSA"
   rsa_bits  = 2048
 }
 
 resource "tls_self_signed_cert" "appgw" {
+  count = local.has_backend ? 1 : 0
+
   allowed_uses = [
     "key_encipherment",
     "digital_signature",
     "server_auth",
   ]
-  private_key_pem       = tls_private_key.appgw.private_key_pem
+  private_key_pem       = tls_private_key.appgw[0].private_key_pem
   validity_period_hours = 8760 # 1 year
 
   subject {
@@ -50,9 +65,11 @@ resource "tls_self_signed_cert" "appgw" {
 
 # Convert to PKCS12 format for Application Gateway
 resource "pkcs12_from_pem" "appgw" {
-  password        = "AzureDemo123!" # Simple password for demo cert
-  cert_pem        = tls_self_signed_cert.appgw.cert_pem
-  private_key_pem = tls_private_key.appgw.private_key_pem
+  count = local.has_backend ? 1 : 0
+
+  password        = random_password.cert_password[0].result
+  cert_pem        = tls_self_signed_cert.appgw[0].cert_pem
+  private_key_pem = tls_private_key.appgw[0].private_key_pem
 }
 
 # WAF policy - use native resource as AVM equivalent isn't published in TF registry yet
@@ -87,7 +104,7 @@ module "app_gateway" {
   backend_address_pools = {
     backend = {
       name  = "acaServiceBackend"
-      fqdns = length(trimspace(var.backend_fqdn)) > 0 ? [var.backend_fqdn] : null
+      fqdns = local.has_backend ? [var.backend_fqdn] : null
     }
   }
   backend_http_settings = {
@@ -97,26 +114,38 @@ module "app_gateway" {
       protocol                            = "Https"
       request_timeout                     = 20
       pick_host_name_from_backend_address = true
-      probe_name                          = length(trimspace(var.backend_fqdn)) > 0 ? "webProbe" : null
+      probe_name                          = local.has_backend ? "webProbe" : null
     }
   }
-  # HTTPS only listener on 443
-  frontend_ports = {
+  # Frontend ports - only HTTPS when backend is configured, otherwise HTTP for infrastructure only
+  frontend_ports = local.has_backend ? {
     https = {
       name = "port_443"
       port = 443
+    }
+    } : {
+    http = {
+      name = "port_80"
+      port = 80
     }
   }
   gateway_ip_configuration = {
     subnet_id = var.subnet_id
   }
-  http_listeners = {
+  http_listeners = local.has_backend ? {
     https = {
       name                           = "https-listener"
       frontend_port_name             = "port_443"
       frontend_ip_configuration_name = "appGwPublicFrontendIp"
       ssl_certificate_name           = "appgw-demo-cert"
       protocol                       = "Https"
+    }
+    } : {
+    http = {
+      name                           = "http-listener"
+      frontend_port_name             = "port_80"
+      frontend_ip_configuration_name = "appGwPublicFrontendIp"
+      protocol                       = "Http"
     }
   }
   location = var.location
@@ -125,7 +154,7 @@ module "app_gateway" {
     rule1 = {
       name                       = "rule-1"
       rule_type                  = "Basic"
-      http_listener_name         = "https-listener"
+      http_listener_name         = local.has_backend ? "https-listener" : "http-listener"
       backend_address_pool_name  = "acaServiceBackend"
       backend_http_settings_name = "https"
       priority                   = 100
@@ -144,7 +173,7 @@ module "app_gateway" {
   } : {}
   enable_telemetry                      = var.enable_telemetry
   frontend_ip_configuration_public_name = "appGwPublicFrontendIp"
-  probe_configurations = length(trimspace(var.backend_fqdn)) > 0 ? {
+  probe_configurations = local.has_backend ? {
     https = {
       name                                      = "webProbe"
       protocol                                  = "Https"
@@ -165,13 +194,13 @@ module "app_gateway" {
     tier     = "WAF_v2"
     capacity = 3
   }
-  ssl_certificates = {
+  ssl_certificates = local.has_backend ? {
     "appgw-demo-cert" = {
       name     = "appgw-demo-cert"
-      data     = pkcs12_from_pem.appgw.result
-      password = "AzureDemo123!"
+      data     = pkcs12_from_pem.appgw[0].result
+      password = local.certificate_password
     }
-  }
+  } : null
   ssl_policy = {
     policy_type          = "Custom"
     min_protocol_version = "TLSv1_2"

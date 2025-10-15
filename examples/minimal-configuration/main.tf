@@ -52,6 +52,7 @@ module "aca_lza_hosting" {
   enable_ddos_protection     = false
   enable_telemetry           = var.enable_telemetry
   environment                = var.environment
+  use_existing_resource_group     = true
   existing_resource_group_id = azurerm_resource_group.this.id
   expose_container_apps_with = "none" # NO App Gateway
   # No hub integration - isolated spoke
@@ -59,7 +60,6 @@ module "aca_lza_hosting" {
   network_appliance_ip_address    = ""
   route_spoke_traffic_internally  = true
   tags                            = var.tags
-  use_existing_resource_group     = true
   vm_authentication_type          = "password" # Required but unused
   vm_jumpbox_os_type              = "none"     # NO VM
   vm_linux_ssh_authorized_key     = ""         # Not used

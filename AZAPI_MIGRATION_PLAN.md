@@ -8,6 +8,24 @@ To achieve AVM v1.0 certification, this module must migrate from the AzureRM pro
 
 **🎯 No Breaking Changes Concern**: This module has not been released yet, so we can perform a clean replacement without worrying about existing users, state migration, or moved blocks. This is a straightforward rip-and-replace operation.
 
+### Control Plane vs Data Plane Resources
+
+**Important Distinction**: AzAPI is excellent for **control plane** operations (creating, configuring, and managing Azure resources via Azure Resource Manager), but is not ideal for **data plane** operations (operations on the data/content within those resources).
+
+**Control Plane Examples** (✅ Migrate to AzAPI):
+- Creating Front Door profiles, endpoints, origins, routes
+- Configuring WAF policies and security rules
+- Setting up diagnostic settings and monitoring
+- Managing resource properties and configurations
+
+**Data Plane Examples** (❌ Keep as AzureRM or other providers):
+- Uploading/downloading blobs to Storage Accounts
+- Managing secrets/certificates in Key Vault (get/set operations)
+- Running queries against databases
+- Uploading container images to Container Registry
+
+**✅ All Resources in This Migration are Control Plane**: After reviewing all AzureRM resources in this module, we have confirmed that **all resources being migrated are control plane operations** for creating and configuring Azure resources. There are no data plane operations that need to be excluded from migration.
+
 ---
 
 ## Impact Assessment
@@ -36,6 +54,8 @@ To achieve AVM v1.0 certification, this module must migrate from the AzureRM pro
 ### 1. Front Door Module (`modules/front_door/main.tf`)
 
 **Current AzureRM Resources (8 total):**
+
+**✅ Control Plane Confirmation**: All Front Door resources are control plane operations for creating and configuring Front Door infrastructure. No data plane operations (e.g., cache purging, content management) are present.
 
 | Resource Type | Resource Name | Lines | Complexity | Priority |
 |--------------|---------------|-------|------------|----------|
@@ -70,6 +90,8 @@ To achieve AVM v1.0 certification, this module must migrate from the AzureRM pro
 
 **Current AzureRM Resources (2 direct resources):**
 
+**✅ Control Plane Confirmation**: WAF policy configuration is a control plane operation for defining security rules. No data plane operations are present.
+
 | Resource Type | Resource Name | Lines | Complexity | Priority |
 |--------------|---------------|-------|------------|----------|
 | `azurerm_web_application_firewall_policy` | `waf` | 59-78 | Low | P0 |
@@ -90,6 +112,8 @@ To achieve AVM v1.0 certification, this module must migrate from the AzureRM pro
 ### 3. Key Vault Module (`modules/supporting_services/key_vault/main.tf`)
 
 **Current AzureRM Resources (1 data source):**
+
+**✅ Control Plane Confirmation**: The client config data source retrieves deployment context metadata, not Key Vault data. This is metadata for resource configuration, not a data plane operation.
 
 | Resource Type | Resource Name | Lines | Complexity | Priority |
 |--------------|---------------|-------|------------|----------|
@@ -145,6 +169,26 @@ The following resources use AVM modules and **DO NOT** require migration:
 
 ---
 
+## Non-Azure Resources (DO NOT MIGRATE)
+
+The following resources are **not Azure resources** and will remain unchanged:
+
+### Certificate Generation (Application Gateway Module)
+- `tls_private_key` - HashiCorp TLS provider (local certificate generation)
+- `tls_self_signed_cert` - HashiCorp TLS provider (local certificate generation)
+- `pkcs12_from_pem` - chilicat/pkcs12 provider (local certificate conversion)
+- `random_password` - HashiCorp Random provider (local password generation)
+
+**Rationale**: These are local operations that generate certificates and passwords in-memory, not Azure resources. They do not interact with Azure APIs.
+
+### Module Telemetry
+- `azurerm_resource_group_template_deployment` - Used for AVM telemetry tracking
+- `random_id` - HashiCorp Random provider for unique telemetry IDs
+
+**Rationale**: Telemetry uses ARM template deployments which are well-supported by AzureRM provider. While this is technically a control plane operation, the existing implementation is simple and reliable. Migration to AzAPI would provide no benefit.
+
+---
+
 ## Example Code Resources (DO NOT MIGRATE)
 
 Example files under `examples/` directory are for demonstration purposes and use AzureRM for simplicity. These include:
@@ -169,9 +213,9 @@ Example files under `examples/` directory are for demonstration purposes and use
 
 **Day 1: Key Vault & Application Gateway** (Low-risk warm-up)
 - **Morning**: Key Vault data source migration (2-4 hours)
-  - Replace `data.azurerm_client_config` 
+  - Replace `data.azurerm_client_config`
   - Test with Key Vault module
-  
+
 - **Afternoon**: Application Gateway WAF migration (4-6 hours)
   - Replace `azurerm_web_application_firewall_policy`
   - Replace `data.azurerm_public_ip`
@@ -222,7 +266,7 @@ resource "azapi_resource" "frontdoor_profile" {
   name      = var.name
   parent_id = var.resource_group_id
   location  = "Global"
-  
+
   body = {
     sku = {
       name = var.sku_name
@@ -231,9 +275,9 @@ resource "azapi_resource" "frontdoor_profile" {
       originResponseTimeoutSeconds = 120
     }
   }
-  
+
   tags = var.tags
-  
+
   schema_validation_enabled = true
 }
 ```
@@ -266,7 +310,7 @@ resource "azapi_resource" "frontdoor_origin" {
   type      = "Microsoft.Cdn/profiles/originGroups/origins@2024-02-01"
   name      = "${var.name}-origin"
   parent_id = azapi_resource.frontdoor_origin_group.id
-  
+
   body = {
     properties = {
       hostName                    = var.backend_fqdn
@@ -277,7 +321,7 @@ resource "azapi_resource" "frontdoor_origin" {
       weight                      = 1000
       enabledState                = "Enabled"
       enforceCertificateNameCheck = false
-      
+
       sharedPrivateLinkResource = {
         privateLink = {
           id = var.container_apps_environment_id
@@ -288,7 +332,7 @@ resource "azapi_resource" "frontdoor_origin" {
       }
     }
   }
-  
+
   depends_on = [
     azapi_resource.frontdoor_origin_group
   ]
@@ -325,7 +369,7 @@ resource "azapi_resource" "frontdoor_route" {
   type      = "Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01"
   name      = "${var.name}-route"
   parent_id = azapi_resource.frontdoor_endpoint.id
-  
+
   body = {
     properties = {
       originGroup = {
@@ -338,7 +382,7 @@ resource "azapi_resource" "frontdoor_route" {
       linkToDefaultDomain     = "Enabled"
       httpsRedirect           = "Enabled"
       enabledState            = "Enabled"
-      
+
       cacheConfiguration = var.caching_enabled ? {
         compressionSettings = {
           contentTypesToCompress = [
@@ -353,7 +397,7 @@ resource "azapi_resource" "frontdoor_route" {
       } : null
     }
   }
-  
+
   depends_on = [
     azapi_resource.frontdoor_endpoint,
     azapi_resource.frontdoor_origin_group,
@@ -395,7 +439,7 @@ resource "azapi_resource" "waf_policy" {
   name      = "${var.name}Policy001"
   parent_id = var.resource_group_id
   location  = var.location
-  
+
   body = {
     properties = {
       managedRules = {
@@ -419,9 +463,9 @@ resource "azapi_resource" "waf_policy" {
       }
     }
   }
-  
+
   tags = var.tags
-  
+
   schema_validation_enabled = true
 }
 ```
@@ -499,7 +543,7 @@ variable "principal_type" {
 
 1. **Private Link Configuration Changes**
    - **Risk**: AzAPI schema differences break private endpoint connectivity
-   - **Mitigation**: 
+   - **Mitigation**:
      - Query exact schema before migration
      - Test in isolated environment first
      - Keep null_resource approval mechanism as fallback
@@ -674,9 +718,9 @@ Since there are no existing users, rollback is straightforward:
 
 ## Approval & Sign-Off
 
-**Document prepared by**: GitHub Copilot Agent  
-**Date**: 2025-10-14  
-**Version**: 1.0  
+**Document prepared by**: GitHub Copilot Agent
+**Date**: 2025-10-14
+**Version**: 1.0
 **Status**: DRAFT - Awaiting review
 
 **Next Steps**:

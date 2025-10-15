@@ -19,11 +19,6 @@ provider "azurerm" {
   storage_use_azuread = true
 }
 
-# Test RG for the module's resources
-resource "azurerm_resource_group" "this" {
-  location = var.location
-  name     = var.resource_group_name
-}
 
 module "aca_lza_hosting" {
   source = "../../"
@@ -48,10 +43,8 @@ module "aca_lza_hosting" {
   deploy_sample_application   = true
   enable_telemetry            = var.enable_telemetry
   environment                 = var.environment
-  existing_resource_group_id  = azurerm_resource_group.this.id
   expose_container_apps_with  = "applicationGateway"
   tags                        = var.tags
-  use_existing_resource_group = true
   vm_authentication_type      = "password"
   vm_jumpbox_os_type          = "none"
   vm_linux_ssh_authorized_key = ""
