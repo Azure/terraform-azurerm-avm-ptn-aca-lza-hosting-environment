@@ -49,12 +49,12 @@ module "aca_lza_hosting" {
   # Minimal availability - single zone
   deploy_zone_redundant_resources = false
   # NO DDoS protection
-  enable_ddos_protection     = false
-  enable_telemetry           = var.enable_telemetry
-  environment                = var.environment
-  use_existing_resource_group     = true
-  existing_resource_group_id = azurerm_resource_group.this.id
-  expose_container_apps_with = "none" # NO App Gateway
+  enable_ddos_protection      = false
+  enable_telemetry            = var.enable_telemetry
+  environment                 = var.environment
+  use_existing_resource_group = true
+  existing_resource_group_id  = azurerm_resource_group.this.id
+  expose_container_apps_with  = "none" # NO App Gateway
   # No hub integration - isolated spoke
   hub_virtual_network_resource_id = ""
   network_appliance_ip_address    = ""

@@ -104,18 +104,18 @@ terraform apply tfplan
 
 **Validation Checklist**:
 
-- [ ] Terraform applies without errors
-- [ ] Resource group created successfully
-- [ ] Container Apps Environment deployed
-- [ ] Container Registry deployed
-- [ ] Log Analytics Workspace created (basic)
-- [ ] Key Vault deployed
-- [ ] Storage Account created
-- [ ] Spoke VNet with minimal subnets deployed
-- [ ] No Application Gateway deployed
-- [ ] No VM deployed
-- [ ] No Application Insights deployed
-- [ ] No sample application deployed
+- [x] Terraform applies without errors
+- [x] Resource group created successfully
+- [x] Container Apps Environment deployed
+- [x] Container Registry deployed
+- [x] Log Analytics Workspace created (basic)
+- [x] Key Vault deployed
+- [x] Storage Account created
+- [x] Spoke VNet with minimal subnets deployed
+- [x] No Application Gateway deployed
+- [x] No VM deployed
+- [x] No Application Insights deployed
+- [x] No sample application deployed
 
 **Expected Outputs**:
 
@@ -155,7 +155,7 @@ terraform destroy -auto-approve
 - ✅ No observability (Application Insights disabled)
 - ✅ Standard networking
 - ✅ No VM deployment
-- ✅ Using existing resource group
+- ✅ Using module created resource group
 
 **Test Steps**:
 
@@ -307,50 +307,8 @@ terraform destroy -auto-approve
 
 ---
 
-### Test 4: Smoke Spoke 🟡 P1
 
-**Objective**: Quick validation of spoke networking patterns (appears to be a simplified test scenario).
-
-**Test Steps**:
-
-```bash
-cd ../smoke-spoke
-
-# Initialize
-terraform init
-
-# Plan
-terraform plan -out=tfplan
-
-# Apply
-terraform apply tfplan
-
-# Wait for completion (~20-25 minutes)
-```
-
-**Validation Checklist**:
-
-- [ ] Spoke VNet deployed
-- [ ] All required subnets created
-- [ ] Container Apps Environment deployed
-- [ ] Basic connectivity validated
-
-**Expected Outputs**:
-
-```bash
-terraform output
-# Verify all core outputs present
-```
-
-**Cleanup**:
-
-```bash
-terraform destroy -auto-approve
-```
-
----
-
-### Test 5: Windows VM Custom Cert 🟡 P1
+### Test 4: Windows VM Custom Cert 🟡 P1
 
 **Objective**: Validate Windows VM deployment with custom certificate management.
 
@@ -427,7 +385,7 @@ unset TF_VAR_vm_admin_password
 
 ---
 
-### Test 6: Hub-Spoke Linux VM 🟡 P1
+### Test 5: Hub-Spoke Linux VM 🟡 P1
 
 **Objective**: Validate enterprise hub-spoke topology with Linux jumpbox and comprehensive observability.
 
@@ -559,7 +517,7 @@ rm ~/.ssh/aca_lza_test*
 
 ---
 
-### Test 7: Bastion Zone Redundant 🟢 P2
+### Test 6: Bastion Zone Redundant 🟢 P2
 
 **Objective**: Validate the most secure connectivity pattern with Azure Bastion and full zone redundancy.
 
@@ -725,7 +683,7 @@ rm ~/.ssh/aca_lza_bastion_test*
 
 ---
 
-### Test 8: Complex Network Appliance 🟢 P2
+### Test 7: Complex Network Appliance 🟢 P2
 
 **Objective**: Validate enterprise-grade deployment with Azure Firewall and comprehensive traffic control.
 
