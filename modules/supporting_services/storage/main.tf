@@ -64,11 +64,19 @@ module "st" {
   } : {}
 }
 
-# Optional file shares
-resource "azurerm_storage_share" "this" {
-  for_each           = toset(var.shares)
-  name               = each.value
-  storage_account_id = module.st.resource_id
-  quota              = 100
+# Optional file shares - migrated to AzAPI for AVM v1.0 compliance
+resource "azapi_resource" "file_share" {
+  for_each  = toset(var.shares)
+  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2023-05-01"
+  name      = each.value
+  parent_id = "${module.st.resource_id}/fileServices/default"
+
+  body = {
+    properties = {
+      shareQuota = 100
+    }
+  }
+
+  schema_validation_enabled = true
 }
 

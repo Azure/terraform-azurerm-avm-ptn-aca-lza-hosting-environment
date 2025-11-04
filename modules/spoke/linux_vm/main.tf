@@ -24,9 +24,18 @@ module "nsg" {
   } : {}
 }
 
-resource "azurerm_subnet_network_security_group_association" "vm" {
-  subnet_id                 = var.subnet_id
-  network_security_group_id = module.nsg.resource_id
+# Associate NSG to subnet using AzAPI - migrated for AVM v1.0 compliance
+resource "azapi_update_resource" "nsg_association" {
+  type        = "Microsoft.Network/virtualNetworks/subnets@2024-01-01"
+  resource_id = var.subnet_id
+
+  body = {
+    properties = {
+      networkSecurityGroup = {
+        id = module.nsg.resource_id
+      }
+    }
+  }
 }
 
 module "vm" {

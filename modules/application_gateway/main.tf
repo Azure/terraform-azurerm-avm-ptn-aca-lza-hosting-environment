@@ -1,8 +1,13 @@
 
+# Get current Azure context for constructing resource IDs
+data "azapi_client_config" "current" {}
+
 locals {
   zones                = var.deploy_zone_redundant_resources ? ["1", "2", "3"] : []
   has_backend          = var.enable_backend
   certificate_password = local.has_backend ? random_password.cert_password[0].result : ""
+  # Strip protocol from backend FQDN for Application Gateway compatibility
+  backend_fqdn_clean = replace(replace(var.backend_fqdn, "https://", ""), "http://", "")
 }
 
 # Public IP for Application Gateway
@@ -72,28 +77,46 @@ resource "pkcs12_from_pem" "appgw" {
   private_key_pem = tls_private_key.appgw[0].private_key_pem
 }
 
-# WAF policy - use native resource as AVM equivalent isn't published in TF registry yet
-resource "azurerm_web_application_firewall_policy" "waf" {
-  location            = var.location
-  name                = "${var.name}Policy001"
-  resource_group_name = var.resource_group_name
-  tags                = var.tags
+# WAF policy - migrated to AzAPI for AVM v1.0 compliance
+resource "azapi_resource" "waf" {
+  type      = "Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies@2024-01-01"
+  name      = "${var.name}Policy001"
+  location  = var.location
+  parent_id = "/subscriptions/${data.azapi_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}"
+  tags      = var.tags
 
-  managed_rules {
-    managed_rule_set {
-      version = "3.2"
-      type    = "OWASP"
-    }
-    managed_rule_set {
-      version = "0.1"
-      type    = "Microsoft_BotManagerRuleSet"
+  body = {
+    properties = {
+      managedRules = {
+        managedRuleSets = [
+          {
+            ruleSetType    = "OWASP"
+            ruleSetVersion = "3.2"
+          },
+          {
+            ruleSetType    = "Microsoft_BotManagerRuleSet"
+            ruleSetVersion = "0.1"
+          }
+        ]
+      }
+      policySettings = {
+        state               = "Enabled"
+        mode                = "Prevention"
+        fileUploadLimitInMb = 10
+      }
     }
   }
-  policy_settings {
-    enabled                 = true
-    file_upload_limit_in_mb = 10
-    mode                    = "Prevention"
-  }
+
+  schema_validation_enabled = true
+  ignore_casing             = true
+  ignore_missing_property   = true
+
+  response_export_values = ["*"]
+}
+
+locals {
+  # Normalize the WAF policy ID to use lowercase resource type segment for AzureRM provider compatibility
+  waf_policy_id = replace(azapi_resource.waf.id, "ApplicationGatewayWebApplicationFirewallPolicies", "applicationGatewayWebApplicationFirewallPolicies")
 }
 
 # Application Gateway using AVM module
@@ -104,7 +127,7 @@ module "app_gateway" {
   backend_address_pools = {
     backend = {
       name  = "acaServiceBackend"
-      fqdns = local.has_backend ? [var.backend_fqdn] : null
+      fqdns = local.has_backend ? [local.backend_fqdn_clean] : null
     }
   }
   backend_http_settings = {
@@ -161,7 +184,7 @@ module "app_gateway" {
     }
   }
   resource_group_name                = var.resource_group_name
-  app_gateway_waf_policy_resource_id = azurerm_web_application_firewall_policy.waf.id
+  app_gateway_waf_policy_resource_id = local.waf_policy_id
   create_public_ip                   = false
   diagnostic_settings = var.enable_diagnostics ? {
     agw = {
@@ -177,7 +200,7 @@ module "app_gateway" {
     https = {
       name                                      = "webProbe"
       protocol                                  = "Https"
-      host                                      = var.backend_fqdn
+      host                                      = local.backend_fqdn_clean
       path                                      = var.backend_probe_path
       interval                                  = 30
       timeout                                   = 30

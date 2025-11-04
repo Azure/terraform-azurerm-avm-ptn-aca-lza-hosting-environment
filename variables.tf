@@ -23,7 +23,7 @@ variable "enable_dapr_instrumentation" {
 # General
 variable "location" {
   type        = string
-  description = "Optional. The location of the Azure Container Apps deployment."
+  description = "Required. The location of the Azure Container Apps deployment."
 }
 
 variable "spoke_application_gateway_subnet_address_prefix" {

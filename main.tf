@@ -13,6 +13,7 @@ resource "null_resource" "resource_group_validation" {
 }
 
 locals {
+  safeLocation = replace(var.location, " ", "")
   // Determine if we're using an existing resource group from the input variable
   use_existing_resource_group = var.use_existing_resource_group
   create_auto_named_rg        = !local.use_existing_resource_group && trimspace(var.created_resource_group_name) == ""
@@ -21,7 +22,7 @@ locals {
   naming_unique_id = substr(lower(replace(base64encode(sha256(local.naming_unique_seed)), "=", "")), 0, 13)
   naming_unique_seed = join("|", [
     data.azapi_client_config.naming.subscription_id,
-    var.location,
+    local.safeLocation,
     var.environment,
     var.workload_name,
   ])
@@ -29,13 +30,14 @@ locals {
   resource_group_id = local.use_existing_resource_group ? var.existing_resource_group_id : module.spoke_resource_group[0].resource_id
   // Resource group name logic - for existing RG, extract from ID; for new RG with custom name, use it; otherwise use generated name from naming module
   resource_group_name = local.use_existing_resource_group ? regex("/resourceGroups/([^/]+)", var.existing_resource_group_id)[0] : (local.create_custom_named_rg ? var.created_resource_group_name : module.naming.resources_names.resourceGroup)
+
 }
 
 module "naming" {
   source = "./modules/naming"
 
   environment               = var.environment
-  location                  = var.location
+  location                  = local.safeLocation
   unique_id                 = local.naming_unique_id
   workload_name             = var.workload_name
   spoke_resource_group_name = local.create_custom_named_rg ? var.created_resource_group_name : ""
@@ -46,7 +48,7 @@ module "spoke_resource_group" {
   version = "~> 0.2"
   count   = local.use_existing_resource_group ? 0 : 1
 
-  location         = var.location
+  location         = local.safeLocation
   name             = local.resource_group_name
   enable_telemetry = var.enable_telemetry
   tags             = var.tags
@@ -57,7 +59,7 @@ module "spoke" {
   source = "./modules/spoke"
 
   deployment_subnet_address_prefix              = var.deployment_subnet_address_prefix
-  location                                      = var.location
+  location                                      = local.safeLocation
   resource_group_id                             = local.resource_group_id
   resource_group_name                           = local.resource_group_name
   resources_names                               = module.naming.resources_names
@@ -90,7 +92,7 @@ module "supporting_services" {
   source = "./modules/supporting_services"
 
   enable_telemetry                          = var.enable_telemetry
-  location                                  = var.location
+  location                                  = local.safeLocation
   resource_group_id                         = local.resource_group_id
   resource_group_name                       = local.resource_group_name
   resources_names                           = module.naming.resources_names
@@ -112,7 +114,7 @@ module "container_apps_environment" {
   # ACR pull identity
   container_registry_user_assigned_identity_id = module.supporting_services.container_registry_uai_id
   infrastructure_subnet_id                     = module.spoke.spoke_infra_subnet_id
-  location                                     = var.location
+  location                                     = local.safeLocation
   log_analytics_workspace_customer_id          = module.spoke.log_analytics_workspace_customer_id
   # Observability
   log_analytics_workspace_id = module.spoke.log_analytics_workspace_id
@@ -145,7 +147,7 @@ module "sample_application" {
   container_app_environment_resource_id = module.container_apps_environment.managed_environment_id
   // Identity to pull images from ACR (already created in supporting services)
   container_registry_user_assigned_identity_id = module.supporting_services.container_registry_uai_id
-  location                                     = var.location
+  location                                     = local.safeLocation
   // Where to deploy
   resource_group_name   = local.resource_group_name
   enable_telemetry      = var.enable_telemetry
@@ -162,7 +164,7 @@ module "application_gateway" {
   source = "./modules/application_gateway"
   count  = var.expose_container_apps_with == "applicationGateway" ? 1 : 0
 
-  location            = var.location
+  location            = local.safeLocation
   name                = module.naming.resources_names.applicationGateway
   public_ip_name      = module.naming.resources_names.applicationGatewayPip
   resource_group_name = local.resource_group_name
@@ -191,7 +193,7 @@ module "front_door" {
   # Backend Configuration - Route to sample app if deployed
   backend_fqdn        = var.deploy_sample_application ? module.sample_application[0].fqdn : ""
   enable_backend      = var.deploy_sample_application
-  location            = var.location
+  location            = local.safeLocation
   name                = module.naming.resources_names.frontDoor
   resource_group_name = local.resource_group_name
   backend_port        = 443

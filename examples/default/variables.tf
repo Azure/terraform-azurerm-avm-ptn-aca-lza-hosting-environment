@@ -12,7 +12,7 @@ variable "environment" {
 
 variable "location" {
   type        = string
-  default     = "uksouth"
+  default     = "EastUS"
   description = "Azure region"
 }
 
