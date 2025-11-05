@@ -18,6 +18,7 @@ variable "deployment_subnet_address_prefix" {
 variable "location" {
   type        = string
   description = "Required. Azure location for the spoke resources."
+  nullable    = false
 }
 
 variable "resource_group_id" {
@@ -118,7 +119,7 @@ variable "storage_account_type" {
 
 variable "tags" {
   type        = map(string)
-  default     = {}
+  default     = null
   description = "Optional. Tags to apply to spoke resources."
 }
 

@@ -168,7 +168,7 @@ Description: Optional. Tags to apply to spoke resources.
 
 Type: `map(string)`
 
-Default: `{}`
+Default: `null`
 
 ### <a name="input_vm_admin_password"></a> [vm\_admin\_password](#input\_vm\_admin\_password)
 
@@ -257,6 +257,10 @@ Description: The resource ID of the Azure Log Analytics Workspace.
 ### <a name="output_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#output\_log\_analytics\_workspace\_name)
 
 Description: The name of the Azure Log Analytics Workspace.
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: The resource ID of the primary resource deployed by this module (spoke VNet)
 
 ### <a name="output_spoke_application_gateway_subnet_id"></a> [spoke\_application\_gateway\_subnet\_id](#output\_spoke\_application\_gateway\_subnet\_id)
 

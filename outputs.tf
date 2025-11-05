@@ -83,6 +83,11 @@ output "resource_group_name" {
   value       = local.resource_group_name
 }
 
+output "resource_id" {
+  description = "The resource ID of the primary resource (resource group) deployed by this pattern module."
+  value       = local.resource_group_id
+}
+
 output "resource_type_abbreviations" {
   description = "Resource type abbreviations used in naming"
   value       = module.naming.resource_type_abbreviations

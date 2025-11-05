@@ -126,7 +126,7 @@ Description: Tags to apply
 
 Type: `map(string)`
 
-Default: `{}`
+Default: `null`
 
 ## Outputs
 
@@ -155,6 +155,10 @@ Description: Key Vault ID
 ### <a name="output_key_vault_name"></a> [key\_vault\_name](#output\_key\_vault\_name)
 
 Description: Key Vault name
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: The resource ID of the primary resource deployed by this module (uses storage account as primary)
 
 ### <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id)
 

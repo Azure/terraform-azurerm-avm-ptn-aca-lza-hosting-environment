@@ -35,6 +35,11 @@ output "log_analytics_workspace_name" {
   value       = module.log_analytics.name
 }
 
+output "resource_id" {
+  description = "The resource ID of the primary resource deployed by this module (spoke VNet)"
+  value       = module.vnet_spoke.resource_id
+}
+
 output "spoke_application_gateway_subnet_id" {
   description = "The resource ID of the spoke Application Gateway subnet, if created; otherwise empty string."
   value       = try(module.vnet_spoke.subnets["agw"].resource_id, "")

@@ -16,12 +16,6 @@ variable "location" {
   description = "Azure region"
 }
 
-variable "resource_group_name" {
-  type        = string
-  default     = "rg-aca-lza-example"
-  description = "Resource group name"
-}
-
 variable "tags" {
   type        = map(string)
   default     = { env = "test", purpose = "example" }

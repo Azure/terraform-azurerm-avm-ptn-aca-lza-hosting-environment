@@ -17,6 +17,8 @@ The following requirements are needed by this module:
 
 - <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
+- <a name="requirement_null"></a> [null](#requirement\_null) (~> 3.0)
+
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
 
 ## Resources
@@ -213,11 +215,11 @@ Default: `"Standard_LRS"`
 
 ### <a name="input_tags"></a> [tags](#input\_tags)
 
-Description: Optional. Tags related to the Azure Container Apps deployment. Default is empty.
+Description: Optional. Tags related to the Azure Container Apps deployment. Default is null.
 
 Type: `map(string)`
 
-Default: `{}`
+Default: `null`
 
 ### <a name="input_use_existing_resource_group"></a> [use\_existing\_resource\_group](#input\_use\_existing\_resource\_group)
 
@@ -354,6 +356,10 @@ Description: The name of the Azure Log Analytics Workspace
 ### <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name)
 
 Description: The name of the resource group where resources are deployed.
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: The resource ID of the primary resource (resource group) deployed by this pattern module.
 
 ### <a name="output_resource_type_abbreviations"></a> [resource\_type\_abbreviations](#output\_resource\_type\_abbreviations)
 

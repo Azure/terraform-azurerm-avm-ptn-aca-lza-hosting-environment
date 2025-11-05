@@ -6,6 +6,7 @@ variable "enable_telemetry" {
 variable "location" {
   type        = string
   description = "Azure location"
+  nullable    = false
 }
 
 variable "resource_group_id" {
@@ -73,6 +74,6 @@ variable "log_analytics_workspace_id" {
 
 variable "tags" {
   type        = map(string)
-  default     = {}
+  default     = null
   description = "Tags to apply"
 }

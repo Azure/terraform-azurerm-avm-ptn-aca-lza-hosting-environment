@@ -24,6 +24,7 @@ variable "enable_dapr_instrumentation" {
 variable "location" {
   type        = string
   description = "Required. The location of the Azure Container Apps deployment."
+  nullable    = false
 }
 
 variable "spoke_infra_subnet_address_prefix" {
@@ -165,8 +166,8 @@ variable "storage_account_type" {
 
 variable "tags" {
   type        = map(string)
-  default     = {}
-  description = "Optional. Tags related to the Azure Container Apps deployment. Default is empty."
+  default     = null
+  description = "Optional. Tags related to the Azure Container Apps deployment. Default is null."
 }
 
 variable "use_existing_resource_group" {

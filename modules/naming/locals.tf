@@ -59,7 +59,6 @@ locals {
     westus3            = "wus3"
   }
   # Helper replacements mirroring Bicep replace/take/toLower
-  replace_token = replace(local.naming_base, local.resource_type_token, "${local.resource_type_abbreviations["applicationGateway"]}")
   resource_type_abbreviations = {
     applicationGateway       = "agw"
     applicationInsights      = "appi"

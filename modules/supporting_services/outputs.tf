@@ -28,6 +28,11 @@ output "key_vault_name" {
   value       = try(module.key_vault[0].name, null)
 }
 
+output "resource_id" {
+  description = "The resource ID of the primary resource deployed by this module (uses storage account as primary)"
+  value       = try(module.storage[0].id, null)
+}
+
 output "storage_account_id" {
   description = "Storage Account ID"
   value       = try(module.storage[0].id, null)

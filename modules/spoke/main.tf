@@ -18,7 +18,7 @@ module "log_analytics" {
 ###############################################
 
 locals {
-  // Align location tag name for AzureCloud service tag (Bicep used francecentral -> centralfrance)
+  # Align location tag name for AzureCloud service tag (Bicep used francecentral -> centralfrance)
   location_for_service_tag = var.location == "francecentral" ? "centralfrance" : var.location
 }
 
@@ -313,7 +313,7 @@ module "route_table" {
       next_hop_in_ip_address = var.network_appliance_ip_address
     }
     }, var.route_spoke_traffic_internally ? {
-    // Build VnetLocal routes for each spoke address prefix
+    # Build VnetLocal routes for each spoke address prefix
     for idx, prefix in var.spoke_vnet_address_prefixes :
     "spokeInternalTraffic-${idx}" => {
       name           = "spokeInternalTraffic-${idx}"
@@ -402,7 +402,7 @@ module "vnet_spoke" {
     jumpbox = {
       name             = var.vm_subnet_name
       address_prefixes = [var.vm_jumpbox_subnet_address_prefix]
-      // NSG will be created and associated by the VM submodule
+      # NSG will be created and associated by the VM submodule
     }
   } : {})
   tags = var.tags

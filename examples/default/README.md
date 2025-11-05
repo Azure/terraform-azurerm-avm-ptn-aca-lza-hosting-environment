@@ -9,10 +9,6 @@ terraform {
   required_version = ">= 1.9, < 2.0"
 
   required_providers {
-    azapi = {
-      source  = "Azure/azapi"
-      version = "~> 2.4"
-    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
@@ -62,8 +58,6 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.4)
-
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
 ## Resources
@@ -102,14 +96,6 @@ Description: Azure region
 Type: `string`
 
 Default: `"EastUS"`
-
-### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
-
-Description: Resource group name
-
-Type: `string`
-
-Default: `"rg-aca-lza-example"`
 
 ### <a name="input_tags"></a> [tags](#input\_tags)
 
