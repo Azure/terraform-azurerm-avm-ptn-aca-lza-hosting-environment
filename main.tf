@@ -81,6 +81,7 @@ module "spoke" {
   vm_linux_ssh_authorized_key                     = var.vm_linux_ssh_authorized_key
   vm_size                                         = var.vm_size
   vm_zone                                         = var.deploy_zone_redundant_resources ? 2 : 0
+  log_analytics_workspace_replication_enabled     = var.log_analytics_workspace_replication_enabled
 
   depends_on = [module.spoke_resource_group]
 }

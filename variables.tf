@@ -83,6 +83,13 @@ DESCRIPTION
   nullable    = false
 }
 
+variable "log_analytics_workspace_replication_enabled" {
+  type        = bool
+  default     = true
+  description = "Optional. Enable cross-region replication for the Log Analytics workspace. Default is true. Set to false in test/example environments to avoid issues with resource destruction."
+  nullable    = false
+}
+
 variable "environment" {
   type        = string
   default     = "test"

@@ -5,12 +5,13 @@
 module "log_analytics" {
   source = "./log_analytics"
 
-  location          = var.location
-  name              = var.resources_names["logAnalyticsWorkspace"]
-  resource_group_id = var.resource_group_id
-  retention_in_days = 30
-  sku               = "PerGB2018"
-  tags              = var.tags
+  location            = var.location
+  name                = var.resources_names["logAnalyticsWorkspace"]
+  resource_group_id   = var.resource_group_id
+  retention_in_days   = 30
+  sku                 = "PerGB2018"
+  tags                = var.tags
+  replication_enabled = var.log_analytics_workspace_replication_enabled
 }
 
 ###############################################

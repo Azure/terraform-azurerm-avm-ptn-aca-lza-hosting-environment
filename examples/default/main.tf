@@ -38,6 +38,7 @@ module "aca_lza_hosting" {
   spoke_application_gateway_subnet_address_prefix = "10.10.3.0/24"
   tags                                            = var.tags
   vm_jumpbox_os_type                              = "none"
+  log_analytics_workspace_replication_enabled     = false
   # Naming
   workload_name = var.workload_name
 }

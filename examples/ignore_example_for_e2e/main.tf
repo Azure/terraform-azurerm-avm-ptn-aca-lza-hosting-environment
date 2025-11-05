@@ -34,8 +34,9 @@ module "aca_lza_hosting" {
   enable_telemetry            = var.enable_telemetry
   environment                 = var.environment
   # Disable ingress - no Application Gateway or Front Door
-  expose_container_apps_with = "none"
-  tags                       = var.tags
-  vm_jumpbox_os_type         = "none"
-  workload_name              = var.workload_name
+  expose_container_apps_with                  = "none"
+  tags                                        = var.tags
+  vm_jumpbox_os_type                          = "none"
+  log_analytics_workspace_replication_enabled = false
+  workload_name                               = var.workload_name
 }
