@@ -15,16 +15,20 @@ The following requirements are needed by this module:
 
 - <a name="requirement_pkcs12"></a> [pkcs12](#requirement\_pkcs12) (~> 0.0.7)
 
+- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
+
 - <a name="requirement_tls"></a> [tls](#requirement\_tls) (~> 4.0)
 
 ## Resources
 
 The following resources are used by this module:
 
-- [azurerm_web_application_firewall_policy.waf](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/web_application_firewall_policy) (resource)
+- [azapi_resource.waf](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [pkcs12_from_pem.appgw](https://registry.terraform.io/providers/chilicat/pkcs12/latest/docs/resources/from_pem) (resource)
+- [random_password.cert_password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) (resource)
 - [tls_private_key.appgw](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) (resource)
 - [tls_self_signed_cert.appgw](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert) (resource)
+- [azapi_client_config.current](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 - [azurerm_public_ip.pip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/public_ip) (data source)
 
 <!-- markdownlint-disable MD013 -->
@@ -68,7 +72,7 @@ The following input variables are optional (have default values):
 
 ### <a name="input_backend_fqdn"></a> [backend\_fqdn](#input\_backend\_fqdn)
 
-Description: Optional. Backend FQDN to route traffic to (e.g., your Container App or internal endpoint).
+Description: Optional. Backend FQDN to route traffic to (e.g., your Container App or internal endpoint). Required if enable\_backend is true.
 
 Type: `string`
 
@@ -89,6 +93,14 @@ Description: Optional. When true, deploy zone-redundant resources (zones 1,2,3 w
 Type: `bool`
 
 Default: `true`
+
+### <a name="input_enable_backend"></a> [enable\_backend](#input\_enable\_backend)
+
+Description: Optional. Enable backend configuration including HTTPS listener and certificate. Set to true when a backend is available.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_enable_ddos_protection"></a> [enable\_ddos\_protection](#input\_enable\_ddos\_protection)
 

@@ -60,12 +60,6 @@ The following resources are used by this module:
 
 The following input variables are required:
 
-### <a name="input_backend_fqdn"></a> [backend\_fqdn](#input\_backend\_fqdn)
-
-Description: Required. The backend FQDN that Front Door will route traffic to (Container Apps Environment default domain).
-
-Type: `string`
-
 ### <a name="input_location"></a> [location](#input\_location)
 
 Description: Required. Azure region for resources.
@@ -87,6 +81,14 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
+
+### <a name="input_backend_fqdn"></a> [backend\_fqdn](#input\_backend\_fqdn)
+
+Description: Optional. The backend FQDN that Front Door will route traffic to (Container App FQDN, not the environment). If not provided, no origin or route will be created.
+
+Type: `string`
+
+Default: `""`
 
 ### <a name="input_backend_port"></a> [backend\_port](#input\_backend\_port)
 
@@ -120,13 +122,29 @@ Type: `bool`
 
 Default: `true`
 
-### <a name="input_container_apps_environment_id"></a> [container\_apps\_environment\_id](#input\_container\_apps\_environment\_id)
+### <a name="input_container_app_id"></a> [container\_app\_id](#input\_container\_app\_id)
 
-Description: Required. The resource ID of the Container Apps Environment for private link integration.
+Description: Optional. The resource ID of the Container App (deprecated - not used, private link targets the environment). Kept for backward compatibility.
 
 Type: `string`
 
 Default: `""`
+
+### <a name="input_container_apps_environment_id"></a> [container\_apps\_environment\_id](#input\_container\_apps\_environment\_id)
+
+Description: Optional. The resource ID of the Container Apps Environment for private link integration. This is used as the private link target. Required if enable\_backend is true.
+
+Type: `string`
+
+Default: `""`
+
+### <a name="input_enable_backend"></a> [enable\_backend](#input\_enable\_backend)
+
+Description: Optional. Enable backend origin and route creation. Set to true when a Container App backend is available.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_enable_diagnostics"></a> [enable\_diagnostics](#input\_enable\_diagnostics)
 

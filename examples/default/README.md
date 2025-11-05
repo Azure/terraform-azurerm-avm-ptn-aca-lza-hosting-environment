@@ -26,11 +26,6 @@ provider "azurerm" {
   storage_use_azuread = true
 }
 
-# Test RG for the module's resources
-resource "azurerm_resource_group" "this" {
-  location = var.location
-  name     = var.resource_group_name
-}
 
 module "aca_lza_hosting" {
   source = "../../"
@@ -41,27 +36,19 @@ module "aca_lza_hosting" {
   enable_application_insights = false
   enable_dapr_instrumentation = false
   # Core
-  location                                        = azurerm_resource_group.this.location
-  spoke_application_gateway_subnet_address_prefix = "10.10.3.0/24"
-  spoke_infra_subnet_address_prefix               = "10.10.1.0/24"
-  spoke_private_endpoints_subnet_address_prefix   = "10.10.2.0/24"
+  location                                      = var.location
+  spoke_infra_subnet_address_prefix             = "10.10.1.0/24"
+  spoke_private_endpoints_subnet_address_prefix = "10.10.2.0/24"
   # Minimal required networking to satisfy spoke inputs
-  spoke_vnet_address_prefixes      = ["10.10.0.0/16"]
-  vm_admin_password                = "P@ssword1234!ChangeMe" # replace via TF_VAR for real runs
-  vm_jumpbox_subnet_address_prefix = "10.10.5.0/24"
-  # VM/jumpbox minimal required inputs, keep VM disabled by default (vm_jumpbox_os_type = "none")
-  vm_size = "Standard_DS2_v2"
+  spoke_vnet_address_prefixes = ["10.10.0.0/16"]
   # Container Registry
-  deploy_sample_application   = true
-  enable_telemetry            = var.enable_telemetry
-  environment                 = var.environment
-  existing_resource_group_id  = azurerm_resource_group.this.id
-  expose_container_apps_with  = "applicationGateway"
-  tags                        = var.tags
-  use_existing_resource_group = true
-  vm_authentication_type      = "password"
-  vm_jumpbox_os_type          = "none"
-  vm_linux_ssh_authorized_key = ""
+  deploy_sample_application                       = true
+  enable_telemetry                                = var.enable_telemetry
+  environment                                     = var.environment
+  expose_container_apps_with                      = "applicationGateway"
+  spoke_application_gateway_subnet_address_prefix = "10.10.3.0/24"
+  tags                                            = var.tags
+  vm_jumpbox_os_type                              = "none"
   # Naming
   workload_name = var.workload_name
 }
@@ -81,9 +68,7 @@ The following requirements are needed by this module:
 
 ## Resources
 
-The following resources are used by this module:
-
-- [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
+No resources.
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -116,7 +101,7 @@ Description: Azure region
 
 Type: `string`
 
-Default: `"uksouth"`
+Default: `"EastUS"`
 
 ### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
 

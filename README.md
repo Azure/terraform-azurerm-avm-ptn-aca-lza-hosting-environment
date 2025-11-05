@@ -55,13 +55,7 @@ Type: `bool`
 
 ### <a name="input_location"></a> [location](#input\_location)
 
-Description: Optional. The location of the Azure Container Apps deployment.
-
-Type: `string`
-
-### <a name="input_spoke_application_gateway_subnet_address_prefix"></a> [spoke\_application\_gateway\_subnet\_address\_prefix](#input\_spoke\_application\_gateway\_subnet\_address\_prefix)
-
-Description: Required. CIDR of the Spoke Application Gateway Subnet.
+Description: Required. The location of the Azure Container Apps deployment.
 
 Type: `string`
 
@@ -82,24 +76,6 @@ Type: `string`
 Description: Required. CIDR of the Spoke Virtual Network.
 
 Type: `list(string)`
-
-### <a name="input_vm_admin_password"></a> [vm\_admin\_password](#input\_vm\_admin\_password)
-
-Description: Required. The password to use for the virtual machine.
-
-Type: `string`
-
-### <a name="input_vm_jumpbox_subnet_address_prefix"></a> [vm\_jumpbox\_subnet\_address\_prefix](#input\_vm\_jumpbox\_subnet\_address\_prefix)
-
-Description: Required. CIDR to use for the virtual machine subnet.
-
-Type: `string`
-
-### <a name="input_vm_size"></a> [vm\_size](#input\_vm\_size)
-
-Description: Required. The size of the virtual machine to create. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information.
-
-Type: `string`
 
 ## Optional Inputs
 
@@ -219,6 +195,14 @@ Type: `bool`
 
 Default: `false`
 
+### <a name="input_spoke_application_gateway_subnet_address_prefix"></a> [spoke\_application\_gateway\_subnet\_address\_prefix](#input\_spoke\_application\_gateway\_subnet\_address\_prefix)
+
+Description: Optional. CIDR of the Spoke Application Gateway Subnet. Required when expose\_container\_apps\_with is 'applicationGateway'. Default is null.
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_storage_account_type"></a> [storage\_account\_type](#input\_storage\_account\_type)
 
 Description: Optional. The storage account type to use for the jump box. Defaults to `Standard_LRS`.
@@ -243,6 +227,14 @@ Type: `bool`
 
 Default: `false`
 
+### <a name="input_vm_admin_password"></a> [vm\_admin\_password](#input\_vm\_admin\_password)
+
+Description: Optional. The password to use for the virtual machine. Required when vm\_jumpbox\_os\_type is not 'none'. Default is null.
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_vm_authentication_type"></a> [vm\_authentication\_type](#input\_vm\_authentication\_type)
 
 Description: Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended. Default is "password".
@@ -259,6 +251,14 @@ Type: `string`
 
 Default: `"none"`
 
+### <a name="input_vm_jumpbox_subnet_address_prefix"></a> [vm\_jumpbox\_subnet\_address\_prefix](#input\_vm\_jumpbox\_subnet\_address\_prefix)
+
+Description: Optional. CIDR to use for the virtual machine subnet. Required when vm\_jumpbox\_os\_type is not 'none'. Default is null.
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_vm_linux_ssh_authorized_key"></a> [vm\_linux\_ssh\_authorized\_key](#input\_vm\_linux\_ssh\_authorized\_key)
 
 Description: Optional. The SSH public key to use for the virtual machine. If not provided one will be generated. Default is empty.
@@ -266,6 +266,14 @@ Description: Optional. The SSH public key to use for the virtual machine. If not
 Type: `string`
 
 Default: `""`
+
+### <a name="input_vm_size"></a> [vm\_size](#input\_vm\_size)
+
+Description: Optional. The size of the virtual machine to create. Required when vm\_jumpbox\_os\_type is not 'none'. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information. Default is null.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_workload_name"></a> [workload\_name](#input\_workload\_name)
 

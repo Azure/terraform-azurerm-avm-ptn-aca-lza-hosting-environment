@@ -2,18 +2,6 @@
 # Front Door module: variables               #
 ###############################################
 
-variable "backend_fqdn" {
-  type        = string
-  default     = ""
-  description = "Optional. The backend FQDN that Front Door will route traffic to (Container App FQDN, not the environment). If not provided, no origin or route will be created."
-}
-
-variable "enable_backend" {
-  type        = bool
-  default     = false
-  description = "Optional. Enable backend origin and route creation. Set to true when a Container App backend is available."
-}
-
 variable "location" {
   type        = string
   description = "Required. Azure region for resources."
@@ -28,6 +16,12 @@ variable "name" {
 variable "resource_group_name" {
   type        = string
   description = "Required. Resource group name to deploy resources into."
+}
+
+variable "backend_fqdn" {
+  type        = string
+  default     = ""
+  description = "Optional. The backend FQDN that Front Door will route traffic to (Container App FQDN, not the environment). If not provided, no origin or route will be created."
 }
 
 variable "backend_port" {
@@ -64,16 +58,22 @@ variable "caching_enabled" {
   description = "Optional. Enable caching for the route."
 }
 
+variable "container_app_id" {
+  type        = string
+  default     = ""
+  description = "Optional. The resource ID of the Container App (deprecated - not used, private link targets the environment). Kept for backward compatibility."
+}
+
 variable "container_apps_environment_id" {
   type        = string
   default     = ""
   description = "Optional. The resource ID of the Container Apps Environment for private link integration. This is used as the private link target. Required if enable_backend is true."
 }
 
-variable "container_app_id" {
-  type        = string
-  default     = ""
-  description = "Optional. The resource ID of the Container App (deprecated - not used, private link targets the environment). Kept for backward compatibility."
+variable "enable_backend" {
+  type        = bool
+  default     = false
+  description = "Optional. Enable backend origin and route creation. Set to true when a Container App backend is available."
 }
 
 variable "enable_diagnostics" {

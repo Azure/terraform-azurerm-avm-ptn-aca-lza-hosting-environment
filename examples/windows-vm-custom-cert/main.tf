@@ -29,16 +29,11 @@ module "aca_lza_hosting" {
   enable_application_insights = true
   enable_dapr_instrumentation = false # Test mixed observability
   # Core - Let module create RG with custom name (COMPLEX)
-  location                                        = var.location
-  spoke_application_gateway_subnet_address_prefix = "10.30.3.0/24"
-  spoke_infra_subnet_address_prefix               = "10.30.1.0/24"
-  spoke_private_endpoints_subnet_address_prefix   = "10.30.2.0/24"
+  location                                      = var.location
+  spoke_infra_subnet_address_prefix             = "10.30.1.0/24"
+  spoke_private_endpoints_subnet_address_prefix = "10.30.2.0/24"
   # Spoke networking
-  spoke_vnet_address_prefixes      = ["10.30.0.0/16"]
-  vm_admin_password                = var.vm_admin_password
-  vm_jumpbox_subnet_address_prefix = "10.30.5.0/24"
-  # Windows VM with password authentication (COMPLEX)
-  vm_size                     = "Standard_DS2_v2"
+  spoke_vnet_address_prefixes = ["10.30.0.0/16"]
   created_resource_group_name = var.resource_group_name
   # No sample app to test minimal deployment
   deploy_sample_application = false
@@ -51,14 +46,19 @@ module "aca_lza_hosting" {
   # NO Application Gateway - test alternate ingress (COMPLEX)
   expose_container_apps_with = "none"
   # No hub integration - standalone spoke
-  hub_virtual_network_resource_id = ""
-  network_appliance_ip_address    = ""
-  route_spoke_traffic_internally  = true
-  tags                            = var.tags
-  use_existing_resource_group     = false
-  vm_authentication_type          = "password"
-  vm_jumpbox_os_type              = "windows"
-  vm_linux_ssh_authorized_key     = "" # Not used for Windows
+  hub_virtual_network_resource_id                 = ""
+  network_appliance_ip_address                    = ""
+  route_spoke_traffic_internally                  = true
+  spoke_application_gateway_subnet_address_prefix = "10.30.3.0/24"
+  tags                                            = var.tags
+  use_existing_resource_group                     = false
+  vm_admin_password                               = var.vm_admin_password
+  vm_authentication_type                          = "password"
+  vm_jumpbox_os_type                              = "windows"
+  vm_jumpbox_subnet_address_prefix                = "10.30.5.0/24"
+  vm_linux_ssh_authorized_key                     = "" # Not used for Windows
+  # Windows VM with password authentication (COMPLEX)
+  vm_size = "Standard_DS2_v2"
   # Naming
   workload_name = var.workload_name
 }

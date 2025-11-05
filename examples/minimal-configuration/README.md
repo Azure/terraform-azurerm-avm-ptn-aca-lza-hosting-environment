@@ -41,16 +41,11 @@ module "aca_lza_hosting" {
   enable_application_insights = false
   enable_dapr_instrumentation = false
   # Core - minimal required configuration
-  location                                        = azurerm_resource_group.this.location
-  spoke_application_gateway_subnet_address_prefix = "172.16.0.96/28" # /28 = 16 IPs (minimum for App GW)
-  spoke_infra_subnet_address_prefix               = "172.16.0.0/27"  # /27 = 32 IPs (REQUIRED minimum for Container Apps)
-  spoke_private_endpoints_subnet_address_prefix   = "172.16.0.32/28" # /28 = 16 IPs
+  location                                      = azurerm_resource_group.this.location
+  spoke_infra_subnet_address_prefix             = "172.16.0.0/27"  # /27 = 32 IPs (REQUIRED minimum for Container Apps)
+  spoke_private_endpoints_subnet_address_prefix = "172.16.0.32/28" # /28 = 16 IPs
   # Minimal networking - small address spaces
-  spoke_vnet_address_prefixes      = ["172.16.0.0/24"] # Small /24
-  vm_admin_password                = "NotUsed123!"     # Required but unused
-  vm_jumpbox_subnet_address_prefix = "172.16.0.128/28" # Required but unused
-  # NO VM deployment (COMPLEX edge case)
-  vm_size = "Standard_DS2_v2" # Required but unused
+  spoke_vnet_address_prefixes = ["172.16.0.0/24"] # Small /24
   # NO sample application
   deploy_sample_application = false
   # Minimal availability - single zone
@@ -67,9 +62,7 @@ module "aca_lza_hosting" {
   route_spoke_traffic_internally  = true
   tags                            = var.tags
   use_existing_resource_group     = true
-  vm_authentication_type          = "password" # Required but unused
-  vm_jumpbox_os_type              = "none"     # NO VM
-  vm_linux_ssh_authorized_key     = ""         # Not used
+  vm_jumpbox_os_type              = "none" # NO VM
   # Naming - short names to test validation
   workload_name = var.workload_name
 }

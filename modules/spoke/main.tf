@@ -127,7 +127,7 @@ module "nsg_container_apps_env" {
 module "nsg_appgw" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
   version = "~> 0.5"
-  count   = var.spoke_application_gateway_subnet_address_prefix != "" ? 1 : 0
+  count   = var.spoke_application_gateway_subnet_address_prefix != null && var.spoke_application_gateway_subnet_address_prefix != "" ? 1 : 0
 
   location            = var.location
   name                = var.resources_names["applicationGatewayNsg"]
@@ -332,9 +332,9 @@ module "vnet_spoke" {
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
   version = "~> 0.12"
 
-  address_space    = var.spoke_vnet_address_prefixes
   location         = var.location
   parent_id        = var.resource_group_id
+  address_space    = var.spoke_vnet_address_prefixes
   enable_telemetry = var.enable_telemetry
   name             = var.resources_names["vnetSpoke"]
   peerings = var.hub_virtual_network_resource_id != "" ? {
@@ -390,7 +390,7 @@ module "vnet_spoke" {
         id = module.nsg_pep.resource_id
       }
     }
-    }, var.spoke_application_gateway_subnet_address_prefix != "" ? {
+    }, var.spoke_application_gateway_subnet_address_prefix != null && var.spoke_application_gateway_subnet_address_prefix != "" ? {
     agw = {
       name             = var.spoke_application_gateway_subnet_name
       address_prefixes = [var.spoke_application_gateway_subnet_address_prefix]

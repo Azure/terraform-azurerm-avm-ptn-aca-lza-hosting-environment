@@ -88,7 +88,7 @@ The following outputs are exported:
 
 ### <a name="output_fqdn"></a> [fqdn](#output\_fqdn)
 
-Description: Public FQDN of the latest revision of the Container App.
+Description: Public FQDN of the Container App (base hostname without revision suffix).
 
 ### <a name="output_id"></a> [id](#output\_id)
 

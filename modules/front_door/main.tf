@@ -68,8 +68,8 @@ resource "azapi_resource" "profile" {
 
 # Front Door Endpoint (uses default *.azurefd.net with Microsoft-managed certificate)
 resource "azapi_resource" "endpoint" {
-  name      = "${var.name}-endpoint"
   location  = "Global"
+  name      = "${var.name}-endpoint"
   parent_id = azapi_resource.profile.id
   type      = "Microsoft.Cdn/profiles/afdEndpoints@2024-09-01"
   body = {
@@ -114,7 +114,6 @@ resource "azapi_resource" "origin" {
   name      = "${var.name}-origin"
   parent_id = azapi_resource.origin_group[0].id
   type      = "Microsoft.Cdn/profiles/originGroups/origins@2024-09-01"
-
   body = {
     properties = {
       hostName                    = replace(replace(var.backend_fqdn, "https://", ""), "http://", "")
@@ -139,7 +138,6 @@ resource "azapi_resource" "origin" {
       }
     }
   }
-
   response_export_values = ["*"]
 
   lifecycle {

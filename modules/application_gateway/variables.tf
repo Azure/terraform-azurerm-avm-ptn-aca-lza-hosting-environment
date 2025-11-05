@@ -34,12 +34,6 @@ variable "backend_fqdn" {
   description = "Optional. Backend FQDN to route traffic to (e.g., your Container App or internal endpoint). Required if enable_backend is true."
 }
 
-variable "enable_backend" {
-  type        = bool
-  default     = false
-  description = "Optional. Enable backend configuration including HTTPS listener and certificate. Set to true when a backend is available."
-}
-
 variable "backend_probe_path" {
   type        = string
   default     = "/"
@@ -50,6 +44,12 @@ variable "deploy_zone_redundant_resources" {
   type        = bool
   default     = true
   description = "Optional. When true, deploy zone-redundant resources (zones 1,2,3 where supported)."
+}
+
+variable "enable_backend" {
+  type        = bool
+  default     = false
+  description = "Optional. Enable backend configuration including HTTPS listener and certificate. Set to true when a backend is available."
 }
 
 variable "enable_ddos_protection" {

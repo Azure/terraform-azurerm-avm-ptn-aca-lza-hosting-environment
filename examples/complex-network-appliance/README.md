@@ -199,16 +199,11 @@ module "aca_lza_hosting" {
   enable_application_insights = true
   enable_dapr_instrumentation = true
   # Core - custom named RG (COMPLEX)
-  location                                        = var.location
-  spoke_application_gateway_subnet_address_prefix = "10.50.3.0/24"
-  spoke_infra_subnet_address_prefix               = "10.50.1.0/24"
-  spoke_private_endpoints_subnet_address_prefix   = "10.50.2.0/24"
+  location                                      = var.location
+  spoke_infra_subnet_address_prefix             = "10.50.1.0/24"
+  spoke_private_endpoints_subnet_address_prefix = "10.50.2.0/24"
   # Large address space for complex scenarios
-  spoke_vnet_address_prefixes      = ["10.50.0.0/16"] # Large spoke
-  vm_admin_password                = "NotUsedForSSH123!"
-  vm_jumpbox_subnet_address_prefix = "10.50.5.0/24"
-  # Linux VM with SSH for testing appliance connectivity (COMPLEX)
-  vm_size                     = "Standard_D4s_v3" # Larger VM for testing
+  spoke_vnet_address_prefixes = ["10.50.0.0/16"] # Large spoke
   created_resource_group_name = var.custom_resource_group_name
   # All features enabled (COMPLEX)
   deploy_sample_application = true
@@ -220,16 +215,21 @@ module "aca_lza_hosting" {
   environment                = var.environment
   expose_container_apps_with = "applicationGateway"
   # Complex hub-spoke with network appliance (COMPLEX)
-  hub_virtual_network_resource_id = azurerm_virtual_network.hub.id
-  network_appliance_ip_address    = azurerm_firewall.this.ip_configuration[0].private_ip_address
-  route_spoke_traffic_internally  = false # Force through hub appliance
+  hub_virtual_network_resource_id                 = azurerm_virtual_network.hub.id
+  network_appliance_ip_address                    = azurerm_firewall.this.ip_configuration[0].private_ip_address
+  route_spoke_traffic_internally                  = false # Force through hub appliance
+  spoke_application_gateway_subnet_address_prefix = "10.50.3.0/24"
   # Premium storage for high performance (COMPLEX)
-  storage_account_type        = "Premium_LRS"
-  tags                        = var.tags
-  use_existing_resource_group = false
-  vm_authentication_type      = "sshPublicKey"
-  vm_jumpbox_os_type          = "linux"
-  vm_linux_ssh_authorized_key = tls_private_key.ssh_key.public_key_openssh
+  storage_account_type             = "Premium_LRS"
+  tags                             = var.tags
+  use_existing_resource_group      = false
+  vm_admin_password                = "NotUsedForSSH123!"
+  vm_authentication_type           = "sshPublicKey"
+  vm_jumpbox_os_type               = "linux"
+  vm_jumpbox_subnet_address_prefix = "10.50.5.0/24"
+  vm_linux_ssh_authorized_key      = tls_private_key.ssh_key.public_key_openssh
+  # Linux VM with SSH for testing appliance connectivity (COMPLEX)
+  vm_size = "Standard_D4s_v3" # Larger VM for testing
   # Custom naming (COMPLEX)
   workload_name = var.workload_name
 

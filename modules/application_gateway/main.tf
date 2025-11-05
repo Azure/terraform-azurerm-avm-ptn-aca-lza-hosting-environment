@@ -3,11 +3,11 @@
 data "azapi_client_config" "current" {}
 
 locals {
-  zones                = var.deploy_zone_redundant_resources ? ["1", "2", "3"] : []
-  has_backend          = var.enable_backend
-  certificate_password = local.has_backend ? random_password.cert_password[0].result : ""
   # Strip protocol from backend FQDN for Application Gateway compatibility
-  backend_fqdn_clean = replace(replace(var.backend_fqdn, "https://", ""), "http://", "")
+  backend_fqdn_clean   = replace(replace(var.backend_fqdn, "https://", ""), "http://", "")
+  certificate_password = local.has_backend ? random_password.cert_password[0].result : ""
+  has_backend          = var.enable_backend
+  zones                = var.deploy_zone_redundant_resources ? ["1", "2", "3"] : []
 }
 
 # Public IP for Application Gateway
@@ -79,12 +79,10 @@ resource "pkcs12_from_pem" "appgw" {
 
 # WAF policy - migrated to AzAPI for AVM v1.0 compliance
 resource "azapi_resource" "waf" {
-  type      = "Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies@2024-01-01"
-  name      = "${var.name}Policy001"
   location  = var.location
+  name      = "${var.name}Policy001"
   parent_id = "/subscriptions/${data.azapi_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}"
-  tags      = var.tags
-
+  type      = "Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies@2024-01-01"
   body = {
     properties = {
       managedRules = {
@@ -106,12 +104,11 @@ resource "azapi_resource" "waf" {
       }
     }
   }
-
-  schema_validation_enabled = true
   ignore_casing             = true
   ignore_missing_property   = true
-
-  response_export_values = ["*"]
+  response_export_values    = ["*"]
+  schema_validation_enabled = true
+  tags                      = var.tags
 }
 
 locals {

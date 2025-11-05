@@ -34,35 +34,28 @@ module "aca_lza_hosting" {
   enable_application_insights = false
   enable_dapr_instrumentation = false
   # Core - minimal required configuration
-  location                                        = azurerm_resource_group.this.location
-  spoke_application_gateway_subnet_address_prefix = "172.16.0.96/28" # /28 = 16 IPs (minimum for App GW)
-  spoke_infra_subnet_address_prefix               = "172.16.0.0/27"  # /27 = 32 IPs (REQUIRED minimum for Container Apps)
-  spoke_private_endpoints_subnet_address_prefix   = "172.16.0.32/28" # /28 = 16 IPs
+  location                                      = azurerm_resource_group.this.location
+  spoke_infra_subnet_address_prefix             = "172.16.0.0/27"  # /27 = 32 IPs (REQUIRED minimum for Container Apps)
+  spoke_private_endpoints_subnet_address_prefix = "172.16.0.32/28" # /28 = 16 IPs
   # Minimal networking - small address spaces
-  spoke_vnet_address_prefixes      = ["172.16.0.0/24"] # Small /24
-  vm_admin_password                = "NotUsed123!"     # Required but unused
-  vm_jumpbox_subnet_address_prefix = "172.16.0.128/28" # Required but unused
-  # NO VM deployment (COMPLEX edge case)
-  vm_size = "Standard_DS2_v2" # Required but unused
+  spoke_vnet_address_prefixes = ["172.16.0.0/24"] # Small /24
   # NO sample application
   deploy_sample_application = false
   # Minimal availability - single zone
   deploy_zone_redundant_resources = false
   # NO DDoS protection
-  enable_ddos_protection      = false
-  enable_telemetry            = var.enable_telemetry
-  environment                 = var.environment
-  use_existing_resource_group = true
-  existing_resource_group_id  = azurerm_resource_group.this.id
-  expose_container_apps_with  = "none" # NO App Gateway
+  enable_ddos_protection     = false
+  enable_telemetry           = var.enable_telemetry
+  environment                = var.environment
+  existing_resource_group_id = azurerm_resource_group.this.id
+  expose_container_apps_with = "none" # NO App Gateway
   # No hub integration - isolated spoke
   hub_virtual_network_resource_id = ""
   network_appliance_ip_address    = ""
   route_spoke_traffic_internally  = true
   tags                            = var.tags
-  vm_authentication_type          = "password" # Required but unused
-  vm_jumpbox_os_type              = "none"     # NO VM
-  vm_linux_ssh_authorized_key     = ""         # Not used
+  use_existing_resource_group     = true
+  vm_jumpbox_os_type              = "none" # NO VM
   # Naming - short names to test validation
   workload_name = var.workload_name
 }

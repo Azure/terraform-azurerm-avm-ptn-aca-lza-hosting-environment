@@ -26,11 +26,6 @@ variable "location" {
   description = "Required. The location of the Azure Container Apps deployment."
 }
 
-variable "spoke_application_gateway_subnet_address_prefix" {
-  type        = string
-  description = "Required. CIDR of the Spoke Application Gateway Subnet."
-}
-
 variable "spoke_infra_subnet_address_prefix" {
   type        = string
   description = "Required. CIDR of the Spoke Infrastructure Subnet."
@@ -44,23 +39,6 @@ variable "spoke_private_endpoints_subnet_address_prefix" {
 variable "spoke_vnet_address_prefixes" {
   type        = list(string)
   description = "Required. CIDR of the Spoke Virtual Network."
-}
-
-variable "vm_admin_password" {
-  type        = string
-  description = "Required. The password to use for the virtual machine."
-  sensitive   = true
-}
-
-variable "vm_jumpbox_subnet_address_prefix" {
-  type        = string
-  description = "Required. CIDR to use for the virtual machine subnet."
-}
-
-# Jumpbox VM controls
-variable "vm_size" {
-  type        = string
-  description = "Required. The size of the virtual machine to create. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information."
 }
 
 variable "bastion_resource_id" {
@@ -168,6 +146,17 @@ variable "route_spoke_traffic_internally" {
   description = "Optional. Define whether to route spoke-internal traffic within the spoke network. If false, traffic will be sent to the hub network. Default is false."
 }
 
+variable "spoke_application_gateway_subnet_address_prefix" {
+  type        = string
+  default     = null
+  description = "Optional. CIDR of the Spoke Application Gateway Subnet. Required when expose_container_apps_with is 'applicationGateway'. Default is null."
+
+  validation {
+    condition     = var.expose_container_apps_with != "applicationGateway" || var.spoke_application_gateway_subnet_address_prefix != null
+    error_message = "spoke_application_gateway_subnet_address_prefix is required when expose_container_apps_with is 'applicationGateway'."
+  }
+}
+
 variable "storage_account_type" {
   type        = string
   default     = "Standard_LRS"
@@ -184,6 +173,18 @@ variable "use_existing_resource_group" {
   type        = bool
   default     = false
   description = "Optional. Whether to use an existing resource group or create a new one. If true, the module will use the resource group specified in existing_resource_group_id. If false, a new resource group will be created with the name specified in create_resource_group_name (or selected one for you if not specified). Default is false."
+}
+
+variable "vm_admin_password" {
+  type        = string
+  default     = null
+  description = "Optional. The password to use for the virtual machine. Required when vm_jumpbox_os_type is not 'none'. Default is null."
+  sensitive   = true
+
+  validation {
+    condition     = var.vm_jumpbox_os_type == "none" || var.vm_admin_password != null
+    error_message = "vm_admin_password is required when vm_jumpbox_os_type is not 'none'."
+  }
 }
 
 variable "vm_authentication_type" {
@@ -208,11 +209,34 @@ variable "vm_jumpbox_os_type" {
   }
 }
 
+variable "vm_jumpbox_subnet_address_prefix" {
+  type        = string
+  default     = null
+  description = "Optional. CIDR to use for the virtual machine subnet. Required when vm_jumpbox_os_type is not 'none'. Default is null."
+
+  validation {
+    condition     = var.vm_jumpbox_os_type == "none" || var.vm_jumpbox_subnet_address_prefix != null
+    error_message = "vm_jumpbox_subnet_address_prefix is required when vm_jumpbox_os_type is not 'none'."
+  }
+}
+
 variable "vm_linux_ssh_authorized_key" {
   type        = string
   default     = ""
   description = "Optional. The SSH public key to use for the virtual machine. If not provided one will be generated. Default is empty."
   sensitive   = true
+}
+
+# Jumpbox VM controls
+variable "vm_size" {
+  type        = string
+  default     = null
+  description = "Optional. The size of the virtual machine to create. Required when vm_jumpbox_os_type is not 'none'. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information. Default is null."
+
+  validation {
+    condition     = var.vm_jumpbox_os_type == "none" || var.vm_size != null
+    error_message = "vm_size is required when vm_jumpbox_os_type is not 'none'."
+  }
 }
 
 # Naming/Env

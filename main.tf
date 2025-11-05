@@ -13,11 +13,8 @@ resource "null_resource" "resource_group_validation" {
 }
 
 locals {
-  safeLocation = replace(var.location, " ", "")
-  // Determine if we're using an existing resource group from the input variable
-  use_existing_resource_group = var.use_existing_resource_group
-  create_auto_named_rg        = !local.use_existing_resource_group && trimspace(var.created_resource_group_name) == ""
-  create_custom_named_rg      = !local.use_existing_resource_group && trimspace(var.created_resource_group_name) != ""
+  create_auto_named_rg   = !local.use_existing_resource_group && trimspace(var.created_resource_group_name) == ""
+  create_custom_named_rg = !local.use_existing_resource_group && trimspace(var.created_resource_group_name) != ""
   // Deterministic uniqueness token derived from subscription + inputs
   naming_unique_id = substr(lower(replace(base64encode(sha256(local.naming_unique_seed)), "=", "")), 0, 13)
   naming_unique_seed = join("|", [
@@ -30,7 +27,9 @@ locals {
   resource_group_id = local.use_existing_resource_group ? var.existing_resource_group_id : module.spoke_resource_group[0].resource_id
   // Resource group name logic - for existing RG, extract from ID; for new RG with custom name, use it; otherwise use generated name from naming module
   resource_group_name = local.use_existing_resource_group ? regex("/resourceGroups/([^/]+)", var.existing_resource_group_id)[0] : (local.create_custom_named_rg ? var.created_resource_group_name : module.naming.resources_names.resourceGroup)
-
+  safeLocation        = replace(var.location, " ", "")
+  // Determine if we're using an existing resource group from the input variable
+  use_existing_resource_group = var.use_existing_resource_group
 }
 
 module "naming" {
@@ -171,9 +170,9 @@ module "application_gateway" {
   subnet_id           = module.spoke.spoke_application_gateway_subnet_id
   # Backend - route to sample app if deployed, otherwise leave empty
   backend_fqdn                    = var.deploy_sample_application ? module.sample_application[0].fqdn : ""
-  enable_backend                  = var.deploy_sample_application
   backend_probe_path              = "/"
   deploy_zone_redundant_resources = var.deploy_zone_redundant_resources
+  enable_backend                  = var.deploy_sample_application
   enable_ddos_protection          = var.enable_ddos_protection
   enable_diagnostics              = true
   enable_telemetry                = var.enable_telemetry
@@ -190,17 +189,17 @@ module "front_door" {
   source = "./modules/front_door"
   count  = var.expose_container_apps_with == "frontDoor" ? 1 : 0
 
-  # Backend Configuration - Route to sample app if deployed
-  backend_fqdn        = var.deploy_sample_application ? module.sample_application[0].fqdn : ""
-  enable_backend      = var.deploy_sample_application
   location            = local.safeLocation
   name                = module.naming.resources_names.frontDoor
   resource_group_name = local.resource_group_name
-  backend_port        = 443
-  backend_protocol    = "Https"
+  # Backend Configuration - Route to sample app if deployed
+  backend_fqdn     = var.deploy_sample_application ? module.sample_application[0].fqdn : ""
+  backend_port     = 443
+  backend_protocol = "Https"
+  container_app_id = var.deploy_sample_application ? module.sample_application[0].resource_id : ""
   # Private Link Configuration - Required when backend is enabled
   container_apps_environment_id = module.container_apps_environment.managed_environment_id
-  container_app_id              = var.deploy_sample_application ? module.sample_application[0].resource_id : ""
+  enable_backend                = var.deploy_sample_application
   enable_telemetry              = var.enable_telemetry
   # WAF Configuration - Optional
   enable_waf = var.front_door_enable_waf
