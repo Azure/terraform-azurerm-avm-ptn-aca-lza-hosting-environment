@@ -11,6 +11,7 @@ variable "infrastructure_subnet_id" {
 variable "location" {
   type        = string
   description = "Azure region for resources."
+  nullable    = false
 }
 
 variable "log_analytics_workspace_customer_id" {
@@ -94,6 +95,6 @@ variable "hub_virtual_network_id" {
 
 variable "tags" {
   type        = map(string)
-  default     = {}
+  default     = null
   description = "Tags to apply to all resources."
 }

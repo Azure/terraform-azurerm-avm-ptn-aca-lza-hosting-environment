@@ -60,6 +60,10 @@ Default: `""`
 
 The following outputs are exported:
 
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: Not applicable for naming module - this is a utility module that does not create resources
+
 ### <a name="output_resource_type_abbreviations"></a> [resource\_type\_abbreviations](#output\_resource\_type\_abbreviations)
 
 Description: Resource type abbreviations

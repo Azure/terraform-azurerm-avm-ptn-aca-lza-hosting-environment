@@ -158,7 +158,7 @@ Description: Tags to apply to all resources.
 
 Type: `map(string)`
 
-Default: `{}`
+Default: `null`
 
 ## Outputs
 
