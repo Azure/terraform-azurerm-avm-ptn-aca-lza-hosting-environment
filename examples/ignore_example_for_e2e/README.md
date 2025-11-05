@@ -41,17 +41,10 @@ module "aca_lza_hosting" {
   enable_telemetry            = var.enable_telemetry
   environment                 = var.environment
   # Disable ingress - no Application Gateway or Front Door
-  expose_container_apps_with                      = "none"
-  spoke_application_gateway_subnet_address_prefix = "10.30.3.0/24"
-  tags                                            = var.tags
-  vm_admin_password                               = "P@ssword1234!ChangeMe" # override via TF_VAR in real usage
-  vm_authentication_type                          = "password"
-  vm_jumpbox_os_type                              = "none"
-  vm_jumpbox_subnet_address_prefix                = "10.30.5.0/24"
-  vm_linux_ssh_authorized_key                     = ""
-  # VM controls (required variables); keep VM disabled via vm_jumpbox_os_type = "none"
-  vm_size       = "Standard_DS2_v2"
-  workload_name = var.workload_name
+  expose_container_apps_with = "none"
+  tags                       = var.tags
+  vm_jumpbox_os_type         = "none"
+  workload_name              = var.workload_name
 }
 ```
 
