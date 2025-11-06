@@ -122,8 +122,6 @@ module "container_apps_environment" {
   resource_group_name        = local.resource_group_name
   # Networking
   spoke_virtual_network_id = module.spoke.spoke_vnet_id
-  # Auto-approve private endpoint connections when using Front Door
-  auto_approve_private_endpoint_connections = var.expose_container_apps_with == "front_door"
   # Optional storage mounts (none by default)
   container_apps_environment_storages = {}
   # Zone redundancy per workload setting
@@ -149,7 +147,6 @@ module "sample_application" {
   # Where to deploy
   resource_group_name   = local.resource_group_name
   enable_telemetry      = var.enable_telemetry
-  location              = local.safe_location
   tags                  = var.tags
   workload_profile_name = module.container_apps_environment.workload_profile_names[0]
 
@@ -196,7 +193,6 @@ module "front_door" {
   backend_fqdn     = var.deploy_sample_application ? module.sample_application[0].fqdn : ""
   backend_port     = 443
   backend_protocol = "Https"
-  container_app_id = var.deploy_sample_application ? module.sample_application[0].resource_id : ""
   # Private Link Configuration - Required when backend is enabled
   container_apps_environment_id = module.container_apps_environment.managed_environment_id
   enable_backend                = var.deploy_sample_application
