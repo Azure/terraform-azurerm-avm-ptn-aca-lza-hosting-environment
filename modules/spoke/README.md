@@ -316,31 +316,31 @@ Version:
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.1
+Version: 0.5.0
 
 ### <a name="module_nsg_container_apps_env"></a> [nsg\_container\_apps\_env](#module\_nsg\_container\_apps\_env)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.1
+Version: 0.5.0
 
 ### <a name="module_nsg_deployment"></a> [nsg\_deployment](#module\_nsg\_deployment)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.1
+Version: 0.5.0
 
 ### <a name="module_nsg_pep"></a> [nsg\_pep](#module\_nsg\_pep)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.1
+Version: 0.5.0
 
 ### <a name="module_route_table"></a> [route\_table](#module\_route\_table)
 
 Source: Azure/avm-res-network-routetable/azurerm
 
-Version: 0.4.2
+Version: 0.4.1
 
 ### <a name="module_vm_linux"></a> [vm\_linux](#module\_vm\_linux)
 
@@ -358,7 +358,7 @@ Version:
 
 Source: Azure/avm-res-network-virtualnetwork/azurerm
 
-Version: 0.12.1
+Version: 0.15.0
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->

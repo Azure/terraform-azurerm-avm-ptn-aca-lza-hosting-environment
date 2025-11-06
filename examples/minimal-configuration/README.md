@@ -54,12 +54,12 @@ module "aca_lza_hosting" {
   expose_container_apps_with = "none" # NO App Gateway
   # No hub integration - isolated spoke
   hub_virtual_network_resource_id             = ""
+  log_analytics_workspace_replication_enabled = false
   network_appliance_ip_address                = ""
   route_spoke_traffic_internally              = true
   tags                                        = var.tags
   use_existing_resource_group                 = true
   vm_jumpbox_os_type                          = "none" # NO VM
-  log_analytics_workspace_replication_enabled = false
   # Naming - short names to test validation
   workload_name = var.workload_name
 }

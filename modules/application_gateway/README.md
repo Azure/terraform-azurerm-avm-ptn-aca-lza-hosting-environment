@@ -166,13 +166,13 @@ The following Modules are called:
 
 Source: Azure/avm-res-network-applicationgateway/azurerm
 
-Version: 0.2.7
+Version: 0.4.3
 
 ### <a name="module_appgw_pip"></a> [appgw\_pip](#module\_appgw\_pip)
 
 Source: Azure/avm-res-network-publicipaddress/azurerm
 
-Version: 0.2.1
+Version: 0.2.0
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->

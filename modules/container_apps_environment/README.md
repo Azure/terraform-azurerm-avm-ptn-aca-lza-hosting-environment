@@ -194,19 +194,19 @@ The following Modules are called:
 
 Source: Azure/avm-res-network-privatednszone/azurerm
 
-Version: 0.4.3
+Version: 0.4.2
 
 ### <a name="module_application_insights"></a> [application\_insights](#module\_application\_insights)
 
 Source: Azure/avm-res-insights-component/azurerm
 
-Version: 0.2.1
+Version: 0.2.0
 
 ### <a name="module_managed_environment"></a> [managed\_environment](#module\_managed\_environment)
 
 Source: Azure/avm-res-app-managedenvironment/azurerm
 
-Version: 0.3.2
+Version: 0.3.0
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->

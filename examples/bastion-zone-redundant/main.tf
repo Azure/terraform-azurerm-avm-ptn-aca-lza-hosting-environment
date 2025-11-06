@@ -111,6 +111,7 @@ module "aca_lza_hosting" {
   expose_container_apps_with = "applicationGateway"
   # Bastion Integration (COMPLEX)
   hub_virtual_network_resource_id                 = azurerm_virtual_network.hub.id
+  log_analytics_workspace_replication_enabled     = false
   route_spoke_traffic_internally                  = false
   spoke_application_gateway_subnet_address_prefix = "10.40.3.0/24"
   tags                                            = var.tags
@@ -121,8 +122,7 @@ module "aca_lza_hosting" {
   vm_jumpbox_subnet_address_prefix                = "10.40.5.0/24"
   vm_linux_ssh_authorized_key                     = tls_private_key.ssh_key.public_key_openssh
   # Linux VM with SSH for Bastion testing (COMPLEX)
-  vm_size                                     = "Standard_DS2_v2"
-  log_analytics_workspace_replication_enabled = false
+  vm_size = "Standard_DS2_v2"
   # Naming
   workload_name = var.workload_name
 }

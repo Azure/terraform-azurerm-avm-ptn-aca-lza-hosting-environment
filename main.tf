@@ -69,6 +69,7 @@ module "spoke" {
   enable_telemetry    = var.enable_telemetry
   # Networking
   hub_virtual_network_resource_id                 = var.hub_virtual_network_resource_id
+  log_analytics_workspace_replication_enabled     = var.log_analytics_workspace_replication_enabled
   network_appliance_ip_address                    = var.network_appliance_ip_address
   route_spoke_traffic_internally                  = var.route_spoke_traffic_internally
   spoke_application_gateway_subnet_address_prefix = var.spoke_application_gateway_subnet_address_prefix
@@ -81,7 +82,6 @@ module "spoke" {
   vm_linux_ssh_authorized_key                     = var.vm_linux_ssh_authorized_key
   vm_size                                         = var.vm_size
   vm_zone                                         = var.deploy_zone_redundant_resources ? 2 : 0
-  log_analytics_workspace_replication_enabled     = var.log_analytics_workspace_replication_enabled
 
   depends_on = [module.spoke_resource_group]
 }
@@ -146,10 +146,10 @@ module "sample_application" {
   container_app_environment_resource_id = module.container_apps_environment.managed_environment_id
   # Identity to pull images from ACR (already created in supporting services)
   container_registry_user_assigned_identity_id = module.supporting_services.container_registry_uai_id
-  location                                     = local.safe_location
   # Where to deploy
   resource_group_name   = local.resource_group_name
   enable_telemetry      = var.enable_telemetry
+  location              = local.safe_location
   tags                  = var.tags
   workload_profile_name = module.container_apps_environment.workload_profile_names[0]
 

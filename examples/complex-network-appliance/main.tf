@@ -205,6 +205,7 @@ module "aca_lza_hosting" {
   expose_container_apps_with = "applicationGateway"
   # Complex hub-spoke with network appliance (COMPLEX)
   hub_virtual_network_resource_id                 = azurerm_virtual_network.hub.id
+  log_analytics_workspace_replication_enabled     = false
   network_appliance_ip_address                    = azurerm_firewall.this.ip_configuration[0].private_ip_address
   route_spoke_traffic_internally                  = false # Force through hub appliance
   spoke_application_gateway_subnet_address_prefix = "10.50.3.0/24"
@@ -218,8 +219,7 @@ module "aca_lza_hosting" {
   vm_jumpbox_subnet_address_prefix = "10.50.5.0/24"
   vm_linux_ssh_authorized_key      = tls_private_key.ssh_key.public_key_openssh
   # Linux VM with SSH for testing appliance connectivity (COMPLEX)
-  vm_size                                     = "Standard_D4s_v3" # Larger VM for testing
-  log_analytics_workspace_replication_enabled = false
+  vm_size = "Standard_D4s_v3" # Larger VM for testing
   # Custom naming (COMPLEX)
   workload_name = var.workload_name
 

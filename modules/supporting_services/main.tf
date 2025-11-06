@@ -2,6 +2,7 @@ locals {
   tags = var.tags
 }
 
+# tflint-ignore: required_module_source_tffr1
 module "container_registry" {
   source = "./container_registry"
   count  = 1
@@ -22,6 +23,7 @@ module "container_registry" {
   zone_redundant_enabled      = var.deploy_zone_redundant_resources
 }
 
+# tflint-ignore: required_module_source_tffr1
 module "key_vault" {
   source = "./key_vault"
   count  = 1
@@ -41,6 +43,7 @@ module "key_vault" {
   tags                       = local.tags
 }
 
+# tflint-ignore: required_module_source_tffr1
 module "storage" {
   source = "./storage"
   count  = 1

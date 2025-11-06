@@ -83,13 +83,6 @@ DESCRIPTION
   nullable    = false
 }
 
-variable "log_analytics_workspace_replication_enabled" {
-  type        = bool
-  default     = true
-  description = "Optional. Enable cross-region replication for the Log Analytics workspace. Default is true. Set to false in test/example environments to avoid issues with resource destruction."
-  nullable    = false
-}
-
 variable "environment" {
   type        = string
   default     = "test"
@@ -140,6 +133,13 @@ variable "hub_virtual_network_resource_id" {
   type        = string
   default     = ""
   description = "Optional. The resource ID of the hub virtual network. If set, the spoke virtual network will be peered with the hub virtual network. Default is empty."
+}
+
+variable "log_analytics_workspace_replication_enabled" {
+  type        = bool
+  default     = true
+  description = "Optional. Enable cross-region replication for the Log Analytics workspace. Default is true. Set to false in test/example environments to avoid issues with resource destruction."
+  nullable    = false
 }
 
 variable "network_appliance_ip_address" {
@@ -232,7 +232,6 @@ variable "vm_linux_ssh_authorized_key" {
   type        = string
   default     = null
   description = "Optional. The SSH public key to use for the virtual machine. If not provided one will be generated when vm_jumpbox_os_type is 'linux' and vm_authentication_type is 'sshPublicKey'."
-  nullable    = true
   sensitive   = true
 }
 

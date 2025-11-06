@@ -69,17 +69,17 @@ variable "enable_telemetry" {
   description = "Optional. Enable/Disable module telemetry for AVM submodules."
 }
 
+variable "hub_virtual_network_resource_id" {
+  type        = string
+  default     = ""
+  description = "Optional. The resource ID of the existing hub virtual network. If provided, a peering from spoke to hub will be created."
+}
+
 variable "log_analytics_workspace_replication_enabled" {
   type        = bool
   default     = true
   description = "Optional. Enable cross-region replication for the Log Analytics workspace. Default is true."
   nullable    = false
-}
-
-variable "hub_virtual_network_resource_id" {
-  type        = string
-  default     = ""
-  description = "Optional. The resource ID of the existing hub virtual network. If provided, a peering from spoke to hub will be created."
 }
 
 variable "network_appliance_ip_address" {
@@ -134,7 +134,6 @@ variable "vm_admin_password" {
   type        = string
   default     = null
   description = "Optional. The password to use for the virtual machine. Required when vm_authentication_type == 'password' and vm_jumpbox_os_type != 'none'."
-  nullable    = true
   sensitive   = true
 }
 
@@ -160,7 +159,6 @@ variable "vm_linux_ssh_authorized_key" {
   type        = string
   default     = null
   description = "Optional. The SSH public key to use for the Linux virtual machine."
-  nullable    = true
   sensitive   = true
 }
 
