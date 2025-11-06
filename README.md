@@ -303,6 +303,10 @@ Description: The resource ID of the Application Gateway (when deployed).
 
 Description: The public IP address of the Application Gateway (when deployed).
 
+### <a name="output_application_insights_id"></a> [application\_insights\_id](#output\_application\_insights\_id)
+
+Description: The resource ID of Application Insights (when enabled).
+
 ### <a name="output_container_apps_environment_default_domain"></a> [container\_apps\_environment\_default\_domain](#output\_container\_apps\_environment\_default\_domain)
 
 Description: The default domain of the Container Apps Managed Environment.
@@ -351,6 +355,14 @@ Description: The resource ID of the Azure Key Vault.
 
 Description: The name of the Azure Key Vault.
 
+### <a name="output_linux_vm_id"></a> [linux\_vm\_id](#output\_linux\_vm\_id)
+
+Description: The resource ID of the Linux jump box VM (when deployed).
+
+### <a name="output_linux_vm_private_ip"></a> [linux\_vm\_private\_ip](#output\_linux\_vm\_private\_ip)
+
+Description: The private IP address of the Linux jump box VM (when deployed).
+
 ### <a name="output_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#output\_log\_analytics\_workspace\_id)
 
 Description: The resource ID of the Azure Log Analytics Workspace
@@ -386,6 +398,10 @@ Description: The resource ID of the sample Container App (when deployed).
 ### <a name="output_sample_app_name"></a> [sample\_app\_name](#output\_sample\_app\_name)
 
 Description: The name of the sample Container App (when deployed).
+
+### <a name="output_spoke_virtual_network_id"></a> [spoke\_virtual\_network\_id](#output\_spoke\_virtual\_network\_id)
+
+Description: The resource ID of the spoke virtual network.
 
 ### <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name)
 

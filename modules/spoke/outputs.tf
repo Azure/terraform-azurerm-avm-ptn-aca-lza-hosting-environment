@@ -80,7 +80,17 @@ output "spoke_vnet_name" {
   value       = module.vnet_spoke.name
 }
 
+output "vm_jumpbox_id" {
+  description = "The resource ID of the Linux jump box virtual machine (when deployed)."
+  value       = var.vm_jumpbox_os_type == "linux" ? module.vm_linux[0].vm_id : (var.vm_jumpbox_os_type == "windows" ? null : null) # Windows VM doesn't have output yet
+}
+
 output "vm_jumpbox_name" {
   description = "The name of the jump box virtual machine, if created; otherwise empty string."
   value       = var.resources_names["vmJumpBox"]
+}
+
+output "vm_jumpbox_private_ip" {
+  description = "The private IP address of the jump box virtual machine (when deployed)."
+  value       = var.vm_jumpbox_os_type == "linux" ? module.vm_linux[0].vm_private_ip : (var.vm_jumpbox_os_type == "windows" ? null : null) # Windows VM doesn't have output yet
 }

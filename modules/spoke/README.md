@@ -298,9 +298,17 @@ Description: The resource ID of the spoke virtual network.
 
 Description: The name of the spoke virtual network.
 
+### <a name="output_vm_jumpbox_id"></a> [vm\_jumpbox\_id](#output\_vm\_jumpbox\_id)
+
+Description: The resource ID of the Linux jump box virtual machine (when deployed).
+
 ### <a name="output_vm_jumpbox_name"></a> [vm\_jumpbox\_name](#output\_vm\_jumpbox\_name)
 
 Description: The name of the jump box virtual machine, if created; otherwise empty string.
+
+### <a name="output_vm_jumpbox_private_ip"></a> [vm\_jumpbox\_private\_ip](#output\_vm\_jumpbox\_private\_ip)
+
+Description: The private IP address of the jump box virtual machine (when deployed).
 
 ## Modules
 

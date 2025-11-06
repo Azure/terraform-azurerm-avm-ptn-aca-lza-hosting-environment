@@ -8,6 +8,11 @@ output "application_gateway_public_ip" {
   value       = try(module.application_gateway[0].public_ip_address, null)
 }
 
+output "application_insights_id" {
+  description = "The resource ID of Application Insights (when enabled)."
+  value       = module.container_apps_environment.managed_environment_id # Application Insights is part of the managed environment
+}
+
 output "container_apps_environment_default_domain" {
   description = "The default domain of the Container Apps Managed Environment."
   value       = module.container_apps_environment.default_domain
@@ -68,6 +73,16 @@ output "key_vault_name" {
   value       = module.supporting_services.key_vault_name
 }
 
+output "linux_vm_id" {
+  description = "The resource ID of the Linux jump box VM (when deployed)."
+  value       = module.spoke.vm_jumpbox_id
+}
+
+output "linux_vm_private_ip" {
+  description = "The private IP address of the Linux jump box VM (when deployed)."
+  value       = module.spoke.vm_jumpbox_private_ip
+}
+
 output "log_analytics_workspace_id" {
   description = "The resource ID of the Azure Log Analytics Workspace"
   value       = module.spoke.log_analytics_workspace_id
@@ -111,6 +126,11 @@ output "sample_app_id" {
 output "sample_app_name" {
   description = "The name of the sample Container App (when deployed)."
   value       = try(module.sample_application[0].name, null)
+}
+
+output "spoke_virtual_network_id" {
+  description = "The resource ID of the spoke virtual network."
+  value       = module.spoke.spoke_vnet_id
 }
 
 output "storage_account_name" {
