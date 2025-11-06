@@ -9,10 +9,6 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.6, < 2.0)
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 2.0, < 3.0)
-
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0)
-
 ## Resources
 
 No resources.
@@ -106,6 +102,14 @@ Type: `string`
 
 Default: `""`
 
+### <a name="input_log_analytics_workspace_replication_enabled"></a> [log\_analytics\_workspace\_replication\_enabled](#input\_log\_analytics\_workspace\_replication\_enabled)
+
+Description: Optional. Enable cross-region replication for the Log Analytics workspace. Default is true.
+
+Type: `bool`
+
+Default: `true`
+
 ### <a name="input_network_appliance_ip_address"></a> [network\_appliance\_ip\_address](#input\_network\_appliance\_ip\_address)
 
 Description: Optional. The IP address of the network appliance (e.g. firewall) that will be used to route traffic to the internet. Required to create the egress lockdown UDR.
@@ -176,7 +180,7 @@ Description: Optional. The password to use for the virtual machine. Required whe
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_vm_authentication_type"></a> [vm\_authentication\_type](#input\_vm\_authentication\_type)
 
@@ -208,7 +212,7 @@ Description: Optional. The SSH public key to use for the Linux virtual machine.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_vm_size"></a> [vm\_size](#input\_vm\_size)
 
@@ -312,31 +316,31 @@ Version:
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: ~> 0.5
+Version: 0.5.1
 
 ### <a name="module_nsg_container_apps_env"></a> [nsg\_container\_apps\_env](#module\_nsg\_container\_apps\_env)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: ~> 0.5
+Version: 0.5.1
 
 ### <a name="module_nsg_deployment"></a> [nsg\_deployment](#module\_nsg\_deployment)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: ~> 0.5
+Version: 0.5.1
 
 ### <a name="module_nsg_pep"></a> [nsg\_pep](#module\_nsg\_pep)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: ~> 0.5
+Version: 0.5.1
 
 ### <a name="module_route_table"></a> [route\_table](#module\_route\_table)
 
 Source: Azure/avm-res-network-routetable/azurerm
 
-Version: ~> 0.4
+Version: 0.4.2
 
 ### <a name="module_vm_linux"></a> [vm\_linux](#module\_vm\_linux)
 
@@ -354,7 +358,7 @@ Version:
 
 Source: Azure/avm-res-network-virtualnetwork/azurerm
 
-Version: ~> 0.12
+Version: 0.12.1
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->

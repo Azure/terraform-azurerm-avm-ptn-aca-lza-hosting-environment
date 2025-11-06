@@ -13,8 +13,6 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.4)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
-
 - <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
 - <a name="requirement_null"></a> [null](#requirement\_null) (~> 3.0)
@@ -181,6 +179,14 @@ Type: `string`
 
 Default: `""`
 
+### <a name="input_log_analytics_workspace_replication_enabled"></a> [log\_analytics\_workspace\_replication\_enabled](#input\_log\_analytics\_workspace\_replication\_enabled)
+
+Description: Optional. Enable cross-region replication for the Log Analytics workspace. Default is true. Set to false in test/example environments to avoid issues with resource destruction.
+
+Type: `bool`
+
+Default: `true`
+
 ### <a name="input_network_appliance_ip_address"></a> [network\_appliance\_ip\_address](#input\_network\_appliance\_ip\_address)
 
 Description: Optional. If set, the spoke virtual network will be peered with the hub virtual network and egress traffic will be routed through the network appliance. Default is empty.
@@ -263,11 +269,11 @@ Default: `null`
 
 ### <a name="input_vm_linux_ssh_authorized_key"></a> [vm\_linux\_ssh\_authorized\_key](#input\_vm\_linux\_ssh\_authorized\_key)
 
-Description: Optional. The SSH public key to use for the virtual machine. If not provided one will be generated. Default is empty.
+Description: Optional. The SSH public key to use for the virtual machine. If not provided one will be generated when vm\_jumpbox\_os\_type is 'linux' and vm\_authentication\_type is 'sshPublicKey'.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_vm_size"></a> [vm\_size](#input\_vm\_size)
 
@@ -433,7 +439,7 @@ Version:
 
 Source: Azure/avm-res-resources-resourcegroup/azurerm
 
-Version: ~> 0.2
+Version: 0.2.0
 
 ### <a name="module_supporting_services"></a> [supporting\_services](#module\_supporting\_services)
 

@@ -230,8 +230,9 @@ variable "vm_jumpbox_subnet_address_prefix" {
 
 variable "vm_linux_ssh_authorized_key" {
   type        = string
-  default     = ""
-  description = "Optional. The SSH public key to use for the virtual machine. If not provided one will be generated. Default is empty."
+  default     = null
+  description = "Optional. The SSH public key to use for the virtual machine. If not provided one will be generated when vm_jumpbox_os_type is 'linux' and vm_authentication_type is 'sshPublicKey'."
+  nullable    = true
   sensitive   = true
 }
 

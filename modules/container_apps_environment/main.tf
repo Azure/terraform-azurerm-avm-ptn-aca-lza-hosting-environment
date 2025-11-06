@@ -27,7 +27,7 @@ locals {
 # Optional Application Insights (workspace-based)
 module "application_insights" {
   source  = "Azure/avm-res-insights-component/azurerm"
-  version = "~> 0.2"
+  version = "0.2.1"
   count   = var.enable_application_insights ? 1 : 0
 
   location            = var.location
@@ -41,7 +41,7 @@ module "application_insights" {
 # ACA Managed Environment
 module "managed_environment" {
   source  = "Azure/avm-res-app-managedenvironment/azurerm"
-  version = "~> 0.3"
+  version = "0.3.2"
 
   location            = var.location
   name                = var.name
@@ -70,12 +70,18 @@ module "managed_environment" {
     maximum_count         = 3
   }]
   zone_redundancy_enabled = var.deploy_zone_redundant_resources
+  # Increased timeout for Container Apps Environment creation (can take 45+ minutes with workload profiles)
+  timeouts = {
+    create = "60m"
+    update = "60m"
+    delete = "60m"
+  }
 }
 
 # Private DNS zone: domain is the defaultDomain from ACA env
 module "aca_privatedns" {
   source  = "Azure/avm-res-network-privatednszone/azurerm"
-  version = "~> 0.4"
+  version = "0.4.3"
 
   domain_name = module.managed_environment.default_domain
   parent_id   = var.resource_group_id

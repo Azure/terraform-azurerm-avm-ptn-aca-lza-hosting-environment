@@ -43,7 +43,7 @@ module "naming" {
 
 module "spoke_resource_group" {
   source  = "Azure/avm-res-resources-resourcegroup/azurerm"
-  version = "~> 0.2"
+  version = "0.2.0"
   count   = local.use_existing_resource_group ? 0 : 1
 
   location         = local.safe_location

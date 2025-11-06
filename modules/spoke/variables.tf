@@ -132,8 +132,9 @@ variable "tags" {
 
 variable "vm_admin_password" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. The password to use for the virtual machine. Required when vm_authentication_type == 'password' and vm_jumpbox_os_type != 'none'."
+  nullable    = true
   sensitive   = true
 }
 
@@ -157,8 +158,9 @@ variable "vm_jumpbox_subnet_address_prefix" {
 
 variable "vm_linux_ssh_authorized_key" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. The SSH public key to use for the Linux virtual machine."
+  nullable    = true
   sensitive   = true
 }
 

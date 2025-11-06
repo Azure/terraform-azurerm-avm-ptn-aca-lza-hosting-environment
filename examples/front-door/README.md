@@ -68,11 +68,12 @@ module "aca_lza_hosting" {
   existing_resource_group_id      = azurerm_resource_group.this.id
   # Front Door Configuration
   # Front Door automatically uses Premium SKU with Private Link enabled
-  expose_container_apps_with  = "frontDoor"
-  front_door_enable_waf       = false # WAF is optional, defaults to disabled
-  tags                        = var.tags
-  use_existing_resource_group = true
-  vm_jumpbox_os_type          = "none" # disable VM for this example
+  expose_container_apps_with                  = "frontDoor"
+  front_door_enable_waf                       = false # WAF is optional, defaults to disabled
+  tags                                        = var.tags
+  use_existing_resource_group                 = true
+  vm_jumpbox_os_type                          = "none" # disable VM for this example
+  log_analytics_workspace_replication_enabled = false
   # Naming
   workload_name = var.workload_name
 }

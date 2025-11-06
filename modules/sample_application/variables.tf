@@ -12,12 +12,6 @@ variable "container_registry_user_assigned_identity_id" {
   description = "Resource ID of the user-assigned managed identity with ACR Pull permissions."
 }
 
-variable "location" {
-  type        = string
-  description = "Azure region for the Container App."
-  nullable    = false
-}
-
 variable "resource_group_name" {
   type        = string
   description = "Resource group name where the Container App will be deployed."

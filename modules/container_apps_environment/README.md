@@ -11,12 +11,6 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 2.0.0, < 3.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0)
-
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (>= 0.3.0, < 1.0)
-
-- <a name="requirement_random"></a> [random](#requirement\_random) (>= 3.5.1, < 4.0)
-
 ## Resources
 
 The following resources are used by this module:
@@ -85,14 +79,6 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
-
-### <a name="input_auto_approve_private_endpoint_connections"></a> [auto\_approve\_private\_endpoint\_connections](#input\_auto\_approve\_private\_endpoint\_connections)
-
-Description: Whether to automatically approve pending private endpoint connections to the Container Apps Environment (e.g., from Front Door). Set to true when using Front Door with Private Link.
-
-Type: `bool`
-
-Default: `false`
 
 ### <a name="input_container_apps_environment_storages"></a> [container\_apps\_environment\_storages](#input\_container\_apps\_environment\_storages)
 
@@ -208,19 +194,19 @@ The following Modules are called:
 
 Source: Azure/avm-res-network-privatednszone/azurerm
 
-Version: ~> 0.4
+Version: 0.4.3
 
 ### <a name="module_application_insights"></a> [application\_insights](#module\_application\_insights)
 
 Source: Azure/avm-res-insights-component/azurerm
 
-Version: ~> 0.2
+Version: 0.2.1
 
 ### <a name="module_managed_environment"></a> [managed\_environment](#module\_managed\_environment)
 
 Source: Azure/avm-res-app-managedenvironment/azurerm
 
-Version: ~> 0.3
+Version: 0.3.2
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->

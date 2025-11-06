@@ -124,14 +124,6 @@ Type: `bool`
 
 Default: `true`
 
-### <a name="input_container_app_id"></a> [container\_app\_id](#input\_container\_app\_id)
-
-Description: Optional. The resource ID of the Container App (deprecated - not used, private link targets the environment). Kept for backward compatibility.
-
-Type: `string`
-
-Default: `""`
-
 ### <a name="input_container_apps_environment_id"></a> [container\_apps\_environment\_id](#input\_container\_apps\_environment\_id)
 
 Description: Optional. The resource ID of the Container Apps Environment for private link integration. This is used as the private link target. Required if enable\_backend is true.

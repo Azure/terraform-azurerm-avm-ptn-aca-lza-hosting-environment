@@ -9,10 +9,6 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.6, < 2.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0)
-
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (>= 0.3, < 1.0)
-
 ## Resources
 
 No resources.
@@ -31,12 +27,6 @@ Type: `string`
 ### <a name="input_container_registry_user_assigned_identity_id"></a> [container\_registry\_user\_assigned\_identity\_id](#input\_container\_registry\_user\_assigned\_identity\_id)
 
 Description: Resource ID of the user-assigned managed identity with ACR Pull permissions.
-
-Type: `string`
-
-### <a name="input_location"></a> [location](#input\_location)
-
-Description: Azure region for the Container App.
 
 Type: `string`
 
@@ -110,7 +100,7 @@ The following Modules are called:
 
 Source: Azure/avm-res-app-containerapp/azurerm
 
-Version: ~> 0.7
+Version: 0.7.4
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->

@@ -25,7 +25,7 @@ locals {
 
 module "nsg_container_apps_env" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "~> 0.5"
+  version = "0.5.1"
 
   location            = var.location
   name                = var.resources_names["containerAppsEnvironmentNsg"]
@@ -127,7 +127,7 @@ module "nsg_container_apps_env" {
 
 module "nsg_appgw" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "~> 0.5"
+  version = "0.5.1"
   count   = var.spoke_application_gateway_subnet_address_prefix != null && var.spoke_application_gateway_subnet_address_prefix != "" ? 1 : 0
 
   location            = var.location
@@ -206,7 +206,7 @@ module "nsg_appgw" {
 
 module "nsg_pep" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "~> 0.5"
+  version = "0.5.1"
 
   location            = var.location
   name                = var.resources_names["pepNsg"]
@@ -236,7 +236,7 @@ module "nsg_pep" {
 
 module "nsg_deployment" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "~> 0.5"
+  version = "0.5.1"
 
   location            = var.location
   name                = var.resources_names["acrDeploymentPoolNsg"]
@@ -299,7 +299,7 @@ locals {
 
 module "route_table" {
   source  = "Azure/avm-res-network-routetable/azurerm"
-  version = "~> 0.4"
+  version = "0.4.2"
   count   = local.create_egress_lockdown ? 1 : 0
 
   location            = var.location
@@ -331,7 +331,7 @@ module "route_table" {
 
 module "vnet_spoke" {
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version = "~> 0.12"
+  version = "0.12.1"
 
   location         = var.location
   parent_id        = var.resource_group_id

@@ -9,10 +9,6 @@ terraform {
   required_version = ">= 1.9, < 2.0"
 
   required_providers {
-    azapi = {
-      source  = "Azure/azapi"
-      version = "~> 2.4"
-    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
@@ -132,7 +128,8 @@ module "aca_lza_hosting" {
   vm_jumpbox_subnet_address_prefix                = "10.40.5.0/24"
   vm_linux_ssh_authorized_key                     = tls_private_key.ssh_key.public_key_openssh
   # Linux VM with SSH for Bastion testing (COMPLEX)
-  vm_size = "Standard_DS2_v2"
+  vm_size                                     = "Standard_DS2_v2"
+  log_analytics_workspace_replication_enabled = false
   # Naming
   workload_name = var.workload_name
 }
@@ -151,8 +148,6 @@ module "aca_lza_hosting" {
 The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
-
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.4)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 

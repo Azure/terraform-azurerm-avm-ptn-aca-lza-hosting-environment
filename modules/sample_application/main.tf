@@ -1,7 +1,7 @@
 # Azure Container App using AVM module
 module "app" {
   source  = "Azure/avm-res-app-containerapp/azurerm"
-  version = "~> 0.7"
+  version = "0.7.4"
 
   container_app_environment_resource_id = var.container_app_environment_resource_id
   name                                  = var.name

@@ -58,12 +58,6 @@ variable "caching_enabled" {
   description = "Optional. Enable caching for the route."
 }
 
-variable "container_app_id" {
-  type        = string
-  default     = ""
-  description = "Optional. The resource ID of the Container App (deprecated - not used, private link targets the environment). Kept for backward compatibility."
-}
-
 variable "container_apps_environment_id" {
   type        = string
   default     = ""
