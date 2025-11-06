@@ -3,7 +3,7 @@
 ###############################################
 
 module "log_analytics" {
-  source = "./log_analytics"
+  source = "./log_analytics" # tflint-ignore: required_module_source_tffr1
 
   location            = var.location
   name                = var.resources_names["logAnalyticsWorkspace"]
@@ -414,7 +414,7 @@ module "vnet_spoke" {
 ###############################################
 
 module "vm_linux" {
-  source = "./linux_vm"
+  source = "./linux_vm" # tflint-ignore: required_module_source_tffr1
   count  = var.vm_jumpbox_os_type == "linux" ? 1 : 0
 
   enable_telemetry            = var.enable_telemetry
@@ -436,7 +436,7 @@ module "vm_linux" {
 }
 
 module "vm_windows" {
-  source = "./windows_vm"
+  source = "./windows_vm" # tflint-ignore: required_module_source_tffr1
   count  = var.vm_jumpbox_os_type == "windows" ? 1 : 0
 
   enable_telemetry            = var.enable_telemetry
