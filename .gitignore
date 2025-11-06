@@ -55,3 +55,4 @@ examples/smoke-spoke/main.tf
 .github/copilot-instructions.md
 *.mptfbackup
 .avm
+pr-check.log
