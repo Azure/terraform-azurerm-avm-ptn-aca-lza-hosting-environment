@@ -53,7 +53,7 @@ variable "spoke_vnet_address_prefixes" {
 
 variable "bastion_resource_id" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. The resource ID of the bastion host."
 }
 
@@ -69,10 +69,17 @@ variable "enable_telemetry" {
   description = "Optional. Enable/Disable module telemetry for AVM submodules."
 }
 
+variable "enable_hub_peering" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to enable VNet peering to the hub virtual network. When true, hub_virtual_network_resource_id must be provided."
+  nullable    = false
+}
+
 variable "hub_virtual_network_resource_id" {
   type        = string
-  default     = ""
-  description = "Optional. The resource ID of the existing hub virtual network. If provided, a peering from spoke to hub will be created."
+  default     = null
+  description = "Optional. The resource ID of the existing hub virtual network. Required when enable_hub_peering is true."
 }
 
 variable "log_analytics_workspace_replication_enabled" {
@@ -82,10 +89,17 @@ variable "log_analytics_workspace_replication_enabled" {
   nullable    = false
 }
 
+variable "enable_egress_lockdown" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to enable egress lockdown by creating a route table. When true, network_appliance_ip_address must be provided."
+  nullable    = false
+}
+
 variable "network_appliance_ip_address" {
   type        = string
-  default     = ""
-  description = "Optional. The IP address of the network appliance (e.g. firewall) that will be used to route traffic to the internet. Required to create the egress lockdown UDR."
+  default     = null
+  description = "Optional. The IP address of the network appliance (e.g. firewall) that will be used to route traffic to the internet. Required when enable_egress_lockdown is true."
 }
 
 variable "route_spoke_traffic_internally" {
@@ -96,8 +110,8 @@ variable "route_spoke_traffic_internally" {
 
 variable "spoke_application_gateway_subnet_address_prefix" {
   type        = string
-  default     = ""
-  description = "Optional. CIDR of the spoke Application Gateway subnet. If empty, no Application Gateway subnet or NSG will be created."
+  default     = null
+  description = "Optional. CIDR of the spoke Application Gateway subnet. If null, no Application Gateway subnet or NSG will be created."
 }
 
 variable "spoke_application_gateway_subnet_name" {
@@ -151,20 +165,27 @@ variable "vm_jumpbox_os_type" {
 
 variable "vm_jumpbox_subnet_address_prefix" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. CIDR to use for the virtual machine subnet. Required when vm_jumpbox_os_type != 'none'."
+}
+
+variable "generate_ssh_key_for_vm" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to auto-generate an SSH key for the Linux VM."
+  nullable    = false
 }
 
 variable "vm_linux_ssh_authorized_key" {
   type        = string
   default     = null
-  description = "Optional. The SSH public key to use for the Linux virtual machine."
+  description = "Optional. The SSH public key to use for the Linux virtual machine. Required when generate_ssh_key_for_vm is false and using SSH authentication."
   sensitive   = true
 }
 
 variable "vm_size" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. The size of the virtual machine to create when vm_jumpbox_os_type != 'none'."
 }
 

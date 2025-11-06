@@ -24,17 +24,22 @@ variable "network_security_group_name" { type = string }
 
 variable "bastion_resource_id" {
   type    = string
-  default = ""
+  default = null
 }
 
 variable "vm_admin_password" {
   type      = string
   sensitive = true
 }
+variable "generate_ssh_key_for_vm" {
+  type        = bool
+  default     = false
+  description = "Whether to auto-generate an SSH key"
+}
 variable "vm_linux_ssh_authorized_key" {
   type      = string
   sensitive = true
-  default   = ""
+  default   = null
 }
 variable "vm_authentication_type" {
   type    = string

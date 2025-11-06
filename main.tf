@@ -6,14 +6,14 @@ data "azapi_client_config" "naming" {}
 resource "null_resource" "resource_group_validation" {
   lifecycle {
     precondition {
-      condition     = !(trimspace(var.created_resource_group_name) != "" && trimspace(var.existing_resource_group_id) != "")
-      error_message = "Cannot specify both created_resource_group_name (for new RG) and existing_resource_group_id (for existing RG). Please provide only one, or leave both empty for auto-generation."
+      condition     = !(var.created_resource_group_name != null && var.existing_resource_group_id != null)
+      error_message = "Cannot specify both created_resource_group_name (for new RG) and existing_resource_group_id (for existing RG). Please provide only one, or leave both null for auto-generation."
     }
   }
 }
 
 locals {
-  create_custom_named_rg = !local.use_existing_resource_group && trimspace(var.created_resource_group_name) != ""
+  create_custom_named_rg = !local.use_existing_resource_group && var.created_resource_group_name != null && trimspace(var.created_resource_group_name) != ""
   # Deterministic uniqueness token derived from subscription + inputs
   naming_unique_id = substr(lower(replace(base64encode(sha256(local.naming_unique_seed)), "=", "")), 0, 13)
   naming_unique_seed = join("|", [
@@ -65,8 +65,10 @@ module "spoke" {
   spoke_private_endpoints_subnet_address_prefix = var.spoke_private_endpoints_subnet_address_prefix
   spoke_vnet_address_prefixes                   = var.spoke_vnet_address_prefixes
   # Jumpbox VM
-  bastion_resource_id = var.bastion_resource_id
-  enable_telemetry    = var.enable_telemetry
+  bastion_resource_id    = var.bastion_resource_id
+  enable_egress_lockdown = var.enable_egress_lockdown
+  enable_hub_peering     = var.enable_hub_peering
+  enable_telemetry       = var.enable_telemetry
   # Networking
   hub_virtual_network_resource_id                 = var.hub_virtual_network_resource_id
   log_analytics_workspace_replication_enabled     = var.log_analytics_workspace_replication_enabled
@@ -82,6 +84,7 @@ module "spoke" {
   vm_linux_ssh_authorized_key                     = var.vm_linux_ssh_authorized_key
   vm_size                                         = var.vm_size
   vm_zone                                         = var.deploy_zone_redundant_resources ? 2 : 0
+  generate_ssh_key_for_vm                         = var.generate_ssh_key_for_vm
 
   depends_on = [module.spoke_resource_group]
 }
@@ -90,18 +93,19 @@ module "spoke" {
 module "supporting_services" {
   source = "./modules/supporting_services"
 
+  enable_hub_peering                        = var.enable_hub_peering
   enable_telemetry                          = var.enable_telemetry
+  hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
   location                                  = local.safe_location
+  log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id
   resource_group_id                         = local.resource_group_id
   resource_group_name                       = local.resource_group_name
   resources_names                           = module.naming.resources_names
   spoke_private_endpoint_subnet_resource_id = module.spoke.spoke_private_endpoints_subnet_id
   spoke_vnet_resource_id                    = module.spoke.spoke_vnet_id
+  tags                                      = var.tags
   deploy_zone_redundant_resources           = var.deploy_zone_redundant_resources
   expose_container_apps_with                = var.expose_container_apps_with
-  hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
-  log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id
-  tags                                      = var.tags
 
   depends_on = [module.spoke_resource_group]
 }
@@ -128,6 +132,7 @@ module "container_apps_environment" {
   deploy_zone_redundant_resources = var.deploy_zone_redundant_resources
   enable_application_insights     = var.enable_application_insights
   enable_dapr_instrumentation     = var.enable_dapr_instrumentation
+  enable_hub_peering              = var.enable_hub_peering
   enable_telemetry                = var.enable_telemetry
   hub_virtual_network_id          = var.hub_virtual_network_resource_id
   tags                            = var.tags
@@ -204,6 +209,6 @@ module "front_door" {
   # SKU Configuration - Always Premium for Private Link support
   sku_name        = "Premium_AzureFrontDoor" # Required for Private Link
   tags            = var.tags
-  waf_policy_name = var.front_door_waf_policy_name != "" ? var.front_door_waf_policy_name : "${module.naming.resources_names.frontDoor}-waf"
+  waf_policy_name = var.front_door_waf_policy_name != null ? var.front_door_waf_policy_name : "${module.naming.resources_names.frontDoor}-waf"
 }
 

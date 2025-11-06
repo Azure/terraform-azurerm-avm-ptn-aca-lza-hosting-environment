@@ -82,6 +82,9 @@ module "aca_lza_hosting" {
   deploy_zone_redundant_resources = true
   # DDoS Protection (COMPLEX - expensive but important to test)
   enable_ddos_protection     = var.enable_ddos_protection
+  enable_hub_peering         = true
+  enable_egress_lockdown     = true
+  generate_ssh_key_for_vm    = false
   enable_telemetry           = var.enable_telemetry
   environment                = var.environment
   existing_resource_group_id = azurerm_resource_group.this.id

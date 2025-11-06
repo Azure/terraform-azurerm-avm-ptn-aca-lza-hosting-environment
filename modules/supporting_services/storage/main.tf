@@ -1,18 +1,22 @@
 locals {
   dns_zone_name = "privatelink.file.core.windows.net"
-  # Use static keys to avoid for_each issues
-  vnet_links_map = {
-    spoke = {
-      name                 = "st-spoke-link"
-      virtual_network_id   = var.spoke_vnet_resource_id
-      registration_enabled = false
-    }
-    hub = {
-      name                 = "st-hub-link"
-      virtual_network_id   = var.hub_vnet_resource_id
-      registration_enabled = false
-    }
-  }
+  # Use enable_hub_peering flag for static conditional logic
+  vnet_links_map = merge(
+    {
+      spoke = {
+        name                 = "st-spoke-link"
+        virtual_network_id   = var.spoke_vnet_resource_id
+        registration_enabled = false
+      }
+    },
+    var.enable_hub_peering ? {
+      hub = {
+        name                 = "st-hub-link"
+        virtual_network_id   = var.hub_vnet_resource_id
+        registration_enabled = false
+      }
+    } : {}
+  )
 }
 
 module "st_dns" {
@@ -23,11 +27,7 @@ module "st_dns" {
   enable_telemetry = var.enable_telemetry
   tags             = var.tags
 
-  # Filter out hub link when hub_vnet_resource_id is empty
-  virtual_network_links = {
-    for k, v in local.vnet_links_map : k => v
-    if v.virtual_network_id != ""
-  }
+  virtual_network_links = local.vnet_links_map
 }
 
 module "st" {

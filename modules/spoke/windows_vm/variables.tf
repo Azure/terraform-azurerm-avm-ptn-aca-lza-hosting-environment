@@ -23,7 +23,7 @@ variable "network_security_group_name" { type = string }
 
 variable "bastion_resource_id" {
   type    = string
-  default = ""
+  default = null
 }
 
 variable "vm_admin_password" {

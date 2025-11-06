@@ -128,7 +128,7 @@ module "nsg_container_apps_env" {
 module "nsg_appgw" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
   version = "0.5.0"
-  count   = var.spoke_application_gateway_subnet_address_prefix != null && var.spoke_application_gateway_subnet_address_prefix != "" ? 1 : 0
+  count   = var.spoke_application_gateway_subnet_address_prefix != null ? 1 : 0
 
   location            = var.location
   name                = var.resources_names["applicationGatewayNsg"]
@@ -292,39 +292,43 @@ module "nsg_deployment" {
 ###############################################
 # Route Table (egress lockdown)               #
 ###############################################
-
 locals {
-  create_egress_lockdown = var.hub_virtual_network_resource_id != "" && var.network_appliance_ip_address != ""
+  # Use static boolean flag to determine route table creation
+  create_route_table = var.enable_egress_lockdown
+
+  # Build routes only when needed - keys are fully static based on input variables
+  route_table_routes = local.create_route_table ? merge(
+    {
+      defaultEgressLockdown = {
+        name                   = "defaultEgressLockdown"
+        address_prefix         = "0.0.0.0/0"
+        next_hop_type          = "VirtualAppliance"
+        next_hop_in_ip_address = var.network_appliance_ip_address
+      }
+    },
+    var.route_spoke_traffic_internally ? {
+      for idx, prefix in var.spoke_vnet_address_prefixes :
+      "spokeInternalTraffic-${idx}" => {
+        name           = "spokeInternalTraffic-${idx}"
+        address_prefix = prefix
+        next_hop_type  = "VnetLocal"
+      }
+    } : {}
+  ) : {}
 }
 
 module "route_table" {
   source  = "Azure/avm-res-network-routetable/azurerm"
   version = "0.4.1"
+  count   = local.create_route_table ? 1 : 0
 
   location            = var.location
   name                = var.resources_names["routeTable"]
   resource_group_name = var.resource_group_name
   enable_telemetry    = var.enable_telemetry
-  # Conditionally include routes based on egress lockdown and internal routing
-  routes = local.create_egress_lockdown ? merge({
-    defaultEgressLockdown = {
-      name                   = "defaultEgressLockdown"
-      address_prefix         = "0.0.0.0/0"
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = var.network_appliance_ip_address
-    }
-    }, var.route_spoke_traffic_internally ? {
-    # Build VnetLocal routes for each spoke address prefix
-    for idx, prefix in var.spoke_vnet_address_prefixes :
-    "spokeInternalTraffic-${idx}" => {
-      name           = "spokeInternalTraffic-${idx}"
-      address_prefix = prefix
-      next_hop_type  = "VnetLocal"
-    }
-  } : {}) : {}
-  tags = var.tags
+  routes              = local.route_table_routes
+  tags                = var.tags
 }
-
 ###############################################
 # Virtual Network + Subnets + Peering         #
 ###############################################
@@ -338,7 +342,7 @@ module "vnet_spoke" {
   address_space    = var.spoke_vnet_address_prefixes
   enable_telemetry = var.enable_telemetry
   name             = var.resources_names["vnetSpoke"]
-  peerings = var.hub_virtual_network_resource_id != "" ? {
+  peerings = var.enable_hub_peering ? {
     spokeToHub = {
       name                                 = "spokeToHub"
       remote_virtual_network_resource_id   = var.hub_virtual_network_resource_id
@@ -361,8 +365,8 @@ module "vnet_spoke" {
       network_security_group = {
         id = module.nsg_container_apps_env.resource_id
       }
-      route_table = local.create_egress_lockdown ? {
-        id = module.route_table.resource_id
+      route_table = local.create_route_table ? {
+        id = module.route_table[0].resource_id
       } : null
       delegations = [{
         name = "Microsoft.App/environments"
@@ -391,7 +395,7 @@ module "vnet_spoke" {
         id = module.nsg_pep.resource_id
       }
     }
-    }, var.spoke_application_gateway_subnet_address_prefix != null && var.spoke_application_gateway_subnet_address_prefix != "" ? {
+    }, var.spoke_application_gateway_subnet_address_prefix != null ? {
     agw = {
       name             = var.spoke_application_gateway_subnet_name
       address_prefixes = [var.spoke_application_gateway_subnet_address_prefix]
@@ -433,6 +437,7 @@ module "vm_linux" {
   vm_authentication_type      = var.vm_authentication_type
   vm_linux_ssh_authorized_key = var.vm_linux_ssh_authorized_key
   vm_zone                     = var.vm_zone
+  generate_ssh_key_for_vm     = var.generate_ssh_key_for_vm
 }
 
 module "vm_windows" {

@@ -10,18 +10,25 @@ locals {
       access_mode  = v.access_mode
     } if try(v.kind, "") == "SMB"
   }
-  # Use static keys to avoid for_each issues
-  vnet_links = {
-    spoke = {
-      virtual_network_id   = var.spoke_virtual_network_id
-      registration_enabled = false
-    }
-    hub = {
-      virtual_network_id   = var.hub_virtual_network_id
-      registration_enabled = false
-    }
-  }
+
   work_profile_name = "general-purpose"
+
+  # Build vnet links - use enable_hub_peering flag to determine keys statically
+  # This avoids dynamic key issues when hub_virtual_network_id is computed
+  virtual_network_links = merge(
+    {
+      spoke = {
+        name               = "${var.name}-spoke-link"
+        virtual_network_id = var.spoke_virtual_network_id
+      }
+    },
+    var.enable_hub_peering ? {
+      hub = {
+        name               = "${var.name}-hub-link"
+        virtual_network_id = var.hub_virtual_network_id
+      }
+    } : {}
+  )
 }
 
 # Optional Application Insights (workspace-based)
@@ -93,16 +100,9 @@ module "aca_privatedns" {
       records = [module.managed_environment.static_ip_address]
     }
   }
-  enable_telemetry = var.enable_telemetry
-  tags             = var.tags
-  # Filter out hub link when hub_virtual_network_id is empty
-  virtual_network_links = {
-    for k, v in local.vnet_links : k => {
-      name               = "${var.name}-${k}-link"
-      virtual_network_id = v.virtual_network_id
-    }
-    if v.virtual_network_id != ""
-  }
+  enable_telemetry      = var.enable_telemetry
+  tags                  = var.tags
+  virtual_network_links = local.virtual_network_links
 }
 
 

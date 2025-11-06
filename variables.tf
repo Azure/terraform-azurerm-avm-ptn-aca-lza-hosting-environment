@@ -44,14 +44,14 @@ variable "spoke_vnet_address_prefixes" {
 
 variable "bastion_resource_id" {
   type        = string
-  default     = ""
-  description = "Optional. The resource ID of the bastion host. If set, the spoke virtual network will be peered with the hub virtual network and the bastion host will be allowed to connect to the jump box. Default is empty."
+  default     = null
+  description = "Optional. The resource ID of the bastion host. If set, the spoke virtual network will be peered with the hub virtual network and the bastion host will be allowed to connect to the jump box. Default is null."
 }
 
 variable "created_resource_group_name" {
   type        = string
-  default     = ""
-  description = "Optional. Name to use when use_existing_resource_group is true and the module is creating a resource group. Leave blank for auto-generation."
+  default     = null
+  description = "Optional. Name to use when use_existing_resource_group is true and the module is creating a resource group. Leave null for auto-generation."
 }
 
 variable "deploy_sample_application" {
@@ -96,11 +96,11 @@ variable "environment" {
 
 variable "existing_resource_group_id" {
   type        = string
-  default     = ""
-  description = "Optional. The resource ID of an existing resource group to use when use_existing_resource_group is set to true. Default is empty."
+  default     = null
+  description = "Optional. The resource ID of an existing resource group to use when use_existing_resource_group is set to true. Default is null."
 
   validation {
-    condition     = !var.use_existing_resource_group || (var.use_existing_resource_group && trimspace(var.existing_resource_group_id) != "")
+    condition     = !var.use_existing_resource_group || (var.use_existing_resource_group && var.existing_resource_group_id != null && trimspace(var.existing_resource_group_id) != "")
     error_message = "existing_resource_group_id must be provided when use_existing_resource_group is true."
   }
 }
@@ -124,15 +124,27 @@ variable "front_door_enable_waf" {
 
 variable "front_door_waf_policy_name" {
   type        = string
-  default     = ""
-  description = "Optional. Name of the WAF policy for Front Door. Required if front_door_enable_waf is true. Default is empty."
+  default     = null
+  description = "Optional. Name of the WAF policy for Front Door. Required if front_door_enable_waf is true. Default is null."
 }
 
 # Hub/Spoke integration
+variable "enable_hub_peering" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to enable peering with a hub virtual network. When true, hub_virtual_network_resource_id must be provided. Default is false."
+  nullable    = false
+}
+
 variable "hub_virtual_network_resource_id" {
   type        = string
-  default     = ""
-  description = "Optional. The resource ID of the hub virtual network. If set, the spoke virtual network will be peered with the hub virtual network. Default is empty."
+  default     = null
+  description = "Optional. The resource ID of the hub virtual network. Required when enable_hub_peering is true. If set, the spoke virtual network will be peered with the hub virtual network. Default is null."
+
+  validation {
+    condition     = !var.enable_hub_peering || var.hub_virtual_network_resource_id != null
+    error_message = "hub_virtual_network_resource_id is required when enable_hub_peering is true."
+  }
 }
 
 variable "log_analytics_workspace_replication_enabled" {
@@ -142,10 +154,22 @@ variable "log_analytics_workspace_replication_enabled" {
   nullable    = false
 }
 
+variable "enable_egress_lockdown" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to enable egress lockdown by routing all traffic through a network appliance. When true, network_appliance_ip_address must be provided. Default is false."
+  nullable    = false
+}
+
 variable "network_appliance_ip_address" {
   type        = string
-  default     = ""
-  description = "Optional. If set, the spoke virtual network will be peered with the hub virtual network and egress traffic will be routed through the network appliance. Default is empty."
+  default     = null
+  description = "Optional. IP address of the network appliance (e.g., Azure Firewall) for routing egress traffic. Required when enable_egress_lockdown is true. Default is null."
+
+  validation {
+    condition     = !var.enable_egress_lockdown || var.network_appliance_ip_address != null
+    error_message = "network_appliance_ip_address is required when enable_egress_lockdown is true."
+  }
 }
 
 variable "route_spoke_traffic_internally" {
@@ -228,11 +252,23 @@ variable "vm_jumpbox_subnet_address_prefix" {
   }
 }
 
+variable "generate_ssh_key_for_vm" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm_linux_ssh_authorized_key must be provided if using SSH authentication. Default is false."
+  nullable    = false
+}
+
 variable "vm_linux_ssh_authorized_key" {
   type        = string
   default     = null
-  description = "Optional. The SSH public key to use for the virtual machine. If not provided one will be generated when vm_jumpbox_os_type is 'linux' and vm_authentication_type is 'sshPublicKey'."
+  description = "Optional. The SSH public key to use for the virtual machine. Required when vm_jumpbox_os_type is 'linux', vm_authentication_type is 'sshPublicKey', and generate_ssh_key_for_vm is false."
   sensitive   = true
+
+  validation {
+    condition     = var.vm_jumpbox_os_type != "linux" || var.vm_authentication_type != "sshPublicKey" || var.generate_ssh_key_for_vm || var.vm_linux_ssh_authorized_key != null
+    error_message = "vm_linux_ssh_authorized_key is required when vm_jumpbox_os_type is 'linux' and vm_authentication_type is 'sshPublicKey' and generate_ssh_key_for_vm is false."
+  }
 }
 
 # Jumpbox VM controls

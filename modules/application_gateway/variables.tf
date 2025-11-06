@@ -30,7 +30,7 @@ variable "subnet_id" {
 
 variable "backend_fqdn" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. Backend FQDN to route traffic to (e.g., your Container App or internal endpoint). Required if enable_backend is true."
 }
 
@@ -72,7 +72,7 @@ variable "enable_telemetry" {
 
 variable "log_analytics_workspace_id" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. Log Analytics Workspace ID for diagnostics."
 }
 

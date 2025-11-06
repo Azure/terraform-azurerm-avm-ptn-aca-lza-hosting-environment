@@ -8,7 +8,7 @@ module "nsg" {
   enable_telemetry    = var.enable_telemetry
   tags                = var.tags
 
-  security_rules = length(var.bastion_resource_id) > 0 ? {
+  security_rules = var.bastion_resource_id != null ? {
     allow_bastion_inbound = {
       name                       = "allow-bastion-inbound"
       description                = "Allow inbound traffic from Bastion to the JumpBox"
@@ -38,6 +38,13 @@ resource "azapi_update_resource" "nsg_association" {
   }
 }
 
+locals {
+  # Compute SSH keys list to ensure type consistency
+  # Convert to set then back to list to get consistent list(string) type
+  ssh_keys_set  = !var.generate_ssh_key_for_vm && var.vm_linux_ssh_authorized_key != null ? toset([var.vm_linux_ssh_authorized_key]) : toset([])
+  ssh_keys_list = tolist(local.ssh_keys_set)
+}
+
 module "vm" {
   source  = "Azure/avm-res-compute-virtualmachine/azurerm"
   version = "~> 0.19"
@@ -53,7 +60,9 @@ module "vm" {
   account_credentials = var.vm_authentication_type == "sshPublicKey" ? {
     admin_credentials = {
       username                           = "localAdministrator"
-      generate_admin_password_or_ssh_key = false
+      generate_admin_password_or_ssh_key = var.generate_ssh_key_for_vm
+      ssh_keys                           = local.ssh_keys_list
+      password                           = null
     }
     password_authentication_disabled = true
     } : {
@@ -61,11 +70,12 @@ module "vm" {
       username                           = "localAdministrator"
       password                           = var.vm_admin_password
       generate_admin_password_or_ssh_key = false
+      ssh_keys                           = local.ssh_keys_list
     }
     password_authentication_disabled = false
   }
 
-  admin_ssh_keys = var.vm_authentication_type == "sshPublicKey" ? [{
+  admin_ssh_keys = var.vm_authentication_type == "sshPublicKey" && !var.generate_ssh_key_for_vm && var.vm_linux_ssh_authorized_key != null ? [{
     username   = "localAdministrator"
     public_key = var.vm_linux_ssh_authorized_key
   }] : []

@@ -146,11 +146,11 @@ resource "azapi_resource" "origin" {
       error_message = "Private link integration requires Premium_AzureFrontDoor SKU. Current SKU: ${var.sku_name}"
     }
     precondition {
-      condition     = var.container_apps_environment_id != ""
+      condition     = var.container_apps_environment_id != null
       error_message = "container_apps_environment_id must be provided for Private Link connectivity."
     }
     precondition {
-      condition     = var.backend_fqdn != ""
+      condition     = var.backend_fqdn != null
       error_message = "backend_fqdn must be provided when enable_backend is true."
     }
   }

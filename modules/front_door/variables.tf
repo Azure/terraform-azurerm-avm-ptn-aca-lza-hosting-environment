@@ -20,7 +20,7 @@ variable "resource_group_name" {
 
 variable "backend_fqdn" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. The backend FQDN that Front Door will route traffic to (Container App FQDN, not the environment). If not provided, no origin or route will be created."
 }
 
@@ -60,7 +60,7 @@ variable "caching_enabled" {
 
 variable "container_apps_environment_id" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. The resource ID of the Container Apps Environment for private link integration. This is used as the private link target. Required if enable_backend is true."
 }
 
@@ -129,6 +129,6 @@ variable "tags" {
 
 variable "waf_policy_name" {
   type        = string
-  default     = ""
+  default     = null
   description = "Optional. Name of the WAF policy. Required if enable_waf is true."
 }

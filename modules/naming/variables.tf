@@ -35,6 +35,6 @@ variable "workload_name" {
 
 variable "spoke_resource_group_name" {
   type        = string
-  default     = ""
+  default     = null
   description = "The name of the resource group where the resources will be deployed."
 }

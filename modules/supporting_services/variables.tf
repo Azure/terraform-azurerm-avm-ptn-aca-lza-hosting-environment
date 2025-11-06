@@ -60,15 +60,22 @@ variable "expose_container_apps_with" {
   description = "Ingress method: 'applicationGateway', 'frontDoor', or 'none'"
 }
 
+variable "enable_hub_peering" {
+  type        = bool
+  default     = false
+  description = "Whether hub peering is enabled. Used to determine if hub VNet link should be created."
+  nullable    = false
+}
+
 variable "hub_vnet_resource_id" {
   type        = string
-  default     = ""
-  description = "Hub VNet resource ID (optional)"
+  default     = null
+  description = "Hub VNet resource ID. Required when enable_hub_peering is true."
 }
 
 variable "log_analytics_workspace_id" {
   type        = string
-  default     = ""
+  default     = null
   description = "Log Analytics Workspace resource ID (optional)"
 }
 

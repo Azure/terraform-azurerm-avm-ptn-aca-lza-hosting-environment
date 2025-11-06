@@ -81,10 +81,17 @@ variable "enable_telemetry" {
   description = "Enable or disable AVM telemetry."
 }
 
+variable "enable_hub_peering" {
+  type        = bool
+  default     = false
+  description = "Whether hub peering is enabled. Used to determine if hub VNet link should be created."
+  nullable    = false
+}
+
 variable "hub_virtual_network_id" {
   type        = string
-  default     = ""
-  description = "Optional hub VNet resource ID to link to the private DNS zone. Empty to skip."
+  default     = null
+  description = "Optional hub VNet resource ID to link to the private DNS zone. Required when enable_hub_peering is true."
 }
 
 variable "tags" {

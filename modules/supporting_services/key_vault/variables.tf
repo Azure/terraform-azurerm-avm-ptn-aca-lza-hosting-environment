@@ -29,10 +29,15 @@ variable "spoke_vnet_resource_id" {
   description = "Spoke VNet ID"
   type        = string
 }
+variable "enable_hub_peering" {
+  description = "Whether hub peering is enabled"
+  type        = bool
+  default     = false
+}
 variable "hub_vnet_resource_id" {
-  description = "Hub VNet ID"
+  description = "Hub VNet ID. Required when enable_hub_peering is true."
   type        = string
-  default     = ""
+  default     = null
 }
 variable "private_endpoint_subnet_id" {
   description = "Private Endpoint Subnet ID"
@@ -45,7 +50,7 @@ variable "private_endpoint_name" {
 variable "log_analytics_workspace_id" {
   description = "LAW id (optional)"
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "enable_diagnostics" {
