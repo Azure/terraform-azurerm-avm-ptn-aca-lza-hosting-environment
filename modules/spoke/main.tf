@@ -300,13 +300,13 @@ locals {
 module "route_table" {
   source  = "Azure/avm-res-network-routetable/azurerm"
   version = "0.4.1"
-  count   = local.create_egress_lockdown ? 1 : 0
 
   location            = var.location
   name                = var.resources_names["routeTable"]
   resource_group_name = var.resource_group_name
   enable_telemetry    = var.enable_telemetry
-  routes = merge({
+  # Conditionally include routes based on egress lockdown and internal routing
+  routes = local.create_egress_lockdown ? merge({
     defaultEgressLockdown = {
       name                   = "defaultEgressLockdown"
       address_prefix         = "0.0.0.0/0"
@@ -321,7 +321,7 @@ module "route_table" {
       address_prefix = prefix
       next_hop_type  = "VnetLocal"
     }
-  } : {})
+  } : {}) : {}
   tags = var.tags
 }
 
@@ -362,7 +362,7 @@ module "vnet_spoke" {
         id = module.nsg_container_apps_env.resource_id
       }
       route_table = local.create_egress_lockdown ? {
-        id = module.route_table[0].resource_id
+        id = module.route_table.resource_id
       } : null
       delegations = [{
         name = "Microsoft.App/environments"

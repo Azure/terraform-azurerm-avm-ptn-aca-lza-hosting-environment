@@ -50,13 +50,19 @@ module "vm" {
   sku_size            = var.vm_size
   zone                = var.vm_zone
 
-  account_credentials = {
+  account_credentials = var.vm_authentication_type == "sshPublicKey" ? {
+    admin_credentials = {
+      username                           = "localAdministrator"
+      generate_admin_password_or_ssh_key = false
+    }
+    password_authentication_disabled = true
+    } : {
     admin_credentials = {
       username                           = "localAdministrator"
       password                           = var.vm_admin_password
       generate_admin_password_or_ssh_key = false
     }
-    password_authentication_disabled = var.vm_authentication_type == "sshPublicKey"
+    password_authentication_disabled = false
   }
 
   admin_ssh_keys = var.vm_authentication_type == "sshPublicKey" ? [{

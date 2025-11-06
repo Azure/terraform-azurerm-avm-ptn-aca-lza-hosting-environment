@@ -1,5 +1,18 @@
 locals {
   dns_zone_name = "privatelink.azurecr.io"
+  # Use static keys to avoid for_each issues
+  vnet_links_map = {
+    spoke = {
+      name                 = "acr-spoke-link"
+      virtual_network_id   = var.spoke_vnet_resource_id
+      registration_enabled = false
+    }
+    hub = {
+      name                 = "acr-hub-link"
+      virtual_network_id   = var.hub_vnet_resource_id
+      registration_enabled = false
+    }
+  }
 }
 
 module "uai" {
@@ -22,19 +35,11 @@ module "acrdnszone" {
   enable_telemetry = var.enable_telemetry
   tags             = var.tags
 
-  virtual_network_links = merge({
-    spoke = {
-      name                 = "acr-spoke-link"
-      virtual_network_id   = var.spoke_vnet_resource_id
-      registration_enabled = false
-    }
-    }, var.hub_vnet_resource_id == "" ? {} : {
-    hub = {
-      name                 = "acr-hub-link"
-      virtual_network_id   = var.hub_vnet_resource_id
-      registration_enabled = false
-    }
-  })
+  # Filter out hub link when hub_vnet_resource_id is empty
+  virtual_network_links = {
+    for k, v in local.vnet_links_map : k => v
+    if v.virtual_network_id != ""
+  }
 }
 
 module "acr" {

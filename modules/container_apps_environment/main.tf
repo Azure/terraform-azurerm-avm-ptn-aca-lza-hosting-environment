@@ -10,17 +10,17 @@ locals {
       access_mode  = v.access_mode
     } if try(v.kind, "") == "SMB"
   }
-  vnet_links = merge({
+  # Use static keys to avoid for_each issues
+  vnet_links = {
     spoke = {
       virtual_network_id   = var.spoke_virtual_network_id
       registration_enabled = false
     }
-    }, var.hub_virtual_network_id != "" ? {
     hub = {
       virtual_network_id   = var.hub_virtual_network_id
       registration_enabled = false
     }
-  } : {})
+  }
   work_profile_name = "general-purpose"
 }
 
@@ -95,12 +95,13 @@ module "aca_privatedns" {
   }
   enable_telemetry = var.enable_telemetry
   tags             = var.tags
-  # VNet links to spoke and optional hub
+  # Filter out hub link when hub_virtual_network_id is empty
   virtual_network_links = {
     for k, v in local.vnet_links : k => {
       name               = "${var.name}-${k}-link"
       virtual_network_id = v.virtual_network_id
     }
+    if v.virtual_network_id != ""
   }
 }
 

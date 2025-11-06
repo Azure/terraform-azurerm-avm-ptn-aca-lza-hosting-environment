@@ -10,6 +10,20 @@ locals {
     ? "User"
     : "ServicePrincipal"
   )
+
+  # Use static keys to avoid for_each issues
+  vnet_links_map = {
+    spoke = {
+      name                 = "kv-spoke-link"
+      virtual_network_id   = var.spoke_vnet_resource_id
+      registration_enabled = false
+    }
+    hub = {
+      name                 = "kv-hub-link"
+      virtual_network_id   = var.hub_vnet_resource_id
+      registration_enabled = false
+    }
+  }
 }
 
 data "azurerm_client_config" "current" {}
@@ -22,19 +36,11 @@ module "kv_dns" {
   enable_telemetry = var.enable_telemetry
   tags             = var.tags
 
-  virtual_network_links = merge({
-    spoke = {
-      name                 = "kv-spoke-link"
-      virtual_network_id   = var.spoke_vnet_resource_id
-      registration_enabled = false
-    }
-    }, var.hub_vnet_resource_id == "" ? {} : {
-    hub = {
-      name                 = "kv-hub-link"
-      virtual_network_id   = var.hub_vnet_resource_id
-      registration_enabled = false
-    }
-  })
+  # Filter out hub link when hub_vnet_resource_id is empty
+  virtual_network_links = {
+    for k, v in local.vnet_links_map : k => v
+    if v.virtual_network_id != ""
+  }
 }
 
 module "kv" {
