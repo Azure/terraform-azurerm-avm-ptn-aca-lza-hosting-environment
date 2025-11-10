@@ -428,12 +428,14 @@ module "vm_linux" {
   network_security_group_name = var.resources_names["vmJumpBoxNsg"]
   resource_group_name         = var.resource_group_name
   subnet_id                   = module.vnet_spoke.subnets["jumpbox"].resource_id
+  vm_admin_password           = var.vm_admin_password
   vm_size                     = var.vm_size
   bastion_resource_id         = var.bastion_resource_id
   enable_bastion_access       = var.enable_bastion_access
   generate_ssh_key_for_vm     = var.generate_ssh_key_for_vm
   storage_account_type        = var.storage_account_type
   tags                        = var.tags
+  vm_authentication_type      = var.vm_authentication_type
   vm_linux_ssh_authorized_key = var.vm_linux_ssh_authorized_key
   vm_zone                     = var.vm_zone
 }

@@ -33,6 +33,10 @@ variable "enable_bastion_access" {
   description = "Whether to enable bastion access rule in the NSG. Set to true when using a bastion host."
 }
 
+variable "vm_admin_password" {
+  type      = string
+  sensitive = true
+}
 variable "generate_ssh_key_for_vm" {
   type        = bool
   default     = false
@@ -42,6 +46,10 @@ variable "vm_linux_ssh_authorized_key" {
   type      = string
   sensitive = true
   default   = null
+}
+variable "vm_authentication_type" {
+  type    = string
+  default = "sshPublicKey"
 }
 
 variable "log_analytics_workspace_id" { type = string }
