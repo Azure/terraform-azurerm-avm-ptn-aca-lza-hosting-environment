@@ -92,6 +92,14 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_enable_hub_peering"></a> [enable\_hub\_peering](#input\_enable\_hub\_peering)
+
+Description: Whether hub peering is enabled. Used to determine if hub VNet link should be created.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_expose_container_apps_with"></a> [expose\_container\_apps\_with](#input\_expose\_container\_apps\_with)
 
 Description: Ingress method: 'applicationGateway', 'frontDoor', or 'none'
@@ -102,11 +110,11 @@ Default: `"applicationGateway"`
 
 ### <a name="input_hub_vnet_resource_id"></a> [hub\_vnet\_resource\_id](#input\_hub\_vnet\_resource\_id)
 
-Description: Hub VNet resource ID (optional)
+Description: Hub VNet resource ID. Required when enable\_hub\_peering is true.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id)
 
@@ -114,7 +122,7 @@ Description: Log Analytics Workspace resource ID (optional)
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_tags"></a> [tags](#input\_tags)
 

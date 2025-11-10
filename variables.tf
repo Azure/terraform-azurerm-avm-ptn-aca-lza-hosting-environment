@@ -72,6 +72,21 @@ variable "enable_ddos_protection" {
   description = "Optional. DDoS protection mode. see https://learn.microsoft.com/azure/ddos-protection/ddos-protection-sku-comparison#skus. Default is \"false\"."
 }
 
+variable "enable_egress_lockdown" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to enable egress lockdown by routing all traffic through a network appliance. When true, network_appliance_ip_address must be provided. Default is false."
+  nullable    = false
+}
+
+# Hub/Spoke integration
+variable "enable_hub_peering" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to enable peering with a hub virtual network. When true, hub_virtual_network_resource_id must be provided. Default is false."
+  nullable    = false
+}
+
 variable "enable_telemetry" {
   type        = bool
   default     = true
@@ -128,11 +143,10 @@ variable "front_door_waf_policy_name" {
   description = "Optional. Name of the WAF policy for Front Door. Required if front_door_enable_waf is true. Default is null."
 }
 
-# Hub/Spoke integration
-variable "enable_hub_peering" {
+variable "generate_ssh_key_for_vm" {
   type        = bool
   default     = false
-  description = "Optional. Whether to enable peering with a hub virtual network. When true, hub_virtual_network_resource_id must be provided. Default is false."
+  description = "Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm_linux_ssh_authorized_key must be provided if using SSH authentication. Default is false."
   nullable    = false
 }
 
@@ -151,13 +165,6 @@ variable "log_analytics_workspace_replication_enabled" {
   type        = bool
   default     = true
   description = "Optional. Enable cross-region replication for the Log Analytics workspace. Default is true. Set to false in test/example environments to avoid issues with resource destruction."
-  nullable    = false
-}
-
-variable "enable_egress_lockdown" {
-  type        = bool
-  default     = false
-  description = "Optional. Whether to enable egress lockdown by routing all traffic through a network appliance. When true, network_appliance_ip_address must be provided. Default is false."
   nullable    = false
 }
 
@@ -250,13 +257,6 @@ variable "vm_jumpbox_subnet_address_prefix" {
     condition     = var.vm_jumpbox_os_type == "none" || var.vm_jumpbox_subnet_address_prefix != null
     error_message = "vm_jumpbox_subnet_address_prefix is required when vm_jumpbox_os_type is not 'none'."
   }
-}
-
-variable "generate_ssh_key_for_vm" {
-  type        = bool
-  default     = false
-  description = "Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm_linux_ssh_authorized_key must be provided if using SSH authentication. Default is false."
-  nullable    = false
 }
 
 variable "vm_linux_ssh_authorized_key" {

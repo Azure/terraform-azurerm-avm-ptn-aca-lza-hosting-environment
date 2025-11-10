@@ -76,7 +76,7 @@ Description: Optional. The resource ID of the bastion host.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_deployment_subnet_name"></a> [deployment\_subnet\_name](#input\_deployment\_subnet\_name)
 
@@ -86,6 +86,22 @@ Type: `string`
 
 Default: `"snet-deployment"`
 
+### <a name="input_enable_egress_lockdown"></a> [enable\_egress\_lockdown](#input\_enable\_egress\_lockdown)
+
+Description: Optional. Whether to enable egress lockdown by creating a route table. When true, network\_appliance\_ip\_address must be provided.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_enable_hub_peering"></a> [enable\_hub\_peering](#input\_enable\_hub\_peering)
+
+Description: Optional. Whether to enable VNet peering to the hub virtual network. When true, hub\_virtual\_network\_resource\_id must be provided.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
 Description: Optional. Enable/Disable module telemetry for AVM submodules.
@@ -94,13 +110,21 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_generate_ssh_key_for_vm"></a> [generate\_ssh\_key\_for\_vm](#input\_generate\_ssh\_key\_for\_vm)
+
+Description: Optional. Whether to auto-generate an SSH key for the Linux VM.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_hub_virtual_network_resource_id"></a> [hub\_virtual\_network\_resource\_id](#input\_hub\_virtual\_network\_resource\_id)
 
-Description: Optional. The resource ID of the existing hub virtual network. If provided, a peering from spoke to hub will be created.
+Description: Optional. The resource ID of the existing hub virtual network. Required when enable\_hub\_peering is true.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_log_analytics_workspace_replication_enabled"></a> [log\_analytics\_workspace\_replication\_enabled](#input\_log\_analytics\_workspace\_replication\_enabled)
 
@@ -112,11 +136,11 @@ Default: `true`
 
 ### <a name="input_network_appliance_ip_address"></a> [network\_appliance\_ip\_address](#input\_network\_appliance\_ip\_address)
 
-Description: Optional. The IP address of the network appliance (e.g. firewall) that will be used to route traffic to the internet. Required to create the egress lockdown UDR.
+Description: Optional. The IP address of the network appliance (e.g. firewall) that will be used to route traffic to the internet. Required when enable\_egress\_lockdown is true.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_route_spoke_traffic_internally"></a> [route\_spoke\_traffic\_internally](#input\_route\_spoke\_traffic\_internally)
 
@@ -128,11 +152,11 @@ Default: `false`
 
 ### <a name="input_spoke_application_gateway_subnet_address_prefix"></a> [spoke\_application\_gateway\_subnet\_address\_prefix](#input\_spoke\_application\_gateway\_subnet\_address\_prefix)
 
-Description: Optional. CIDR of the spoke Application Gateway subnet. If empty, no Application Gateway subnet or NSG will be created.
+Description: Optional. CIDR of the spoke Application Gateway subnet. If null, no Application Gateway subnet or NSG will be created.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_spoke_application_gateway_subnet_name"></a> [spoke\_application\_gateway\_subnet\_name](#input\_spoke\_application\_gateway\_subnet\_name)
 
@@ -204,11 +228,11 @@ Description: Optional. CIDR to use for the virtual machine subnet. Required when
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_vm_linux_ssh_authorized_key"></a> [vm\_linux\_ssh\_authorized\_key](#input\_vm\_linux\_ssh\_authorized\_key)
 
-Description: Optional. The SSH public key to use for the Linux virtual machine.
+Description: Optional. The SSH public key to use for the Linux virtual machine. Required when generate\_ssh\_key\_for\_vm is false and using SSH authentication.
 
 Type: `string`
 
@@ -220,7 +244,7 @@ Description: Optional. The size of the virtual machine to create when vm\_jumpbo
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_vm_subnet_name"></a> [vm\_subnet\_name](#input\_vm\_subnet\_name)
 

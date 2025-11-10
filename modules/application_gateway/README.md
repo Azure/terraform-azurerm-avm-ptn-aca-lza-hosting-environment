@@ -76,7 +76,7 @@ Description: Optional. Backend FQDN to route traffic to (e.g., your Container Ap
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_backend_probe_path"></a> [backend\_probe\_path](#input\_backend\_probe\_path)
 
@@ -132,7 +132,7 @@ Description: Optional. Log Analytics Workspace ID for diagnostics.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_tags"></a> [tags](#input\_tags)
 

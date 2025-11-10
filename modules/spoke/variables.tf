@@ -63,16 +63,30 @@ variable "deployment_subnet_name" {
   description = "Optional. The name of the subnet to create for the deployment scripts. If set, overrides the default name 'snet-deployment'."
 }
 
-variable "enable_telemetry" {
+variable "enable_egress_lockdown" {
   type        = bool
-  default     = true
-  description = "Optional. Enable/Disable module telemetry for AVM submodules."
+  default     = false
+  description = "Optional. Whether to enable egress lockdown by creating a route table. When true, network_appliance_ip_address must be provided."
+  nullable    = false
 }
 
 variable "enable_hub_peering" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable VNet peering to the hub virtual network. When true, hub_virtual_network_resource_id must be provided."
+  nullable    = false
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = "Optional. Enable/Disable module telemetry for AVM submodules."
+}
+
+variable "generate_ssh_key_for_vm" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to auto-generate an SSH key for the Linux VM."
   nullable    = false
 }
 
@@ -86,13 +100,6 @@ variable "log_analytics_workspace_replication_enabled" {
   type        = bool
   default     = true
   description = "Optional. Enable cross-region replication for the Log Analytics workspace. Default is true."
-  nullable    = false
-}
-
-variable "enable_egress_lockdown" {
-  type        = bool
-  default     = false
-  description = "Optional. Whether to enable egress lockdown by creating a route table. When true, network_appliance_ip_address must be provided."
   nullable    = false
 }
 
@@ -167,13 +174,6 @@ variable "vm_jumpbox_subnet_address_prefix" {
   type        = string
   default     = null
   description = "Optional. CIDR to use for the virtual machine subnet. Required when vm_jumpbox_os_type != 'none'."
-}
-
-variable "generate_ssh_key_for_vm" {
-  type        = bool
-  default     = false
-  description = "Optional. Whether to auto-generate an SSH key for the Linux VM."
-  nullable    = false
 }
 
 variable "vm_linux_ssh_authorized_key" {

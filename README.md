@@ -83,19 +83,19 @@ The following input variables are optional (have default values):
 
 ### <a name="input_bastion_resource_id"></a> [bastion\_resource\_id](#input\_bastion\_resource\_id)
 
-Description: Optional. The resource ID of the bastion host. If set, the spoke virtual network will be peered with the hub virtual network and the bastion host will be allowed to connect to the jump box. Default is empty.
+Description: Optional. The resource ID of the bastion host. If set, the spoke virtual network will be peered with the hub virtual network and the bastion host will be allowed to connect to the jump box. Default is null.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_created_resource_group_name"></a> [created\_resource\_group\_name](#input\_created\_resource\_group\_name)
 
-Description: Optional. Name to use when use\_existing\_resource\_group is true and the module is creating a resource group. Leave blank for auto-generation.
+Description: Optional. Name to use when use\_existing\_resource\_group is true and the module is creating a resource group. Leave null for auto-generation.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_deploy_sample_application"></a> [deploy\_sample\_application](#input\_deploy\_sample\_application)
 
@@ -121,6 +121,22 @@ Type: `bool`
 
 Default: `false`
 
+### <a name="input_enable_egress_lockdown"></a> [enable\_egress\_lockdown](#input\_enable\_egress\_lockdown)
+
+Description: Optional. Whether to enable egress lockdown by routing all traffic through a network appliance. When true, network\_appliance\_ip\_address must be provided. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_enable_hub_peering"></a> [enable\_hub\_peering](#input\_enable\_hub\_peering)
+
+Description: Optional. Whether to enable peering with a hub virtual network. When true, hub\_virtual\_network\_resource\_id must be provided. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
 Description: This variable controls whether or not telemetry is enabled for the module.  
@@ -141,11 +157,11 @@ Default: `"test"`
 
 ### <a name="input_existing_resource_group_id"></a> [existing\_resource\_group\_id](#input\_existing\_resource\_group\_id)
 
-Description: Optional. The resource ID of an existing resource group to use when use\_existing\_resource\_group is set to true. Default is empty.
+Description: Optional. The resource ID of an existing resource group to use when use\_existing\_resource\_group is set to true. Default is null.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_expose_container_apps_with"></a> [expose\_container\_apps\_with](#input\_expose\_container\_apps\_with)
 
@@ -165,19 +181,27 @@ Default: `false`
 
 ### <a name="input_front_door_waf_policy_name"></a> [front\_door\_waf\_policy\_name](#input\_front\_door\_waf\_policy\_name)
 
-Description: Optional. Name of the WAF policy for Front Door. Required if front\_door\_enable\_waf is true. Default is empty.
+Description: Optional. Name of the WAF policy for Front Door. Required if front\_door\_enable\_waf is true. Default is null.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
+
+### <a name="input_generate_ssh_key_for_vm"></a> [generate\_ssh\_key\_for\_vm](#input\_generate\_ssh\_key\_for\_vm)
+
+Description: Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm\_linux\_ssh\_authorized\_key must be provided if using SSH authentication. Default is false.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_hub_virtual_network_resource_id"></a> [hub\_virtual\_network\_resource\_id](#input\_hub\_virtual\_network\_resource\_id)
 
-Description: Optional. The resource ID of the hub virtual network. If set, the spoke virtual network will be peered with the hub virtual network. Default is empty.
+Description: Optional. The resource ID of the hub virtual network. Required when enable\_hub\_peering is true. If set, the spoke virtual network will be peered with the hub virtual network. Default is null.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_log_analytics_workspace_replication_enabled"></a> [log\_analytics\_workspace\_replication\_enabled](#input\_log\_analytics\_workspace\_replication\_enabled)
 
@@ -189,11 +213,11 @@ Default: `true`
 
 ### <a name="input_network_appliance_ip_address"></a> [network\_appliance\_ip\_address](#input\_network\_appliance\_ip\_address)
 
-Description: Optional. If set, the spoke virtual network will be peered with the hub virtual network and egress traffic will be routed through the network appliance. Default is empty.
+Description: Optional. IP address of the network appliance (e.g., Azure Firewall) for routing egress traffic. Required when enable\_egress\_lockdown is true. Default is null.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_route_spoke_traffic_internally"></a> [route\_spoke\_traffic\_internally](#input\_route\_spoke\_traffic\_internally)
 
@@ -269,7 +293,7 @@ Default: `null`
 
 ### <a name="input_vm_linux_ssh_authorized_key"></a> [vm\_linux\_ssh\_authorized\_key](#input\_vm\_linux\_ssh\_authorized\_key)
 
-Description: Optional. The SSH public key to use for the virtual machine. If not provided one will be generated when vm\_jumpbox\_os\_type is 'linux' and vm\_authentication\_type is 'sshPublicKey'.
+Description: Optional. The SSH public key to use for the virtual machine. Required when vm\_jumpbox\_os\_type is 'linux', vm\_authentication\_type is 'sshPublicKey', and generate\_ssh\_key\_for\_vm is false.
 
 Type: `string`
 

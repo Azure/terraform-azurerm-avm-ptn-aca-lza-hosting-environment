@@ -122,6 +122,14 @@ Type: `bool`
 
 Default: `false`
 
+### <a name="input_enable_hub_peering"></a> [enable\_hub\_peering](#input\_enable\_hub\_peering)
+
+Description: Whether hub peering is enabled. Used to determine if hub VNet link should be created.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
 Description: Enable or disable AVM telemetry.
@@ -132,11 +140,11 @@ Default: `true`
 
 ### <a name="input_hub_virtual_network_id"></a> [hub\_virtual\_network\_id](#input\_hub\_virtual\_network\_id)
 
-Description: Optional hub VNet resource ID to link to the private DNS zone. Empty to skip.
+Description: Optional hub VNet resource ID to link to the private DNS zone. Required when enable\_hub\_peering is true.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_tags"></a> [tags](#input\_tags)
 

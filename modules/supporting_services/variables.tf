@@ -54,17 +54,17 @@ variable "enable_diagnostics" {
   description = "Enable diagnostics settings for supporting services"
 }
 
-variable "expose_container_apps_with" {
-  type        = string
-  default     = "applicationGateway"
-  description = "Ingress method: 'applicationGateway', 'frontDoor', or 'none'"
-}
-
 variable "enable_hub_peering" {
   type        = bool
   default     = false
   description = "Whether hub peering is enabled. Used to determine if hub VNet link should be created."
   nullable    = false
+}
+
+variable "expose_container_apps_with" {
+  type        = string
+  default     = "applicationGateway"
+  description = "Ingress method: 'applicationGateway', 'frontDoor', or 'none'"
 }
 
 variable "hub_vnet_resource_id" {

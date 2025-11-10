@@ -52,7 +52,7 @@ Description: The name of the resource group where the resources will be deployed
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ## Outputs
 

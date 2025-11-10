@@ -295,7 +295,6 @@ module "nsg_deployment" {
 locals {
   # Use static boolean flag to determine route table creation
   create_route_table = var.enable_egress_lockdown
-
   # Build routes only when needed - keys are fully static based on input variables
   route_table_routes = local.create_route_table ? merge(
     {
@@ -432,12 +431,12 @@ module "vm_linux" {
   vm_admin_password           = var.vm_admin_password
   vm_size                     = var.vm_size
   bastion_resource_id         = var.bastion_resource_id
+  generate_ssh_key_for_vm     = var.generate_ssh_key_for_vm
   storage_account_type        = var.storage_account_type
   tags                        = var.tags
   vm_authentication_type      = var.vm_authentication_type
   vm_linux_ssh_authorized_key = var.vm_linux_ssh_authorized_key
   vm_zone                     = var.vm_zone
-  generate_ssh_key_for_vm     = var.generate_ssh_key_for_vm
 }
 
 module "vm_windows" {

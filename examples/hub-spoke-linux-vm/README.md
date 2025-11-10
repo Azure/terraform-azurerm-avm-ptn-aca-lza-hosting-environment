@@ -4,6 +4,24 @@
 
 This example demonstrates the most complex hub-spoke networking scenario with a Linux virtual machine and full observability stack.
 
+## Deployment Notes
+
+⚠️ **Important**: This example creates the hub VNet and network appliance in the same Terraform configuration as the spoke resources. Due to Terraform limitations with `count` and computed values, you must deploy in two phases:
+
+**Phase 1 - Create Hub Resources:**
+```bash
+terraform apply -target=azurerm_virtual_network.hub -target=azurerm_public_ip.firewall
+```
+
+**Phase 2 - Deploy Everything Else:**
+```bash
+terraform apply
+```
+
+**Note**: The module uses `enable_hub_peering = true` to solve Private DNS zone `for_each` issues, but route table and SSH key generation still require two-phase deployment when network appliance IP is computed.
+
+For production deployments, we recommend separating hub and spoke infrastructure into different Terraform workspaces. See [DEPLOYMENT\_GUIDANCE.md](../../DEPLOYMENT\_GUIDANCE.md) for more details and alternative approaches.
+
 ```hcl
 terraform {
   required_version = ">= 1.9, < 2.0"
@@ -89,10 +107,13 @@ module "aca_lza_hosting" {
   deploy_zone_redundant_resources = true
   # DDoS Protection (COMPLEX - expensive but important to test)
   enable_ddos_protection     = var.enable_ddos_protection
+  enable_egress_lockdown     = true
+  enable_hub_peering         = true
   enable_telemetry           = var.enable_telemetry
   environment                = var.environment
   existing_resource_group_id = azurerm_resource_group.this.id
   expose_container_apps_with = "applicationGateway"
+  generate_ssh_key_for_vm    = false
   # Hub-Spoke Integration (COMPLEX)
   hub_virtual_network_resource_id                 = azurerm_virtual_network.hub.id
   log_analytics_workspace_replication_enabled     = false

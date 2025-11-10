@@ -82,13 +82,13 @@ module "aca_lza_hosting" {
   deploy_zone_redundant_resources = true
   # DDoS Protection (COMPLEX - expensive but important to test)
   enable_ddos_protection     = var.enable_ddos_protection
-  enable_hub_peering         = true
   enable_egress_lockdown     = true
-  generate_ssh_key_for_vm    = false
+  enable_hub_peering         = true
   enable_telemetry           = var.enable_telemetry
   environment                = var.environment
   existing_resource_group_id = azurerm_resource_group.this.id
   expose_container_apps_with = "applicationGateway"
+  generate_ssh_key_for_vm    = false
   # Hub-Spoke Integration (COMPLEX)
   hub_virtual_network_resource_id                 = azurerm_virtual_network.hub.id
   log_analytics_workspace_replication_enabled     = false

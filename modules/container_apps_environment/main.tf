@@ -10,9 +10,6 @@ locals {
       access_mode  = v.access_mode
     } if try(v.kind, "") == "SMB"
   }
-
-  work_profile_name = "general-purpose"
-
   # Build vnet links - use enable_hub_peering flag to determine keys statically
   # This avoids dynamic key issues when hub_virtual_network_id is computed
   virtual_network_links = merge(
@@ -29,6 +26,7 @@ locals {
       }
     } : {}
   )
+  work_profile_name = "general-purpose"
 }
 
 # Optional Application Insights (workspace-based)

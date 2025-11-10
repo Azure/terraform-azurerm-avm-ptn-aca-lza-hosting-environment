@@ -65,10 +65,11 @@ module "spoke" {
   spoke_private_endpoints_subnet_address_prefix = var.spoke_private_endpoints_subnet_address_prefix
   spoke_vnet_address_prefixes                   = var.spoke_vnet_address_prefixes
   # Jumpbox VM
-  bastion_resource_id    = var.bastion_resource_id
-  enable_egress_lockdown = var.enable_egress_lockdown
-  enable_hub_peering     = var.enable_hub_peering
-  enable_telemetry       = var.enable_telemetry
+  bastion_resource_id     = var.bastion_resource_id
+  enable_egress_lockdown  = var.enable_egress_lockdown
+  enable_hub_peering      = var.enable_hub_peering
+  enable_telemetry        = var.enable_telemetry
+  generate_ssh_key_for_vm = var.generate_ssh_key_for_vm
   # Networking
   hub_virtual_network_resource_id                 = var.hub_virtual_network_resource_id
   log_analytics_workspace_replication_enabled     = var.log_analytics_workspace_replication_enabled
@@ -84,7 +85,6 @@ module "spoke" {
   vm_linux_ssh_authorized_key                     = var.vm_linux_ssh_authorized_key
   vm_size                                         = var.vm_size
   vm_zone                                         = var.deploy_zone_redundant_resources ? 2 : 0
-  generate_ssh_key_for_vm                         = var.generate_ssh_key_for_vm
 
   depends_on = [module.spoke_resource_group]
 }
@@ -93,19 +93,19 @@ module "spoke" {
 module "supporting_services" {
   source = "./modules/supporting_services"
 
-  enable_hub_peering                        = var.enable_hub_peering
   enable_telemetry                          = var.enable_telemetry
-  hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
   location                                  = local.safe_location
-  log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id
   resource_group_id                         = local.resource_group_id
   resource_group_name                       = local.resource_group_name
   resources_names                           = module.naming.resources_names
   spoke_private_endpoint_subnet_resource_id = module.spoke.spoke_private_endpoints_subnet_id
   spoke_vnet_resource_id                    = module.spoke.spoke_vnet_id
-  tags                                      = var.tags
   deploy_zone_redundant_resources           = var.deploy_zone_redundant_resources
+  enable_hub_peering                        = var.enable_hub_peering
   expose_container_apps_with                = var.expose_container_apps_with
+  hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
+  log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id
+  tags                                      = var.tags
 
   depends_on = [module.spoke_resource_group]
 }

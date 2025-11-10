@@ -90,7 +90,7 @@ Description: Optional. The backend FQDN that Front Door will route traffic to (C
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_backend_port"></a> [backend\_port](#input\_backend\_port)
 
@@ -130,7 +130,7 @@ Description: Optional. The resource ID of the Container Apps Environment for pri
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_enable_backend"></a> [enable\_backend](#input\_enable\_backend)
 
@@ -202,7 +202,7 @@ Description: Optional. Name of the WAF policy. Required if enable\_waf is true.
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ## Outputs
 

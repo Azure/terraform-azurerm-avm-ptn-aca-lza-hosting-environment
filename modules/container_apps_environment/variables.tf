@@ -75,17 +75,17 @@ variable "enable_dapr_instrumentation" {
   description = "Enable Dapr instrumentation using Application Insights (requires enable_application_insights)."
 }
 
-variable "enable_telemetry" {
-  type        = bool
-  default     = true
-  description = "Enable or disable AVM telemetry."
-}
-
 variable "enable_hub_peering" {
   type        = bool
   default     = false
   description = "Whether hub peering is enabled. Used to determine if hub VNet link should be created."
   nullable    = false
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = "Enable or disable AVM telemetry."
 }
 
 variable "hub_virtual_network_id" {

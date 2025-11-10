@@ -47,20 +47,20 @@ module "storage" {
   source = "./storage" # tflint-ignore: required_module_source_tffr1
   count  = 1
 
-  enable_diagnostics         = var.enable_diagnostics
-  enable_hub_peering         = var.enable_hub_peering
   enable_telemetry           = var.enable_telemetry
-  hub_vnet_resource_id       = var.hub_vnet_resource_id
   key_vault_id               = module.key_vault[0].id
   location                   = var.location
-  log_analytics_workspace_id = var.log_analytics_workspace_id
   name                       = var.resources_names.storageAccount
   private_endpoint_name      = "storage-pep"
   private_endpoint_subnet_id = var.spoke_private_endpoint_subnet_resource_id
   resource_group_id          = var.resource_group_id
   resource_group_name        = var.resource_group_name
-  shares                     = ["smbfileshare"]
   spoke_vnet_resource_id     = var.spoke_vnet_resource_id
+  enable_diagnostics         = var.enable_diagnostics
+  enable_hub_peering         = var.enable_hub_peering
+  hub_vnet_resource_id       = var.hub_vnet_resource_id
+  log_analytics_workspace_id = var.log_analytics_workspace_id
+  shares                     = ["smbfileshare"]
   tags                       = local.tags
 }
 
