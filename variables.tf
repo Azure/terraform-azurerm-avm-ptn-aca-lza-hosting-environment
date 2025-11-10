@@ -233,13 +233,6 @@ variable "vm_admin_password" {
   }
 }
 
-variable "generate_ssh_key_for_vm" {
-  type        = bool
-  default     = false
-  description = "Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm_linux_ssh_authorized_key must be provided if using SSH authentication. Default is false."
-  nullable    = false
-}
-
 variable "vm_jumpbox_os_type" {
   type        = string
   default     = "none"

@@ -120,7 +120,7 @@ Default: `true`
 
 ### <a name="input_generate_ssh_key_for_vm"></a> [generate\_ssh\_key\_for\_vm](#input\_generate\_ssh\_key\_for\_vm)
 
-Description: Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm\_linux\_ssh\_authorized\_key must be provided if using SSH authentication. Default is false.
+Description: Optional. Whether to auto-generate an SSH key for the Linux VM.
 
 Type: `bool`
 
