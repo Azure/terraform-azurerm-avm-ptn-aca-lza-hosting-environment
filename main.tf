@@ -80,7 +80,6 @@ module "spoke" {
   storage_account_type                            = var.storage_account_type
   tags                                            = var.tags
   vm_admin_password                               = var.vm_admin_password
-  vm_authentication_type                          = var.vm_authentication_type
   vm_jumpbox_os_type                              = var.vm_jumpbox_os_type
   vm_jumpbox_subnet_address_prefix                = var.vm_jumpbox_subnet_address_prefix
   vm_linux_ssh_authorized_key                     = var.vm_linux_ssh_authorized_key

@@ -57,7 +57,7 @@ module "vm" {
   sku_size            = var.vm_size
   zone                = var.vm_zone
 
-  account_credentials = var.vm_authentication_type == "sshPublicKey" ? {
+  account_credentials = {
     admin_credentials = {
       username                           = "localAdministrator"
       generate_admin_password_or_ssh_key = var.generate_ssh_key_for_vm
@@ -65,17 +65,9 @@ module "vm" {
       password                           = null
     }
     password_authentication_disabled = true
-    } : {
-    admin_credentials = {
-      username                           = "localAdministrator"
-      password                           = var.vm_admin_password
-      generate_admin_password_or_ssh_key = false
-      ssh_keys                           = local.ssh_keys_list
-    }
-    password_authentication_disabled = false
   }
 
-  admin_ssh_keys = var.vm_authentication_type == "sshPublicKey" && !var.generate_ssh_key_for_vm && var.vm_linux_ssh_authorized_key != null ? [{
+  admin_ssh_keys = !var.generate_ssh_key_for_vm && var.vm_linux_ssh_authorized_key != null ? [{
     username   = "localAdministrator"
     public_key = var.vm_linux_ssh_authorized_key
   }] : []

@@ -158,17 +158,18 @@ variable "tags" {
   description = "Optional. Tags to apply to spoke resources."
 }
 
+variable "generate_ssh_key_for_vm" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm_linux_ssh_authorized_key must be provided if using SSH authentication. Default is false."
+  nullable    = false
+}
+
 variable "vm_admin_password" {
   type        = string
   default     = null
-  description = "Optional. The password to use for the virtual machine. Required when vm_authentication_type == 'password' and vm_jumpbox_os_type != 'none'."
+  description = "Optional. The password to use for the Windows virtual machine. Required when vm_jumpbox_os_type == 'windows'."
   sensitive   = true
-}
-
-variable "vm_authentication_type" {
-  type        = string
-  default     = "sshPublicKey"
-  description = "Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security."
 }
 
 variable "vm_jumpbox_os_type" {
@@ -186,7 +187,7 @@ variable "vm_jumpbox_subnet_address_prefix" {
 variable "vm_linux_ssh_authorized_key" {
   type        = string
   default     = null
-  description = "Optional. The SSH public key to use for the Linux virtual machine. Required when generate_ssh_key_for_vm is false and using SSH authentication."
+  description = "Optional. The SSH public key to use for the Linux virtual machine. Required when generate_ssh_key_for_vm is false and vm_jumpbox_os_type == 'linux'."
   sensitive   = true
 }
 

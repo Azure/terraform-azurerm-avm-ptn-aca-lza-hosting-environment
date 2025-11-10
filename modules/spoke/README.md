@@ -120,7 +120,7 @@ Default: `true`
 
 ### <a name="input_generate_ssh_key_for_vm"></a> [generate\_ssh\_key\_for\_vm](#input\_generate\_ssh\_key\_for\_vm)
 
-Description: Optional. Whether to auto-generate an SSH key for the Linux VM.
+Description: Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm\_linux\_ssh\_authorized\_key must be provided if using SSH authentication. Default is false.
 
 Type: `bool`
 
@@ -208,19 +208,11 @@ Default: `null`
 
 ### <a name="input_vm_admin_password"></a> [vm\_admin\_password](#input\_vm\_admin\_password)
 
-Description: Optional. The password to use for the virtual machine. Required when vm\_authentication\_type == 'password' and vm\_jumpbox\_os\_type != 'none'.
+Description: Optional. The password to use for the Windows virtual machine. Required when vm\_jumpbox\_os\_type == 'windows'.
 
 Type: `string`
 
 Default: `null`
-
-### <a name="input_vm_authentication_type"></a> [vm\_authentication\_type](#input\_vm\_authentication\_type)
-
-Description: Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security.
-
-Type: `string`
-
-Default: `"sshPublicKey"`
 
 ### <a name="input_vm_jumpbox_os_type"></a> [vm\_jumpbox\_os\_type](#input\_vm\_jumpbox\_os\_type)
 
@@ -240,7 +232,7 @@ Default: `null`
 
 ### <a name="input_vm_linux_ssh_authorized_key"></a> [vm\_linux\_ssh\_authorized\_key](#input\_vm\_linux\_ssh\_authorized\_key)
 
-Description: Optional. The SSH public key to use for the Linux virtual machine. Required when generate\_ssh\_key\_for\_vm is false and using SSH authentication.
+Description: Optional. The SSH public key to use for the Linux virtual machine. Required when generate\_ssh\_key\_for\_vm is false and vm\_jumpbox\_os\_type == 'linux'.
 
 Type: `string`
 
