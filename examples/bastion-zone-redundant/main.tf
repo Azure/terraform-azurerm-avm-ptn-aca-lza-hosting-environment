@@ -6,22 +6,12 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~> 4.0"
-    }
   }
 }
 
 provider "azurerm" {
   features {}
   storage_use_azuread = true
-}
-
-# Generate SSH key for Linux VM
-resource "tls_private_key" "ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
 }
 
 # Create hub network with Bastion for testing

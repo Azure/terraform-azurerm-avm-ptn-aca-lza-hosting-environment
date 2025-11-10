@@ -6,10 +6,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~> 4.0"
-    }
   }
 }
 
@@ -18,11 +14,6 @@ provider "azurerm" {
   storage_use_azuread = true
 }
 
-# Generate SSH key for Linux VM
-resource "tls_private_key" "ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
 
 # Create a mock hub network for testing hub-spoke integration
 resource "azurerm_resource_group" "hub" {
@@ -89,7 +80,6 @@ module "aca_lza_hosting" {
   environment                = var.environment
   existing_resource_group_id = azurerm_resource_group.this.id
   expose_container_apps_with = "applicationGateway"
-  generate_ssh_key_for_vm    = false
   # Hub-Spoke Integration (COMPLEX)
   hub_virtual_network_resource_id                 = azurerm_virtual_network.hub.id
   log_analytics_workspace_replication_enabled     = false
@@ -102,7 +92,7 @@ module "aca_lza_hosting" {
   vm_authentication_type                          = "sshPublicKey"
   vm_jumpbox_os_type                              = "linux"
   vm_jumpbox_subnet_address_prefix                = "10.20.5.0/24"
-  vm_linux_ssh_authorized_key                     = tls_private_key.ssh_key.public_key_openssh
+  generate_ssh_key_for_vm    = true
   # Linux VM with SSH authentication (COMPLEX)
   vm_size = "Standard_DS2_v2"
   # Naming
