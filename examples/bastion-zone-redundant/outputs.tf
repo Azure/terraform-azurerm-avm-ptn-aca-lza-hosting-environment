@@ -27,9 +27,3 @@ output "spoke_virtual_network_id" {
   description = "Spoke virtual network ID"
   value       = module.aca_lza_hosting.spoke_virtual_network_id
 }
-
-output "ssh_private_key" {
-  description = "SSH private key for Linux VM (use with Bastion tunneling)"
-  sensitive   = true
-  value       = tls_private_key.ssh_key.private_key_pem
-}
