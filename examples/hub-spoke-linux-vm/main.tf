@@ -80,6 +80,7 @@ module "aca_lza_hosting" {
   environment                = var.environment
   existing_resource_group_id = azurerm_resource_group.this.id
   expose_container_apps_with = "applicationGateway"
+  generate_ssh_key_for_vm    = true
   # Hub-Spoke Integration (COMPLEX)
   hub_virtual_network_resource_id                 = azurerm_virtual_network.hub.id
   log_analytics_workspace_replication_enabled     = false
@@ -92,7 +93,6 @@ module "aca_lza_hosting" {
   vm_authentication_type                          = "sshPublicKey"
   vm_jumpbox_os_type                              = "linux"
   vm_jumpbox_subnet_address_prefix                = "10.20.5.0/24"
-  generate_ssh_key_for_vm    = true
   # Linux VM with SSH authentication (COMPLEX)
   vm_size = "Standard_DS2_v2"
   # Naming
