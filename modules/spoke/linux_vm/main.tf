@@ -62,7 +62,6 @@ module "vm" {
       username                           = "localAdministrator"
       generate_admin_password_or_ssh_key = var.generate_ssh_key_for_vm
       ssh_keys                           = local.ssh_keys_list
-      password                           = null
     }
     password_authentication_disabled = true
   }
