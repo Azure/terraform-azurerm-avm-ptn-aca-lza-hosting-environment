@@ -216,11 +216,11 @@ Default: `null`
 
 ### <a name="input_vm_authentication_type"></a> [vm\_authentication\_type](#input\_vm\_authentication\_type)
 
-Description: Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended.
+Description: Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security.
 
 Type: `string`
 
-Default: `"password"`
+Default: `"sshPublicKey"`
 
 ### <a name="input_vm_jumpbox_os_type"></a> [vm\_jumpbox\_os\_type](#input\_vm\_jumpbox\_os\_type)
 
