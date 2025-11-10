@@ -246,10 +246,6 @@ Description: Linux VM private IP address for Bastion connection
 
 Description: Spoke virtual network ID
 
-### <a name="output_ssh_private_key"></a> [ssh\_private\_key](#output\_ssh\_private\_key)
-
-Description: SSH private key for Linux VM (use with Bastion tunneling)
-
 ## Modules
 
 The following Modules are called:
