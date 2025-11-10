@@ -1,0 +1,16 @@
+{
+  "exemptions": [
+    {
+      "id": "mission_critical_virtual_machine_should_use_premium_or_ultra_disks",
+      "justification": "This is a test/example environment with a jumpbox VM. Premium disks are not required for this use case to reduce costs."
+    },
+    {
+      "id": "application_gateway_ensure_autoscale_feature_has_been_enabled",
+      "justification": "This example demonstrates basic Application Gateway functionality. Autoscaling adds complexity and cost that is not necessary for this demonstration."
+    },
+    {
+      "id": "public_ip_use_standard_sku_and_zone_redundant_ip",
+      "justification": "This example uses a firewall public IP for demonstration purposes. Zone redundancy is not required for this test scenario."
+    }
+  ]
+}
