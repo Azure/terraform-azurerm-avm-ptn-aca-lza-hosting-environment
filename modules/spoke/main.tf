@@ -431,6 +431,7 @@ module "vm_linux" {
   vm_admin_password           = var.vm_admin_password
   vm_size                     = var.vm_size
   bastion_resource_id         = var.bastion_resource_id
+  enable_bastion_access       = var.enable_bastion_access
   generate_ssh_key_for_vm     = var.generate_ssh_key_for_vm
   storage_account_type        = var.storage_account_type
   tags                        = var.tags
@@ -454,6 +455,7 @@ module "vm_windows" {
   vm_admin_password           = var.vm_admin_password
   vm_size                     = var.vm_size
   bastion_resource_id         = var.bastion_resource_id
+  enable_bastion_access       = var.enable_bastion_access
   storage_account_type        = var.storage_account_type
   tags                        = var.tags
   vm_windows_os_version       = "2016-Datacenter"

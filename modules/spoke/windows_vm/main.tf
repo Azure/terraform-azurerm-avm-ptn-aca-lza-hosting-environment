@@ -8,7 +8,7 @@ module "nsg" {
   enable_telemetry    = var.enable_telemetry
   tags                = var.tags
 
-  security_rules = length(var.bastion_resource_id) > 0 ? {
+  security_rules = var.enable_bastion_access ? {
     allow_bastion_inbound = {
       name                       = "allow-bastion-inbound"
       description                = "Allow inbound traffic from Bastion to the JumpBox"

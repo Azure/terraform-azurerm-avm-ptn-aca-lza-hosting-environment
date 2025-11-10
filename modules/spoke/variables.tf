@@ -63,6 +63,13 @@ variable "deployment_subnet_name" {
   description = "Optional. The name of the subnet to create for the deployment scripts. If set, overrides the default name 'snet-deployment'."
 }
 
+variable "enable_bastion_access" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host."
+  nullable    = false
+}
+
 variable "enable_egress_lockdown" {
   type        = bool
   default     = false

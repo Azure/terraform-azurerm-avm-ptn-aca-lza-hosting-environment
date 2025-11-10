@@ -113,6 +113,14 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_enable_bastion_access"></a> [enable\_bastion\_access](#input\_enable\_bastion\_access)
+
+Description: Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host with a VM jumpbox. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_enable_ddos_protection"></a> [enable\_ddos\_protection](#input\_enable\_ddos\_protection)
 
 Description: Optional. DDoS protection mode. see https://learn.microsoft.com/azure/ddos-protection/ddos-protection-sku-comparison#skus. Default is "false".

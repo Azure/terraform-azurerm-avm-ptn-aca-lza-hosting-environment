@@ -27,6 +27,12 @@ variable "bastion_resource_id" {
   default = null
 }
 
+variable "enable_bastion_access" {
+  type        = bool
+  default     = false
+  description = "Whether to enable bastion access rule in the NSG. Set to true when using a bastion host."
+}
+
 variable "vm_admin_password" {
   type      = string
   sensitive = true

@@ -66,6 +66,13 @@ variable "deploy_zone_redundant_resources" {
   description = "Optional. Default value is true. If true, any resources that support AZ will be deployed in all three AZ. However if the selected region is not supporting AZ, this parameter needs to be set to false. Default is true."
 }
 
+variable "enable_bastion_access" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host with a VM jumpbox. Default is false."
+  nullable    = false
+}
+
 variable "enable_ddos_protection" {
   type        = bool
   default     = false

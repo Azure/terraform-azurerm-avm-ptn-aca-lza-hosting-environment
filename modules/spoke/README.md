@@ -86,6 +86,14 @@ Type: `string`
 
 Default: `"snet-deployment"`
 
+### <a name="input_enable_bastion_access"></a> [enable\_bastion\_access](#input\_enable\_bastion\_access)
+
+Description: Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_enable_egress_lockdown"></a> [enable\_egress\_lockdown](#input\_enable\_egress\_lockdown)
 
 Description: Optional. Whether to enable egress lockdown by creating a route table. When true, network\_appliance\_ip\_address must be provided.

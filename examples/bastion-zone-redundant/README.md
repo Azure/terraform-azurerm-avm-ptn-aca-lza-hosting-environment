@@ -110,6 +110,7 @@ module "aca_lza_hosting" {
   deploy_sample_application = true
   # Zone redundancy for maximum availability (COMPLEX)
   deploy_zone_redundant_resources = true
+  enable_bastion_access           = true
   # DDoS protection (optional - expensive)
   enable_ddos_protection     = var.enable_ddos_protection
   enable_telemetry           = var.enable_telemetry
