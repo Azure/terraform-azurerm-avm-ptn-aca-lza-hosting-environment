@@ -49,7 +49,7 @@ variable "vm_linux_ssh_authorized_key" {
 }
 variable "vm_authentication_type" {
   type    = string
-  default = "password"
+  default = "sshPublicKey"
 }
 
 variable "log_analytics_workspace_id" { type = string }

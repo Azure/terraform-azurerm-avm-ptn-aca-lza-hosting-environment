@@ -235,8 +235,8 @@ variable "vm_admin_password" {
 
 variable "vm_authentication_type" {
   type        = string
-  default     = "password"
-  description = "Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended. Default is \"password\"."
+  default     = "sshPublicKey"
+  description = "Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security. Default is \"sshPublicKey\"."
 
   validation {
     condition     = contains(["sshPublicKey", "password"], var.vm_authentication_type)
