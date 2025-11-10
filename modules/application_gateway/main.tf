@@ -183,7 +183,7 @@ module "app_gateway" {
   resource_group_name                = var.resource_group_name
   app_gateway_waf_policy_resource_id = local.waf_policy_id
   autoscale_configuration = {
-    min_capacity = 0
+    min_capacity = 1
     max_capacity = 3
   }
   create_public_ip = false
