@@ -121,7 +121,7 @@ module "aca_lza_hosting" {
   vm_authentication_type                          = "sshPublicKey"
   vm_jumpbox_os_type                              = "linux"
   vm_jumpbox_subnet_address_prefix                = "10.40.5.0/24"
-  vm_linux_ssh_authorized_key                     = tls_private_key.ssh_key.public_key_openssh
+  generate_ssh_key_for_vm                         = true
   # Linux VM with SSH for Bastion testing (COMPLEX)
   vm_size = "Standard_DS2_v2"
   # Naming
