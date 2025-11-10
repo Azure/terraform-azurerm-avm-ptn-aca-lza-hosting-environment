@@ -214,9 +214,8 @@ module "app_gateway" {
   } : null
   public_ip_resource_id = module.appgw_pip.resource_id
   sku = {
-    name     = "WAF_v2"
-    tier     = "WAF_v2"
-    capacity = null
+    name = "WAF_v2"
+    tier = "WAF_v2"
   }
   ssl_certificates = local.has_backend ? {
     "appgw-demo-cert" = {
