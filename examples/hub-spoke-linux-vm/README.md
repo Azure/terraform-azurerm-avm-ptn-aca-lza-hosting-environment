@@ -123,6 +123,8 @@ module "aca_lza_hosting" {
   spoke_application_gateway_subnet_address_prefix = "10.20.3.0/24"
   tags                                            = var.tags
   use_existing_resource_group                     = true
+  vm_admin_password                               = "NotUsedForSSH123!" # Required but not used for SSH
+  vm_authentication_type                          = "sshPublicKey"
   vm_jumpbox_os_type                              = "linux"
   vm_jumpbox_subnet_address_prefix                = "10.20.5.0/24"
   vm_linux_ssh_authorized_key                     = tls_private_key.ssh_key.public_key_openssh
