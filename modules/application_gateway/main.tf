@@ -182,7 +182,11 @@ module "app_gateway" {
   }
   resource_group_name                = var.resource_group_name
   app_gateway_waf_policy_resource_id = local.waf_policy_id
-  create_public_ip                   = false
+  autoscale_configuration = {
+    min_capacity = 0
+    max_capacity = 3
+  }
+  create_public_ip = false
   diagnostic_settings = var.enable_diagnostics ? {
     agw = {
       name                  = "${var.name}-diag"
@@ -210,9 +214,8 @@ module "app_gateway" {
   } : null
   public_ip_resource_id = module.appgw_pip.resource_id
   sku = {
-    name     = "WAF_v2"
-    tier     = "WAF_v2"
-    capacity = 3
+    name = "WAF_v2"
+    tier = "WAF_v2"
   }
   ssl_certificates = local.has_backend ? {
     "appgw-demo-cert" = {

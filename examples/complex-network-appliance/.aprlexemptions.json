@@ -1,8 +1,0 @@
-{
-  "exemptions": [
-    {
-      "id": "application_gateway_ensure_autoscale_feature_has_been_enabled",
-      "justification": "This example demonstrates integration with a network appliance. Autoscaling adds complexity and cost that is not necessary for this demonstration."
-    }
-  ]
-}

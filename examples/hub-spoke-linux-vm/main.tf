@@ -53,6 +53,7 @@ resource "azurerm_public_ip" "firewall" {
   resource_group_name = azurerm_resource_group.hub.name
   sku                 = "Standard"
   tags                = var.tags
+  zones               = ["1", "2", "3"]
 }
 
 # Test resource group for the module

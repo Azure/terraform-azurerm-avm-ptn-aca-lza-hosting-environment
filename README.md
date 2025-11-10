@@ -245,11 +245,11 @@ Default: `null`
 
 ### <a name="input_storage_account_type"></a> [storage\_account\_type](#input\_storage\_account\_type)
 
-Description: Optional. The storage account type to use for the jump box. Defaults to `Standard_LRS`.
+Description: Optional. The storage account type to use for the jump box. Defaults to `Premium_LRS` for APRL compliance.
 
 Type: `string`
 
-Default: `"Standard_LRS"`
+Default: `"Premium_LRS"`
 
 ### <a name="input_tags"></a> [tags](#input\_tags)
 

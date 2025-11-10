@@ -148,8 +148,8 @@ variable "spoke_private_endpoints_subnet_name" {
 
 variable "storage_account_type" {
   type        = string
-  default     = "Standard_LRS"
-  description = "Optional. The storage account type to use for the jump box."
+  default     = "Premium_LRS"
+  description = "Optional. The storage account type to use for the jump box. Premium_LRS is the default for APRL compliance."
 }
 
 variable "tags" {

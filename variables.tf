@@ -205,8 +205,8 @@ variable "spoke_application_gateway_subnet_address_prefix" {
 
 variable "storage_account_type" {
   type        = string
-  default     = "Standard_LRS"
-  description = "Optional. The storage account type to use for the jump box. Defaults to `Standard_LRS`."
+  default     = "Premium_LRS"
+  description = "Optional. The storage account type to use for the jump box. Defaults to `Premium_LRS` for APRL compliance."
 }
 
 variable "tags" {
