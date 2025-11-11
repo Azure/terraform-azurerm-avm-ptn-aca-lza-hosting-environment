@@ -32,8 +32,9 @@ module "nsg_container_apps_env" {
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
     logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
+      name                           = "logAnalyticsSettings"
+      workspace_resource_id          = module.log_analytics.id
+      log_analytics_destination_type = "Dedicated"
     }
   }
   enable_telemetry = var.enable_telemetry
@@ -135,8 +136,9 @@ module "nsg_appgw" {
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
     logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
+      name                           = "logAnalyticsSettings"
+      workspace_resource_id          = module.log_analytics.id
+      log_analytics_destination_type = "Dedicated"
     }
   }
   enable_telemetry = var.enable_telemetry
@@ -213,8 +215,9 @@ module "nsg_pep" {
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
     logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
+      name                           = "logAnalyticsSettings"
+      workspace_resource_id          = module.log_analytics.id
+      log_analytics_destination_type = "Dedicated"
     }
   }
   enable_telemetry = var.enable_telemetry
@@ -243,8 +246,9 @@ module "nsg_deployment" {
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
     logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
+      name                           = "logAnalyticsSettings"
+      workspace_resource_id          = module.log_analytics.id
+      log_analytics_destination_type = "Dedicated"
     }
   }
   enable_telemetry = var.enable_telemetry
