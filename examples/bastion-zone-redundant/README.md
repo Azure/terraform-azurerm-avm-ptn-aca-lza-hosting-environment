@@ -192,7 +192,7 @@ Description: The Azure region where the resources will be deployed.
 
 Type: `string`
 
-Default: `"East US"`
+Default: `"UK South"`
 
 ### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
 

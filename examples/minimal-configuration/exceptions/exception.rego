@@ -9,7 +9,7 @@ deny[msg] {
   input.resource_changes[_].type == "azurerm_network_security_group"
   input.resource_changes[_].change.actions[_] == "update"
   input.resource_changes[_].change.after.security_rule
-  
+
   msg := sprintf("Ignoring NSG security_rule changes - these are managed by Azure Container Apps platform", [])
 }
 
@@ -19,7 +19,7 @@ deny[msg] {
   input.resource_changes[_].type == "azapi_resource"
   contains(input.resource_changes[_].address, "private_dns_zone")
   input.resource_changes[_].change.actions[_] == "update"
-  
+
   msg := sprintf("Ignoring private DNS zone output changes - numberOfRecordSets and numberOfVirtualNetworkLinks are computed", [])
 }
 
@@ -28,7 +28,7 @@ deny[msg] {
 deny[msg] {
   input.resource_changes[_].type == "azurerm_container_registry"
   input.resource_changes[_].change.after.data_endpoint_host_names
-  
+
   msg := sprintf("Ignoring ACR data_endpoint_host_names - this is a computed value", [])
 }
 
