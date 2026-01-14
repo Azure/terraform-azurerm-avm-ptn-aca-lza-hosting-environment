@@ -3,9 +3,11 @@
 
 package conftest
 
+import rego.v1
+
 # Ignore Azure-managed NSG security rules that are added automatically by Container Apps
 # These rules are added by the Azure platform and don't represent configuration drift
-deny[msg] {
+deny contains msg if {
   input.resource_changes[_].type == "azurerm_network_security_group"
   input.resource_changes[_].change.actions[_] == "update"
   input.resource_changes[_].change.after.security_rule
@@ -15,7 +17,7 @@ deny[msg] {
 
 # Ignore computed output changes in AzAPI private DNS zones
 # numberOfRecordSets and numberOfVirtualNetworkLinks are read-only computed values
-deny[msg] {
+deny contains msg if {
   input.resource_changes[_].type == "azapi_resource"
   contains(input.resource_changes[_].address, "private_dns_zone")
   input.resource_changes[_].change.actions[_] == "update"
@@ -25,7 +27,7 @@ deny[msg] {
 
 # Ignore data_endpoint_host_names changes in Container Registry
 # This is a computed value that gets populated after ACR creation
-deny[msg] {
+deny contains msg if {
   input.resource_changes[_].type == "azurerm_container_registry"
   input.resource_changes[_].change.after.data_endpoint_host_names
 
@@ -34,7 +36,7 @@ deny[msg] {
 
 # Allow diagnostic setting updates for log_analytics_destination_type
 # This is an expected update to align with AVM standards
-allow {
+allow if {
   input.resource_changes[_].type == "azurerm_monitor_diagnostic_setting"
   input.resource_changes[_].change.after.log_analytics_destination_type == "Dedicated"
 }
