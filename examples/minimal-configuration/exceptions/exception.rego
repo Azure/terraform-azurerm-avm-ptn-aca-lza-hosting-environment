@@ -1,42 +1,24 @@
 # Exception policy for minimal-configuration example
-# This policy ignores known Azure-managed changes that occur after initial deployment
+# This file creates exceptions for APRL (Azure Proactive Resiliency Library) policies
+# that may not be applicable to this example configuration.
 
-package conftest
+package Azure_Proactive_Resiliency_Library_v2
 
 import rego.v1
 
-# Ignore Azure-managed NSG security rules that are added automatically by Container Apps
-# These rules are added by the Azure platform and don't represent configuration drift
-deny contains msg if {
-  input.resource_changes[_].type == "azurerm_network_security_group"
-  input.resource_changes[_].change.actions[_] == "update"
-  input.resource_changes[_].change.after.security_rule
+# Add policy exceptions here as needed
+# Example format:
+# exception contains rules if {
+#   rules := ["policy_rule_name"]
+# }
 
-  msg := sprintf("Ignoring NSG security_rule changes - these are managed by Azure Container Apps platform", [])
-}
-
-# Ignore computed output changes in AzAPI private DNS zones
-# numberOfRecordSets and numberOfVirtualNetworkLinks are read-only computed values
-deny contains msg if {
-  input.resource_changes[_].type == "azapi_resource"
-  contains(input.resource_changes[_].address, "private_dns_zone")
-  input.resource_changes[_].change.actions[_] == "update"
-
-  msg := sprintf("Ignoring private DNS zone output changes - numberOfRecordSets and numberOfVirtualNetworkLinks are computed", [])
-}
-
-# Ignore data_endpoint_host_names changes in Container Registry
-# This is a computed value that gets populated after ACR creation
-deny contains msg if {
-  input.resource_changes[_].type == "azurerm_container_registry"
-  input.resource_changes[_].change.after.data_endpoint_host_names
-
-  msg := sprintf("Ignoring ACR data_endpoint_host_names - this is a computed value", [])
-}
-
-# Allow diagnostic setting updates for log_analytics_destination_type
-# This is an expected update to align with AVM standards
-allow if {
-  input.resource_changes[_].type == "azurerm_monitor_diagnostic_setting"
-  input.resource_changes[_].change.after.log_analytics_destination_type == "Dedicated"
-}
+# Note: This file is for conftest APRL/AVMSEC policy exceptions only.
+# It does NOT affect the Terraform idempotency check.
+# 
+# Known Azure platform behaviors that cause expected plan changes:
+# - NSG security rules: Azure Container Apps platform adds rules automatically
+# - Private DNS zones: numberOfRecordSets and numberOfVirtualNetworkLinks are computed values
+#
+# The diagnostic setting log_analytics_destination_type issue has been addressed
+# by explicitly setting the value to null in the module code.
+# See: https://github.com/Azure/terraform-azurerm-avm-res-operationalinsights-workspace/issues/114

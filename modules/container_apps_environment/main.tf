@@ -86,7 +86,7 @@ module "managed_environment" {
 # Private DNS zone: domain is the defaultDomain from ACA env
 module "aca_privatedns" {
   source  = "Azure/avm-res-network-privatednszone/azurerm"
-  version = "0.4.2"
+  version = "0.4.4"
 
   domain_name = module.managed_environment.default_domain
   parent_id   = var.resource_group_id
