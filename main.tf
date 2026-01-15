@@ -64,12 +64,13 @@ module "spoke" {
   spoke_private_endpoints_subnet_address_prefix = var.spoke_private_endpoints_subnet_address_prefix
   spoke_vnet_address_prefixes                   = var.spoke_vnet_address_prefixes
   # Jumpbox VM
-  bastion_resource_id     = var.bastion_resource_id
-  enable_bastion_access   = var.enable_bastion_access
-  enable_egress_lockdown  = var.enable_egress_lockdown
-  enable_hub_peering      = var.enable_hub_peering
-  enable_telemetry        = var.enable_telemetry
-  generate_ssh_key_for_vm = var.generate_ssh_key_for_vm
+  bastion_resource_id           = var.bastion_resource_id
+  bastion_subnet_address_prefix = var.bastion_subnet_address_prefix
+  enable_bastion_access         = var.enable_bastion_access
+  enable_egress_lockdown        = var.enable_egress_lockdown
+  enable_hub_peering            = var.enable_hub_peering
+  enable_telemetry              = var.enable_telemetry
+  generate_ssh_key_for_vm       = var.generate_ssh_key_for_vm
   # Networking
   hub_virtual_network_resource_id                 = var.hub_virtual_network_resource_id
   log_analytics_workspace_replication_enabled     = var.log_analytics_workspace_replication_enabled

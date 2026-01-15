@@ -52,6 +52,12 @@ variable "bastion_resource_id" {
   description = "Optional. The resource ID of the bastion host."
 }
 
+variable "bastion_subnet_address_prefix" {
+  type        = string
+  default     = null
+  description = "Optional. The CIDR address prefix of the bastion subnet. Required when enable_bastion_access is true."
+}
+
 variable "enable_bastion_access" {
   type        = bool
   default     = false

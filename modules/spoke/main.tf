@@ -352,44 +352,46 @@ module "vm_linux" {
   source = "./linux_vm" # tflint-ignore: required_module_source_tffr1
   count  = var.vm_jumpbox_os_type == "linux" ? 1 : 0
 
-  enable_telemetry            = var.enable_telemetry
-  location                    = var.location
-  log_analytics_workspace_id  = module.log_analytics.id
-  name                        = var.resources_names["vmJumpBox"]
-  network_interface_name      = var.resources_names["vmJumpBoxNic"]
-  network_security_group_name = var.resources_names["vmJumpBoxNsg"]
-  resource_group_name         = var.resource_group_name
-  subnet_id                   = module.vnet_spoke.subnets["jumpbox"].resource_id
-  vm_admin_password           = var.vm_admin_password
-  vm_size                     = var.vm_size
-  bastion_resource_id         = var.bastion_resource_id
-  enable_bastion_access       = var.enable_bastion_access
-  generate_ssh_key_for_vm     = var.generate_ssh_key_for_vm
-  storage_account_type        = var.storage_account_type
-  tags                        = var.tags
-  vm_authentication_type      = var.vm_authentication_type
-  vm_linux_ssh_authorized_key = var.vm_linux_ssh_authorized_key
-  vm_zone                     = var.vm_zone
+  enable_telemetry              = var.enable_telemetry
+  location                      = var.location
+  log_analytics_workspace_id    = module.log_analytics.id
+  name                          = var.resources_names["vmJumpBox"]
+  network_interface_name        = var.resources_names["vmJumpBoxNic"]
+  network_security_group_name   = var.resources_names["vmJumpBoxNsg"]
+  resource_group_name           = var.resource_group_name
+  subnet_id                     = module.vnet_spoke.subnets["jumpbox"].resource_id
+  vm_admin_password             = var.vm_admin_password
+  vm_size                       = var.vm_size
+  bastion_resource_id           = var.bastion_resource_id
+  bastion_subnet_address_prefix = var.bastion_subnet_address_prefix
+  enable_bastion_access         = var.enable_bastion_access
+  generate_ssh_key_for_vm       = var.generate_ssh_key_for_vm
+  storage_account_type          = var.storage_account_type
+  tags                          = var.tags
+  vm_authentication_type        = var.vm_authentication_type
+  vm_linux_ssh_authorized_key   = var.vm_linux_ssh_authorized_key
+  vm_zone                       = var.vm_zone
 }
 
 module "vm_windows" {
   source = "./windows_vm" # tflint-ignore: required_module_source_tffr1
   count  = var.vm_jumpbox_os_type == "windows" ? 1 : 0
 
-  enable_telemetry            = var.enable_telemetry
-  location                    = var.location
-  log_analytics_workspace_id  = module.log_analytics.id
-  name                        = var.resources_names["vmJumpBox"]
-  network_interface_name      = var.resources_names["vmJumpBoxNic"]
-  network_security_group_name = var.resources_names["vmJumpBoxNsg"]
-  resource_group_name         = var.resource_group_name
-  subnet_id                   = module.vnet_spoke.subnets["jumpbox"].resource_id
-  vm_admin_password           = var.vm_admin_password
-  vm_size                     = var.vm_size
-  bastion_resource_id         = var.bastion_resource_id
-  enable_bastion_access       = var.enable_bastion_access
-  storage_account_type        = var.storage_account_type
-  tags                        = var.tags
-  vm_windows_os_version       = "2016-Datacenter"
-  vm_zone                     = var.vm_zone
+  enable_telemetry              = var.enable_telemetry
+  location                      = var.location
+  log_analytics_workspace_id    = module.log_analytics.id
+  name                          = var.resources_names["vmJumpBox"]
+  network_interface_name        = var.resources_names["vmJumpBoxNic"]
+  network_security_group_name   = var.resources_names["vmJumpBoxNsg"]
+  resource_group_name           = var.resource_group_name
+  subnet_id                     = module.vnet_spoke.subnets["jumpbox"].resource_id
+  vm_admin_password             = var.vm_admin_password
+  vm_size                       = var.vm_size
+  bastion_resource_id           = var.bastion_resource_id
+  bastion_subnet_address_prefix = var.bastion_subnet_address_prefix
+  enable_bastion_access         = var.enable_bastion_access
+  storage_account_type          = var.storage_account_type
+  tags                          = var.tags
+  vm_windows_os_version         = "2016-Datacenter"
+  vm_zone                       = var.vm_zone
 }

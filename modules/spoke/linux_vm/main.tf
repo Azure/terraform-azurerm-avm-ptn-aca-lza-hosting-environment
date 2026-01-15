@@ -1,25 +1,3 @@
-# Query the Bastion host to get its subnet ID when bastion access is enabled
-data "azurerm_bastion_host" "this" {
-  count = var.enable_bastion_access && var.bastion_resource_id != null ? 1 : 0
-
-  name                = element(split("/", var.bastion_resource_id), length(split("/", var.bastion_resource_id)) - 1)
-  resource_group_name = element(split("/", var.bastion_resource_id), index(split("/", var.bastion_resource_id), "resourceGroups") + 1)
-}
-
-# Query the Bastion subnet to get its address prefix
-data "azurerm_subnet" "bastion" {
-  count = var.enable_bastion_access && var.bastion_resource_id != null ? 1 : 0
-
-  name                 = "AzureBastionSubnet"
-  virtual_network_name = element(split("/", data.azurerm_bastion_host.this[0].ip_configuration[0].subnet_id), length(split("/", data.azurerm_bastion_host.this[0].ip_configuration[0].subnet_id)) - 3)
-  resource_group_name  = element(split("/", data.azurerm_bastion_host.this[0].ip_configuration[0].subnet_id), index(split("/", data.azurerm_bastion_host.this[0].ip_configuration[0].subnet_id), "resourceGroups") + 1)
-}
-
-locals {
-  # Get the Bastion subnet address prefix for NSG rules
-  bastion_subnet_prefix = var.enable_bastion_access && var.bastion_resource_id != null ? data.azurerm_subnet.bastion[0].address_prefixes[0] : null
-}
-
 module "nsg" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
   version = "~> 0.5"
@@ -30,12 +8,12 @@ module "nsg" {
   enable_telemetry    = var.enable_telemetry
   tags                = var.tags
 
-  security_rules = var.enable_bastion_access && local.bastion_subnet_prefix != null ? {
+  security_rules = var.enable_bastion_access && var.bastion_subnet_address_prefix != null ? {
     allow_bastion_inbound = {
       name                       = "allow-bastion-inbound"
       description                = "Allow inbound traffic from Bastion subnet to the JumpBox"
       protocol                   = "*"
-      source_address_prefix      = local.bastion_subnet_prefix
+      source_address_prefix      = var.bastion_subnet_address_prefix
       source_port_range          = "*"
       destination_address_prefix = "*"
       destination_port_range     = "*"
