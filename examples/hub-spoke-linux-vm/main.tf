@@ -68,8 +68,6 @@ resource "azurerm_resource_group" "this" {
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Application Gateway with self-signed certificate
-  deployment_subnet_address_prefix = "10.20.4.0/24"
   # Full observability stack (COMPLEX)
   enable_application_insights = true
   enable_dapr_instrumentation = true

@@ -56,7 +56,6 @@ module "spoke_resource_group" {
 module "spoke" {
   source = "./modules/spoke"
 
-  deployment_subnet_address_prefix              = var.deployment_subnet_address_prefix
   location                                      = local.safe_location
   resource_group_id                             = local.resource_group_id
   resource_group_name                           = local.resource_group_name

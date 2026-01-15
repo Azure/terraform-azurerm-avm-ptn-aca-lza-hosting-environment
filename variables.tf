@@ -2,13 +2,6 @@
 # Stage 0: Variables mirroring Bicep inputs  #
 ###############################################
 
-# Ingress (Application Gateway uses self-signed certificate for demo)
-
-variable "deployment_subnet_address_prefix" {
-  type        = string
-  description = "Required. The CIDR to use for Deployment scripts subnet."
-}
-
 # Observability & ACA
 variable "enable_application_insights" {
   type        = bool

@@ -39,8 +39,6 @@ resource "azurerm_resource_group" "this" {
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Core networking
-  deployment_subnet_address_prefix = "10.20.4.0/24"
   # Observability
   enable_application_insights = true
   enable_dapr_instrumentation = false

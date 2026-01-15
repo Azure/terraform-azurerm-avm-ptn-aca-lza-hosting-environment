@@ -35,12 +35,6 @@ The following resources are used by this module:
 
 The following input variables are required:
 
-### <a name="input_deployment_subnet_address_prefix"></a> [deployment\_subnet\_address\_prefix](#input\_deployment\_subnet\_address\_prefix)
-
-Description: Required. The CIDR to use for Deployment scripts subnet.
-
-Type: `string`
-
 ### <a name="input_enable_application_insights"></a> [enable\_application\_insights](#input\_enable\_application\_insights)
 
 Description: Required. Enable or disable the creation of Application Insights.

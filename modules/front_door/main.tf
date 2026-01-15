@@ -67,8 +67,8 @@ resource "azapi_resource" "profile" {
 
   timeouts {
     create = "60m"
-    update = "60m"
     delete = "60m"
+    update = "60m"
   }
 }
 
@@ -87,8 +87,8 @@ resource "azapi_resource" "endpoint" {
 
   timeouts {
     create = "30m"
-    update = "30m"
     delete = "30m"
+    update = "30m"
   }
 }
 
@@ -119,8 +119,8 @@ resource "azapi_resource" "origin_group" {
 
   timeouts {
     create = "30m"
-    update = "30m"
     delete = "30m"
+    update = "30m"
   }
 }
 
@@ -158,6 +158,12 @@ resource "azapi_resource" "origin" {
   }
   response_export_values = ["*"]
 
+  timeouts {
+    create = "30m"
+    delete = "30m"
+    update = "30m"
+  }
+
   lifecycle {
     precondition {
       condition     = var.sku_name == "Premium_AzureFrontDoor"
@@ -171,12 +177,6 @@ resource "azapi_resource" "origin" {
       condition     = var.backend_fqdn != null
       error_message = "backend_fqdn must be provided when enable_backend is true."
     }
-  }
-
-  timeouts {
-    create = "30m"
-    update = "30m"
-    delete = "30m"
   }
 }
 
@@ -284,15 +284,15 @@ resource "azapi_resource" "route" {
     }
   }
 
+  timeouts {
+    create = "30m"
+    delete = "30m"
+    update = "30m"
+  }
+
   depends_on = [
     azapi_resource.origin[0]
   ]
-
-  timeouts {
-    create = "30m"
-    update = "30m"
-    delete = "30m"
-  }
 }
 
 # Security Policy (WAF Association) - Only for Premium SKU

@@ -18,12 +18,6 @@ No resources.
 
 The following input variables are required:
 
-### <a name="input_deployment_subnet_address_prefix"></a> [deployment\_subnet\_address\_prefix](#input\_deployment\_subnet\_address\_prefix)
-
-Description: Required. The CIDR to use for Deployment scripts subnet.
-
-Type: `string`
-
 ### <a name="input_location"></a> [location](#input\_location)
 
 Description: Required. Azure location for the spoke resources.
@@ -77,14 +71,6 @@ Description: Optional. The resource ID of the bastion host.
 Type: `string`
 
 Default: `null`
-
-### <a name="input_deployment_subnet_name"></a> [deployment\_subnet\_name](#input\_deployment\_subnet\_name)
-
-Description: Optional. The name of the subnet to create for the deployment scripts. If set, overrides the default name 'snet-deployment'.
-
-Type: `string`
-
-Default: `"snet-deployment"`
 
 ### <a name="input_enable_bastion_access"></a> [enable\_bastion\_access](#input\_enable\_bastion\_access)
 
@@ -274,14 +260,6 @@ Default: `0`
 
 The following outputs are exported:
 
-### <a name="output_deployment_subnet_id"></a> [deployment\_subnet\_id](#output\_deployment\_subnet\_id)
-
-Description: The resource ID of the deployment subnet.
-
-### <a name="output_deployment_subnet_name"></a> [deployment\_subnet\_name](#output\_deployment\_subnet\_name)
-
-Description: The name of the deployment subnet.
-
 ### <a name="output_log_analytics_workspace_customer_id"></a> [log\_analytics\_workspace\_customer\_id](#output\_log\_analytics\_workspace\_customer\_id)
 
 Description: The customer ID (workspace ID) of the Azure Log Analytics Workspace.
@@ -359,12 +337,6 @@ Source: Azure/avm-res-network-networksecuritygroup/azurerm
 Version: 0.5.0
 
 ### <a name="module_nsg_container_apps_env"></a> [nsg\_container\_apps\_env](#module\_nsg\_container\_apps\_env)
-
-Source: Azure/avm-res-network-networksecuritygroup/azurerm
-
-Version: 0.5.0
-
-### <a name="module_nsg_deployment"></a> [nsg\_deployment](#module\_nsg\_deployment)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 

@@ -54,6 +54,5 @@ locals {
     eventGridSystemTopicPep       = "${local.resource_type_abbreviations.privateEndpoint}-${replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.eventGridSystemTopic)}"
     eventGridSubscription         = replace(local.naming_base_unique, local.resource_type_token, local.resource_type_abbreviations.eventGridSubscription)
     workloadCertificate           = "${var.workload_name}-cert"
-    acrDeploymentPoolNsg          = "${local.resource_type_abbreviations.networkSecurityGroup}-${replace(local.naming_base, local.resource_type_token, "deploymentpool")}"
   }
 }

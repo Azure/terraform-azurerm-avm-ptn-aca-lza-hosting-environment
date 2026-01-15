@@ -10,16 +10,6 @@
 # VM outputs                                   #
 ###############################################
 
-output "deployment_subnet_id" {
-  description = "The resource ID of the deployment subnet."
-  value       = module.vnet_spoke.subnets["deployment"].resource_id
-}
-
-output "deployment_subnet_name" {
-  description = "The name of the deployment subnet."
-  value       = module.vnet_spoke.subnets["deployment"].name
-}
-
 output "log_analytics_workspace_customer_id" {
   description = "The customer ID (workspace ID) of the Azure Log Analytics Workspace."
   value       = module.log_analytics.workspace_id

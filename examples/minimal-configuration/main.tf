@@ -38,8 +38,6 @@ resource "azurerm_resource_group" "this" {
 module "aca_lza_hosting" {
   source = "../../"
 
-  # NO Application Gateway (COMPLEX edge case)
-  deployment_subnet_address_prefix = "172.16.0.64/28" # /28 = 16 IPs
   # NO observability (COMPLEX edge case)
   enable_application_insights = false
   enable_dapr_instrumentation = false

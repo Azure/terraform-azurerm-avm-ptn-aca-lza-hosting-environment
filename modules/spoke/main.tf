@@ -234,61 +234,6 @@ module "nsg_pep" {
   tags = var.tags
 }
 
-module "nsg_deployment" {
-  source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "0.5.0"
-
-  location            = var.location
-  name                = var.resources_names["acrDeploymentPoolNsg"]
-  resource_group_name = var.resource_group_name
-  diagnostic_settings = {
-    logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
-    }
-  }
-  enable_telemetry = var.enable_telemetry
-  security_rules = {
-    Allow_HTTPS_Inbound = {
-      name                       = "Allow_HTTPS_Inbound"
-      description                = "Allow inbound HTTPS traffic on port 443 from any source."
-      protocol                   = "Tcp"
-      source_address_prefix      = "*"
-      source_port_range          = "*"
-      destination_address_prefix = "*"
-      destination_port_range     = "443"
-      access                     = "Allow"
-      priority                   = 110
-      direction                  = "Inbound"
-    }
-    Allow_HTTPS_Outbound = {
-      name                       = "Allow_HTTPS_Outbound"
-      description                = "Allow outbound HTTPS traffic on port 443 to any destination."
-      protocol                   = "Tcp"
-      source_address_prefix      = "*"
-      source_port_range          = "*"
-      destination_address_prefix = "*"
-      destination_port_range     = "443"
-      access                     = "Allow"
-      priority                   = 120
-      direction                  = "Outbound"
-    }
-    Allow_Azure_Container_Instance_Outbound = {
-      name                       = "Allow_Azure_Container_Instance_Outbound"
-      description                = "Allow outbound traffic to Azure services for container instances."
-      protocol                   = "*"
-      source_address_prefix      = "VirtualNetwork"
-      source_port_range          = "*"
-      destination_address_prefix = "Internet"
-      destination_port_range     = "*"
-      access                     = "Allow"
-      priority                   = 200
-      direction                  = "Outbound"
-    }
-  }
-  tags = var.tags
-}
-
 ###############################################
 # Route Table (egress lockdown)               #
 ###############################################
@@ -371,19 +316,6 @@ module "vnet_spoke" {
         name = "Microsoft.App/environments"
         service_delegation = {
           name = "Microsoft.App/environments"
-        }
-      }]
-    }
-    deployment = {
-      name             = var.deployment_subnet_name
-      address_prefixes = [var.deployment_subnet_address_prefix]
-      network_security_group = {
-        id = module.nsg_deployment.resource_id
-      }
-      delegations = [{
-        name = "Microsoft.ContainerInstance/containerGroups"
-        service_delegation = {
-          name = "Microsoft.ContainerInstance/containerGroups"
         }
       }]
     }

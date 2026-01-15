@@ -31,27 +31,39 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
   }
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   storage_use_azuread = true
 }
 
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.4.2"
+}
 
 # Create a mock hub network for testing hub-spoke integration
 resource "azurerm_resource_group" "hub" {
-  location = var.location
-  name     = "${var.resource_group_name}-hub"
+  location = "swedencentral"
+  name     = "${module.naming.resource_group.name_unique}-hub"
 }
 
 resource "azurerm_virtual_network" "hub" {
   location            = azurerm_resource_group.hub.location
-  name                = "vnet-hub-test"
+  name                = module.naming.virtual_network.name_unique
   resource_group_name = azurerm_resource_group.hub.name
   address_space       = ["10.0.0.0/16"]
-  tags                = var.tags
 }
 
 # Simulate a network appliance IP (like Azure Firewall)
@@ -65,25 +77,22 @@ resource "azurerm_subnet" "firewall" {
 resource "azurerm_public_ip" "firewall" {
   allocation_method   = "Static"
   location            = azurerm_resource_group.hub.location
-  name                = "pip-fw-test"
+  name                = module.naming.public_ip.name_unique
   resource_group_name = azurerm_resource_group.hub.name
   sku                 = "Standard"
-  tags                = var.tags
   zones               = ["1", "2", "3"]
 }
 
 # Test resource group for the module
 resource "azurerm_resource_group" "this" {
-  location = var.location
-  name     = var.resource_group_name
+  location = "swedencentral"
+  name     = module.naming.resource_group.name_unique
 }
 
 # Complex scenario: Hub-spoke with Linux VM and full observability
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Application Gateway with self-signed certificate
-  deployment_subnet_address_prefix = "10.20.4.0/24"
   # Full observability stack (COMPLEX)
   enable_application_insights = true
   enable_dapr_instrumentation = true
@@ -97,12 +106,12 @@ module "aca_lza_hosting" {
   deploy_sample_application = true
   # Zone redundancy for high availability (COMPLEX)
   deploy_zone_redundant_resources = true
-  # DDoS Protection (COMPLEX - expensive but important to test)
-  enable_ddos_protection     = var.enable_ddos_protection
+  # DDoS protection disabled for automated testing
+  enable_ddos_protection     = false
   enable_egress_lockdown     = true
   enable_hub_peering         = true
   enable_telemetry           = var.enable_telemetry
-  environment                = var.environment
+  environment                = "test"
   existing_resource_group_id = azurerm_resource_group.this.id
   expose_container_apps_with = "applicationGateway"
   generate_ssh_key_for_vm    = true
@@ -112,7 +121,7 @@ module "aca_lza_hosting" {
   network_appliance_ip_address                    = azurerm_public_ip.firewall.ip_address
   route_spoke_traffic_internally                  = false # Force traffic through hub
   spoke_application_gateway_subnet_address_prefix = "10.20.3.0/24"
-  tags                                            = var.tags
+  tags                                            = {}
   use_existing_resource_group                     = true
   vm_admin_password                               = "NotUsedForSSH123!" # Required but not used for SSH
   vm_authentication_type                          = "sshPublicKey"
@@ -121,7 +130,7 @@ module "aca_lza_hosting" {
   # Linux VM with SSH authentication (COMPLEX)
   vm_size = "Standard_DS2_v2"
   # Naming
-  workload_name = var.workload_name
+  workload_name = "hubspoke"
 }
 
 
@@ -138,6 +147,8 @@ The following requirements are needed by this module:
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
+
+- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
 
 ## Resources
 
@@ -158,14 +169,6 @@ No required inputs.
 
 The following input variables are optional (have default values):
 
-### <a name="input_enable_ddos_protection"></a> [enable\_ddos\_protection](#input\_enable\_ddos\_protection)
-
-Description: Enable DDoS protection. WARNING: This is expensive and should only be enabled for testing purposes.
-
-Type: `bool`
-
-Default: `false`
-
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
 Description: This variable controls whether or not telemetry is enabled for the module.
@@ -173,46 +176,6 @@ Description: This variable controls whether or not telemetry is enabled for the 
 Type: `bool`
 
 Default: `true`
-
-### <a name="input_environment"></a> [environment](#input\_environment)
-
-Description: The environment identifier for the module.
-
-Type: `string`
-
-Default: `"test"`
-
-### <a name="input_location"></a> [location](#input\_location)
-
-Description: The Azure region where the resources will be deployed.
-
-Type: `string`
-
-Default: `"UK South"`
-
-### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
-
-Description: The name of the resource group to create.
-
-Type: `string`
-
-Default: `"rg-aca-lza-hub-spoke-test"`
-
-### <a name="input_tags"></a> [tags](#input\_tags)
-
-Description: Map of tags to assign to the resources.
-
-Type: `map(string)`
-
-Default: `{}`
-
-### <a name="input_workload_name"></a> [workload\_name](#input\_workload\_name)
-
-Description: The name of the workload.
-
-Type: `string`
-
-Default: `"hubspoke"`
 
 ## Outputs
 
@@ -243,6 +206,12 @@ The following Modules are called:
 Source: ../../
 
 Version:
+
+### <a name="module_naming"></a> [naming](#module\_naming)
+
+Source: Azure/naming/azurerm
+
+Version: 0.4.2
 
 ## Additional Resources
 

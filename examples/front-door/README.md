@@ -29,18 +29,32 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
   }
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   storage_use_azuread = true
+}
+
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.4.2"
 }
 
 # Test resource group for the module
 resource "azurerm_resource_group" "this" {
-  location = var.location
-  name     = var.resource_group_name
+  location = "swedencentral"
+  name     = module.naming.resource_group.name_unique
 }
 
 # Front Door Premium with Private Link scenario
@@ -48,8 +62,6 @@ resource "azurerm_resource_group" "this" {
 module "aca_lza_hosting" {
   source = "../../"
 
-  # Core networking
-  deployment_subnet_address_prefix = "10.20.4.0/24"
   # Observability
   enable_application_insights = true
   enable_dapr_instrumentation = false
@@ -61,21 +73,21 @@ module "aca_lza_hosting" {
   spoke_vnet_address_prefixes = ["10.20.0.0/16"]
   # Optional features
   deploy_sample_application       = true
-  deploy_zone_redundant_resources = var.deploy_zone_redundant_resources
+  deploy_zone_redundant_resources = true
   enable_ddos_protection          = false
   enable_telemetry                = var.enable_telemetry
-  environment                     = var.environment
+  environment                     = "test"
   existing_resource_group_id      = azurerm_resource_group.this.id
   # Front Door Configuration
   # Front Door automatically uses Premium SKU with Private Link enabled
   expose_container_apps_with                  = "frontDoor"
   front_door_enable_waf                       = false # WAF is optional, defaults to disabled
   log_analytics_workspace_replication_enabled = false
-  tags                                        = var.tags
+  tags                                        = {}
   use_existing_resource_group                 = true
   vm_jumpbox_os_type                          = "none" # disable VM for this example
   # Naming
-  workload_name = var.workload_name
+  workload_name = "fd"
 }
 
 
@@ -95,6 +107,8 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
+- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
+
 ## Resources
 
 The following resources are used by this module:
@@ -110,14 +124,6 @@ No required inputs.
 
 The following input variables are optional (have default values):
 
-### <a name="input_deploy_zone_redundant_resources"></a> [deploy\_zone\_redundant\_resources](#input\_deploy\_zone\_redundant\_resources)
-
-Description: Enable zone redundant resources where supported.
-
-Type: `bool`
-
-Default: `true`
-
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
 Description: This variable controls whether or not telemetry is enabled for the module.
@@ -125,46 +131,6 @@ Description: This variable controls whether or not telemetry is enabled for the 
 Type: `bool`
 
 Default: `true`
-
-### <a name="input_environment"></a> [environment](#input\_environment)
-
-Description: The environment identifier for the module.
-
-Type: `string`
-
-Default: `"test"`
-
-### <a name="input_location"></a> [location](#input\_location)
-
-Description: The Azure region where the resources will be deployed.
-
-Type: `string`
-
-Default: `"East US"`
-
-### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
-
-Description: The name of the resource group to create.
-
-Type: `string`
-
-Default: `"rg-aca-lza-front-door-test"`
-
-### <a name="input_tags"></a> [tags](#input\_tags)
-
-Description: Map of tags to assign to the resources.
-
-Type: `map(string)`
-
-Default: `{}`
-
-### <a name="input_workload_name"></a> [workload\_name](#input\_workload\_name)
-
-Description: The name of the workload.
-
-Type: `string`
-
-Default: `"frontdoor"`
 
 ## Outputs
 
@@ -203,6 +169,12 @@ The following Modules are called:
 Source: ../../
 
 Version:
+
+### <a name="module_naming"></a> [naming](#module\_naming)
+
+Source: Azure/naming/azurerm
+
+Version: 0.4.2
 
 ## Clean Up
 

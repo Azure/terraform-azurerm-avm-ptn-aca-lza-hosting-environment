@@ -10,11 +10,6 @@
 # Jumpbox VM inputs                           #
 ###############################################
 
-variable "deployment_subnet_address_prefix" {
-  type        = string
-  description = "Required. The CIDR to use for Deployment scripts subnet."
-}
-
 variable "location" {
   type        = string
   description = "Required. Azure location for the spoke resources."
@@ -55,12 +50,6 @@ variable "bastion_resource_id" {
   type        = string
   default     = null
   description = "Optional. The resource ID of the bastion host."
-}
-
-variable "deployment_subnet_name" {
-  type        = string
-  default     = "snet-deployment"
-  description = "Optional. The name of the subnet to create for the deployment scripts. If set, overrides the default name 'snet-deployment'."
 }
 
 variable "enable_bastion_access" {
