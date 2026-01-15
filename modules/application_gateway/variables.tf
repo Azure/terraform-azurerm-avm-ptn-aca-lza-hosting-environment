@@ -76,6 +76,12 @@ variable "log_analytics_workspace_id" {
   description = "Optional. Log Analytics Workspace ID for diagnostics."
 }
 
+variable "subnet_nsg_id" {
+  type        = string
+  default     = null
+  description = "Optional. The NSG resource ID associated with the Application Gateway subnet. Used for dependency ordering to ensure the Application Gateway is deleted before NSG rules during destroy."
+}
+
 variable "tags" {
   type        = map(string)
   default     = null

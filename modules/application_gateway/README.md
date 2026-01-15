@@ -26,6 +26,7 @@ The following resources are used by this module:
 - [azapi_resource.waf](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [pkcs12_from_pem.appgw](https://registry.terraform.io/providers/chilicat/pkcs12/latest/docs/resources/from_pem) (resource)
 - [random_password.cert_password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) (resource)
+- [terraform_data.nsg_dependency](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) (resource)
 - [tls_private_key.appgw](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) (resource)
 - [tls_self_signed_cert.appgw](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert) (resource)
 - [azapi_client_config.current](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
@@ -129,6 +130,14 @@ Default: `true`
 ### <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id)
 
 Description: Optional. Log Analytics Workspace ID for diagnostics.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_subnet_nsg_id"></a> [subnet\_nsg\_id](#input\_subnet\_nsg\_id)
+
+Description: Optional. The NSG resource ID associated with the Application Gateway subnet. Used for dependency ordering to ensure the Application Gateway is deleted before NSG rules during destroy.
 
 Type: `string`
 

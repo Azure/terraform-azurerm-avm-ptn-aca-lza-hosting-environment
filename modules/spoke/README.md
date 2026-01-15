@@ -276,6 +276,10 @@ Description: The name of the Azure Log Analytics Workspace.
 
 Description: The resource ID of the primary resource deployed by this module (spoke VNet)
 
+### <a name="output_spoke_application_gateway_nsg_id"></a> [spoke\_application\_gateway\_nsg\_id](#output\_spoke\_application\_gateway\_nsg\_id)
+
+Description: The resource ID of the Application Gateway NSG, if created; otherwise empty string. Used for dependency ordering during destroy.
+
 ### <a name="output_spoke_application_gateway_subnet_id"></a> [spoke\_application\_gateway\_subnet\_id](#output\_spoke\_application\_gateway\_subnet\_id)
 
 Description: The resource ID of the spoke Application Gateway subnet, if created; otherwise empty string.

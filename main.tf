@@ -180,7 +180,9 @@ module "application_gateway" {
   enable_telemetry                = var.enable_telemetry
   # Diagnostics and HA
   log_analytics_workspace_id = module.spoke.log_analytics_workspace_id
-  tags                       = var.tags
+  # NSG dependency for proper destroy ordering
+  subnet_nsg_id = module.spoke.spoke_application_gateway_nsg_id
+  tags          = var.tags
 }
 
 # Ingress via Front Door (alternative path)

@@ -116,6 +116,15 @@ locals {
   waf_policy_id = replace(azapi_resource.waf.id, "ApplicationGatewayWebApplicationFirewallPolicies", "applicationGatewayWebApplicationFirewallPolicies")
 }
 
+# Null resource to establish explicit dependency on the NSG for proper destroy ordering
+# During terraform destroy, this ensures the Application Gateway is deleted before NSG rules
+# This prevents the "HealthProbes" rule deletion error for App Gateway v2
+resource "terraform_data" "nsg_dependency" {
+  count = var.subnet_nsg_id != null ? 1 : 0
+
+  input = var.subnet_nsg_id
+}
+
 # Application Gateway using AVM module
 module "app_gateway" {
   source  = "Azure/avm-res-network-applicationgateway/azurerm"
@@ -234,6 +243,9 @@ module "app_gateway" {
   }
   tags  = var.tags
   zones = local.zones
+
+  # Explicit dependency on NSG for proper destroy ordering
+  depends_on = [terraform_data.nsg_dependency]
 }
 
 # Read the public IP to expose its current address

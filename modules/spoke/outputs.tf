@@ -30,6 +30,11 @@ output "resource_id" {
   value       = module.vnet_spoke.resource_id
 }
 
+output "spoke_application_gateway_nsg_id" {
+  description = "The resource ID of the Application Gateway NSG, if created; otherwise empty string. Used for dependency ordering during destroy."
+  value       = length(module.nsg_appgw) > 0 ? module.nsg_appgw[0].resource_id : ""
+}
+
 output "spoke_application_gateway_subnet_id" {
   description = "The resource ID of the spoke Application Gateway subnet, if created; otherwise empty string."
   value       = try(module.vnet_spoke.subnets["agw"].resource_id, "")
