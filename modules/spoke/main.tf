@@ -32,9 +32,8 @@ module "nsg_container_apps_env" {
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
     logAnalyticsSettings = {
-      name                           = "logAnalyticsSettings"
-      workspace_resource_id          = module.log_analytics.id
-      log_analytics_destination_type = "Dedicated"
+      name                  = "logAnalyticsSettings"
+      workspace_resource_id = module.log_analytics.id
     }
   }
   enable_telemetry = var.enable_telemetry
@@ -115,7 +114,7 @@ module "nsg_container_apps_env" {
       name                       = "deny-hop-outbound"
       protocol                   = "*"
       source_port_range          = "*"
-      destination_port_ranges    = ["3389", "22"]
+      destination_port_ranges    = ["22", "3389"]
       access                     = "Deny"
       priority                   = 200
       direction                  = "Outbound"
@@ -136,9 +135,8 @@ module "nsg_appgw" {
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
     logAnalyticsSettings = {
-      name                           = "logAnalyticsSettings"
-      workspace_resource_id          = module.log_analytics.id
-      log_analytics_destination_type = "Dedicated"
+      name                  = "logAnalyticsSettings"
+      workspace_resource_id = module.log_analytics.id
     }
   }
   enable_telemetry = var.enable_telemetry
@@ -215,9 +213,8 @@ module "nsg_pep" {
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
     logAnalyticsSettings = {
-      name                           = "logAnalyticsSettings"
-      workspace_resource_id          = module.log_analytics.id
-      log_analytics_destination_type = "Dedicated"
+      name                  = "logAnalyticsSettings"
+      workspace_resource_id = module.log_analytics.id
     }
   }
   enable_telemetry = var.enable_telemetry
@@ -226,7 +223,7 @@ module "nsg_pep" {
       name                       = "deny-hop-outbound"
       protocol                   = "*"
       source_port_range          = "*"
-      destination_port_ranges    = ["3389", "22"]
+      destination_port_ranges    = ["22", "3389"]
       access                     = "Deny"
       priority                   = 200
       direction                  = "Outbound"
@@ -246,9 +243,8 @@ module "nsg_deployment" {
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
     logAnalyticsSettings = {
-      name                           = "logAnalyticsSettings"
-      workspace_resource_id          = module.log_analytics.id
-      log_analytics_destination_type = "Dedicated"
+      name                  = "logAnalyticsSettings"
+      workspace_resource_id = module.log_analytics.id
     }
   }
   enable_telemetry = var.enable_telemetry

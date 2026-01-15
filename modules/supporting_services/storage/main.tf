@@ -61,11 +61,9 @@ module "st" {
 
   diagnostic_settings_storage_account = var.enable_diagnostics ? {
     sa = {
-      name                           = "storage-diagnosticSettings"
-      workspace_resource_id          = var.log_analytics_workspace_id
-      log_analytics_destination_type = "Dedicated"
-      log_groups                     = ["allLogs"]
-      metric_categories              = ["AllMetrics"]
+      name                  = "storage-diagnosticSettings"
+      workspace_resource_id = var.log_analytics_workspace_id
+      metric_categories     = ["Transaction"]
     }
   } : {}
 }

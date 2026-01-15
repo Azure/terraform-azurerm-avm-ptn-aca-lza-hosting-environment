@@ -85,11 +85,10 @@ module "acr" {
 
   diagnostic_settings = var.enable_diagnostics ? {
     acr = {
-      name                           = "acr-log-analytics"
-      workspace_resource_id          = var.log_analytics_workspace_id
-      log_analytics_destination_type = "Dedicated"
-      log_groups                     = ["allLogs"]
-      metric_categories              = ["AllMetrics"]
+      name                  = "acr-log-analytics"
+      workspace_resource_id = var.log_analytics_workspace_id
+      log_groups            = ["allLogs"]
+      metric_categories     = ["AllMetrics"]
     }
   } : {}
 }
