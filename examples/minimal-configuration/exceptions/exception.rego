@@ -14,7 +14,7 @@ import rego.v1
 
 # Note: This file is for conftest APRL/AVMSEC policy exceptions only.
 # It does NOT affect the Terraform idempotency check.
-# 
+#
 # Known Azure platform behaviors that cause expected plan changes:
 # - NSG security rules: Azure Container Apps platform adds rules automatically
 # - Private DNS zones: numberOfRecordSets and numberOfVirtualNetworkLinks are computed values

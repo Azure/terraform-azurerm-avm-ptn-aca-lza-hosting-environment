@@ -64,6 +64,12 @@ resource "azapi_resource" "profile" {
     }
   }
   tags = var.tags
+
+  timeouts {
+    create = "60m"
+    update = "60m"
+    delete = "60m"
+  }
 }
 
 # Front Door Endpoint (uses default *.azurefd.net with Microsoft-managed certificate)
@@ -78,6 +84,12 @@ resource "azapi_resource" "endpoint" {
     }
   }
   tags = var.tags
+
+  timeouts {
+    create = "30m"
+    update = "30m"
+    delete = "30m"
+  }
 }
 
 # Origin Group
@@ -103,6 +115,12 @@ resource "azapi_resource" "origin_group" {
       sessionAffinityState                                  = "Disabled"
       trafficRestorationTimeToHealedOrNewEndpointsInMinutes = 5
     }
+  }
+
+  timeouts {
+    create = "30m"
+    update = "30m"
+    delete = "30m"
   }
 }
 
@@ -153,6 +171,12 @@ resource "azapi_resource" "origin" {
       condition     = var.backend_fqdn != null
       error_message = "backend_fqdn must be provided when enable_backend is true."
     }
+  }
+
+  timeouts {
+    create = "30m"
+    update = "30m"
+    delete = "30m"
   }
 }
 
@@ -263,6 +287,12 @@ resource "azapi_resource" "route" {
   depends_on = [
     azapi_resource.origin[0]
   ]
+
+  timeouts {
+    create = "30m"
+    update = "30m"
+    delete = "30m"
+  }
 }
 
 # Security Policy (WAF Association) - Only for Premium SKU

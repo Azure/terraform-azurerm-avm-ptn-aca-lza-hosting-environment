@@ -6,26 +6,39 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
   }
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   storage_use_azuread = true
+}
+
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.4.2"
 }
 
 # Create hub network with Bastion for testing
 resource "azurerm_resource_group" "hub" {
-  location = var.location
-  name     = "${var.resource_group_name}-hub"
+  location = "swedencentral"
+  name     = "${module.naming.resource_group.name_unique}-hub"
 }
 
 resource "azurerm_virtual_network" "hub" {
   location            = azurerm_resource_group.hub.location
-  name                = "vnet-hub-bastion"
+  name                = module.naming.virtual_network.name_unique
   resource_group_name = azurerm_resource_group.hub.name
   address_space       = ["10.0.0.0/16"]
-  tags                = var.tags
 }
 
 # Bastion subnet (required name and size)
@@ -40,23 +53,21 @@ resource "azurerm_subnet" "bastion" {
 resource "azurerm_public_ip" "bastion" {
   allocation_method   = "Static"
   location            = azurerm_resource_group.hub.location
-  name                = "pip-bastion-test"
+  name                = module.naming.public_ip.name_unique
   resource_group_name = azurerm_resource_group.hub.name
   sku                 = "Standard"
-  tags                = var.tags
   zones               = ["1", "2", "3"] # Zone redundant
 }
 
 # Bastion Host
 resource "azurerm_bastion_host" "this" {
   location               = azurerm_resource_group.hub.location
-  name                   = "bastion-test"
+  name                   = module.naming.bastion_host.name_unique
   resource_group_name    = azurerm_resource_group.hub.name
   file_copy_enabled      = true
   ip_connect_enabled     = true
   shareable_link_enabled = true
   sku                    = "Standard"
-  tags                   = var.tags
   # Advanced Bastion features
   tunneling_enabled = true
 
@@ -69,8 +80,8 @@ resource "azurerm_bastion_host" "this" {
 
 # Test resource group for the module
 resource "azurerm_resource_group" "this" {
-  location = var.location
-  name     = var.resource_group_name
+  location = "swedencentral"
+  name     = module.naming.resource_group.name_unique
 }
 
 # Complex scenario: Bastion integration with zone redundancy and all features
@@ -94,10 +105,10 @@ module "aca_lza_hosting" {
   # Zone redundancy for maximum availability (COMPLEX)
   deploy_zone_redundant_resources = true
   enable_bastion_access           = true
-  # DDoS protection (optional - expensive)
-  enable_ddos_protection     = var.enable_ddos_protection
+  # DDoS protection disabled for automated testing
+  enable_ddos_protection     = false
   enable_telemetry           = var.enable_telemetry
-  environment                = var.environment
+  environment                = "test"
   existing_resource_group_id = azurerm_resource_group.this.id
   expose_container_apps_with = "applicationGateway"
   generate_ssh_key_for_vm    = true
@@ -106,7 +117,7 @@ module "aca_lza_hosting" {
   log_analytics_workspace_replication_enabled     = false
   route_spoke_traffic_internally                  = false
   spoke_application_gateway_subnet_address_prefix = "10.40.3.0/24"
-  tags                                            = var.tags
+  tags                                            = {}
   use_existing_resource_group                     = true
   vm_admin_password                               = "NotUsedForSSH123!" # Required but not used for SSH
   vm_authentication_type                          = "sshPublicKey"
@@ -115,7 +126,7 @@ module "aca_lza_hosting" {
   # Linux VM with SSH for Bastion testing (COMPLEX)
   vm_size = "Standard_DS2_v2"
   # Naming
-  workload_name = var.workload_name
+  workload_name = "bastion"
 }
 
 

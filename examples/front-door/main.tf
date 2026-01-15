@@ -6,18 +6,32 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
   }
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   storage_use_azuread = true
+}
+
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.4.2"
 }
 
 # Test resource group for the module
 resource "azurerm_resource_group" "this" {
-  location = var.location
-  name     = var.resource_group_name
+  location = "swedencentral"
+  name     = module.naming.resource_group.name_unique
 }
 
 # Front Door Premium with Private Link scenario
@@ -38,21 +52,21 @@ module "aca_lza_hosting" {
   spoke_vnet_address_prefixes = ["10.20.0.0/16"]
   # Optional features
   deploy_sample_application       = true
-  deploy_zone_redundant_resources = var.deploy_zone_redundant_resources
+  deploy_zone_redundant_resources = true
   enable_ddos_protection          = false
   enable_telemetry                = var.enable_telemetry
-  environment                     = var.environment
+  environment                     = "test"
   existing_resource_group_id      = azurerm_resource_group.this.id
   # Front Door Configuration
   # Front Door automatically uses Premium SKU with Private Link enabled
   expose_container_apps_with                  = "frontDoor"
   front_door_enable_waf                       = false # WAF is optional, defaults to disabled
   log_analytics_workspace_replication_enabled = false
-  tags                                        = var.tags
+  tags                                        = {}
   use_existing_resource_group                 = true
   vm_jumpbox_os_type                          = "none" # disable VM for this example
   # Naming
-  workload_name = var.workload_name
+  workload_name = "fd"
 }
 
 

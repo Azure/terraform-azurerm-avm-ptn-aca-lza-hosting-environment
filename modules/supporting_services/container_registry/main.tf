@@ -40,6 +40,7 @@ module "acrdnszone" {
   tags             = var.tags
 
   virtual_network_links = local.vnet_links_map
+
 }
 
 module "acr" {

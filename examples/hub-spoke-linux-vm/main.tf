@@ -6,27 +6,39 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
   }
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   storage_use_azuread = true
 }
 
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.4.2"
+}
 
 # Create a mock hub network for testing hub-spoke integration
 resource "azurerm_resource_group" "hub" {
-  location = var.location
-  name     = "${var.resource_group_name}-hub"
+  location = "swedencentral"
+  name     = "${module.naming.resource_group.name_unique}-hub"
 }
 
 resource "azurerm_virtual_network" "hub" {
   location            = azurerm_resource_group.hub.location
-  name                = "vnet-hub-test"
+  name                = module.naming.virtual_network.name_unique
   resource_group_name = azurerm_resource_group.hub.name
   address_space       = ["10.0.0.0/16"]
-  tags                = var.tags
 }
 
 # Simulate a network appliance IP (like Azure Firewall)
@@ -40,17 +52,16 @@ resource "azurerm_subnet" "firewall" {
 resource "azurerm_public_ip" "firewall" {
   allocation_method   = "Static"
   location            = azurerm_resource_group.hub.location
-  name                = "pip-fw-test"
+  name                = module.naming.public_ip.name_unique
   resource_group_name = azurerm_resource_group.hub.name
   sku                 = "Standard"
-  tags                = var.tags
   zones               = ["1", "2", "3"]
 }
 
 # Test resource group for the module
 resource "azurerm_resource_group" "this" {
-  location = var.location
-  name     = var.resource_group_name
+  location = "swedencentral"
+  name     = module.naming.resource_group.name_unique
 }
 
 # Complex scenario: Hub-spoke with Linux VM and full observability
@@ -72,12 +83,12 @@ module "aca_lza_hosting" {
   deploy_sample_application = true
   # Zone redundancy for high availability (COMPLEX)
   deploy_zone_redundant_resources = true
-  # DDoS Protection (COMPLEX - expensive but important to test)
-  enable_ddos_protection     = var.enable_ddos_protection
+  # DDoS protection disabled for automated testing
+  enable_ddos_protection     = false
   enable_egress_lockdown     = true
   enable_hub_peering         = true
   enable_telemetry           = var.enable_telemetry
-  environment                = var.environment
+  environment                = "test"
   existing_resource_group_id = azurerm_resource_group.this.id
   expose_container_apps_with = "applicationGateway"
   generate_ssh_key_for_vm    = true
@@ -87,7 +98,7 @@ module "aca_lza_hosting" {
   network_appliance_ip_address                    = azurerm_public_ip.firewall.ip_address
   route_spoke_traffic_internally                  = false # Force traffic through hub
   spoke_application_gateway_subnet_address_prefix = "10.20.3.0/24"
-  tags                                            = var.tags
+  tags                                            = {}
   use_existing_resource_group                     = true
   vm_admin_password                               = "NotUsedForSSH123!" # Required but not used for SSH
   vm_authentication_type                          = "sshPublicKey"
@@ -96,7 +107,7 @@ module "aca_lza_hosting" {
   # Linux VM with SSH authentication (COMPLEX)
   vm_size = "Standard_DS2_v2"
   # Naming
-  workload_name = var.workload_name
+  workload_name = "hubspoke"
 }
 
 

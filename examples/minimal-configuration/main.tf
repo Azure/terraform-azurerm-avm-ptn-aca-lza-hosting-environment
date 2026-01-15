@@ -6,18 +6,32 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
   }
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   storage_use_azuread = true
+}
+
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.4.2"
 }
 
 # Test resource group for the module
 resource "azurerm_resource_group" "this" {
-  location = var.location
-  name     = var.resource_group_name
+  location = "swedencentral"
+  name     = module.naming.resource_group.name_unique
 }
 
 # Minimal scenario: Test edge cases with minimal configuration
@@ -42,7 +56,7 @@ module "aca_lza_hosting" {
   # NO DDoS protection
   enable_ddos_protection     = false
   enable_telemetry           = var.enable_telemetry
-  environment                = var.environment
+  environment                = "dev"
   existing_resource_group_id = azurerm_resource_group.this.id
   expose_container_apps_with = "none" # NO App Gateway
   # No hub integration - isolated spoke
@@ -50,11 +64,11 @@ module "aca_lza_hosting" {
   log_analytics_workspace_replication_enabled = false
   network_appliance_ip_address                = ""
   route_spoke_traffic_internally              = true
-  tags                                        = var.tags
+  tags                                        = {}
   use_existing_resource_group                 = true
   vm_jumpbox_os_type                          = "none" # NO VM
   # Naming - short names to test validation
-  workload_name = var.workload_name
+  workload_name = "min"
 }
 
 
