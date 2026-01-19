@@ -72,6 +72,14 @@ Type: `string`
 
 Default: `null`
 
+### <a name="input_bastion_subnet_address_prefix"></a> [bastion\_subnet\_address\_prefix](#input\_bastion\_subnet\_address\_prefix)
+
+Description: Optional. The CIDR address prefix of the bastion subnet. Required when enable\_bastion\_access is true.
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_enable_bastion_access"></a> [enable\_bastion\_access](#input\_enable\_bastion\_access)
 
 Description: Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host.
@@ -341,6 +349,12 @@ Source: Azure/avm-res-network-networksecuritygroup/azurerm
 Version: 0.5.0
 
 ### <a name="module_nsg_container_apps_env"></a> [nsg\_container\_apps\_env](#module\_nsg\_container\_apps\_env)
+
+Source: Azure/avm-res-network-networksecuritygroup/azurerm
+
+Version: 0.5.0
+
+### <a name="module_nsg_jumpbox"></a> [nsg\_jumpbox](#module\_nsg\_jumpbox)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 

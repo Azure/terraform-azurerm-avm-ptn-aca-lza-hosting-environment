@@ -83,6 +83,14 @@ Type: `string`
 
 Default: `null`
 
+### <a name="input_bastion_subnet_address_prefix"></a> [bastion\_subnet\_address\_prefix](#input\_bastion\_subnet\_address\_prefix)
+
+Description: Optional. The CIDR address prefix of the bastion subnet. Required when enable\_bastion\_access is true. Example: 10.0.1.0/27
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_created_resource_group_name"></a> [created\_resource\_group\_name](#input\_created\_resource\_group\_name)
 
 Description: Optional. Name to use when use\_existing\_resource\_group is true and the module is creating a resource group. Leave null for auto-generation.

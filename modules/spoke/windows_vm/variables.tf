@@ -19,24 +19,6 @@ variable "storage_account_type" {
 
 variable "subnet_id" { type = string }
 variable "network_interface_name" { type = string }
-variable "network_security_group_name" { type = string }
-
-variable "bastion_resource_id" {
-  type    = string
-  default = null
-}
-
-variable "bastion_subnet_address_prefix" {
-  type        = string
-  default     = null
-  description = "The CIDR address prefix of the bastion subnet. Required when enable_bastion_access is true."
-}
-
-variable "enable_bastion_access" {
-  type        = bool
-  default     = false
-  description = "Whether to enable bastion access rule in the NSG. Set to true when using a bastion host."
-}
 
 variable "vm_admin_password" {
   type      = string
