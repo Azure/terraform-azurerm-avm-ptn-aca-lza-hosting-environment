@@ -123,12 +123,8 @@ locals {
 # Terraform data resource to establish explicit dependency on the NSG for proper destroy ordering
 # During terraform destroy, this ensures the Application Gateway is deleted before NSG rules
 # This prevents the "HealthProbes" rule deletion error for App Gateway v2
-# By including the full NSG resource, we create dependencies on ALL NSG resources including rules
 resource "terraform_data" "nsg_dependency" {
-  input = {
-    nsg_id       = var.subnet_nsg_id
-    nsg_resource = var.subnet_nsg_resource
-  }
+  input = var.subnet_nsg_id
 }
 
 # Application Gateway using AVM module

@@ -180,11 +180,10 @@ module "application_gateway" {
   enable_telemetry                = var.enable_telemetry
   # Diagnostics and HA
   log_analytics_workspace_id = module.spoke.log_analytics_workspace_id
-  # NSG dependency for proper destroy ordering - include both ID and full resource
+  # NSG dependency for proper destroy ordering
   # This ensures the Application Gateway is fully destroyed before NSG rules are deleted
-  subnet_nsg_id       = module.spoke.spoke_application_gateway_nsg_id
-  subnet_nsg_resource = module.spoke.spoke_application_gateway_nsg_resource
-  tags                = var.tags
+  subnet_nsg_id = module.spoke.spoke_application_gateway_nsg_id
+  tags          = var.tags
 }
 
 # Ingress via Front Door (alternative path)

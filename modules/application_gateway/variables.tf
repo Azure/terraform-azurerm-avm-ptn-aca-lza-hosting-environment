@@ -82,12 +82,6 @@ variable "subnet_nsg_id" {
   description = "Optional. The NSG resource ID associated with the Application Gateway subnet. Used for dependency ordering to ensure the Application Gateway is deleted before NSG rules during destroy."
 }
 
-variable "subnet_nsg_resource" {
-  type        = any
-  default     = null
-  description = "Optional. The full NSG resource object associated with the Application Gateway subnet. Used for dependency ordering to ensure the Application Gateway is deleted before NSG rules during destroy. Pass the entire 'resource' output from the NSG module."
-}
-
 variable "tags" {
   type        = map(string)
   default     = null
