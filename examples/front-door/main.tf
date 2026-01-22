@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 }
 
@@ -16,6 +20,14 @@ provider "azurerm" {
     }
   }
   storage_use_azuread = true
+}
+
+# Random suffix for globally unique names
+resource "random_string" "suffix" {
+  length  = 5
+  numeric = true
+  special = false
+  upper   = false
 }
 
 # This ensures we have unique CAF compliant names for our resources.
@@ -59,8 +71,8 @@ module "aca_lza_hosting" {
   tags                                        = {}
   use_existing_resource_group                 = true
   vm_jumpbox_os_type                          = "none" # disable VM for this example
-  # Naming
-  workload_name = "fd"
+  # Naming - include random suffix for globally unique names
+  workload_name = "fd${random_string.suffix.result}"
 }
 
 

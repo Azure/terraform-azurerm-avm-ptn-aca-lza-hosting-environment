@@ -35,6 +35,14 @@ output "spoke_application_gateway_nsg_id" {
   value       = length(module.nsg_appgw) > 0 ? module.nsg_appgw[0].resource_id : ""
 }
 
+# This output includes the full NSG resource to ensure proper destroy ordering
+# When this output is used, Terraform creates a dependency on the entire NSG module
+# including all security rules, ensuring App Gateway is destroyed before NSG rules
+output "spoke_application_gateway_nsg_resource" {
+  description = "The Application Gateway NSG resource object. Used internally for dependency ordering during destroy - ensures App Gateway is destroyed before NSG rules."
+  value       = length(module.nsg_appgw) > 0 ? module.nsg_appgw[0].resource : null
+}
+
 output "spoke_application_gateway_subnet_id" {
   description = "The resource ID of the spoke Application Gateway subnet, if created; otherwise empty string."
   value       = try(module.vnet_spoke.subnets["agw"].resource_id, "")

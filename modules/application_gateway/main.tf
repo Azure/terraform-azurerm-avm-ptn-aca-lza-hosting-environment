@@ -109,6 +109,10 @@ resource "azapi_resource" "waf" {
   response_export_values    = ["*"]
   schema_validation_enabled = true
   tags                      = var.tags
+
+  # Ensure WAF policy is destroyed after the Application Gateway
+  # The app_gateway module references this resource via app_gateway_waf_policy_resource_id
+  # which creates an implicit dependency. No additional depends_on needed.
 }
 
 locals {
@@ -119,8 +123,12 @@ locals {
 # Terraform data resource to establish explicit dependency on the NSG for proper destroy ordering
 # During terraform destroy, this ensures the Application Gateway is deleted before NSG rules
 # This prevents the "HealthProbes" rule deletion error for App Gateway v2
+# By including the full NSG resource, we create dependencies on ALL NSG resources including rules
 resource "terraform_data" "nsg_dependency" {
-  input = var.subnet_nsg_id
+  input = {
+    nsg_id       = var.subnet_nsg_id
+    nsg_resource = var.subnet_nsg_resource
+  }
 }
 
 # Application Gateway using AVM module
