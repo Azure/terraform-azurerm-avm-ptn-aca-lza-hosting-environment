@@ -35,12 +35,6 @@ variable "spoke_vnet_address_prefixes" {
   description = "Required. CIDR of the Spoke Virtual Network."
 }
 
-variable "bastion_resource_id" {
-  type        = string
-  default     = null
-  description = "Optional. The resource ID of the bastion host. If set, the spoke virtual network will be peered with the hub virtual network and the bastion host will be allowed to connect to the jump box. Default is null."
-}
-
 variable "bastion_subnet_address_prefix" {
   type        = string
   default     = null

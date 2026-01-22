@@ -46,12 +46,6 @@ variable "spoke_vnet_address_prefixes" {
   description = "Required. CIDR of the spoke virtual network."
 }
 
-variable "bastion_resource_id" {
-  type        = string
-  default     = null
-  description = "Optional. The resource ID of the bastion host."
-}
-
 variable "bastion_subnet_address_prefix" {
   type        = string
   default     = null

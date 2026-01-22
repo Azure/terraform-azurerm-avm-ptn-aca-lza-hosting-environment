@@ -64,7 +64,6 @@ module "spoke" {
   spoke_private_endpoints_subnet_address_prefix = var.spoke_private_endpoints_subnet_address_prefix
   spoke_vnet_address_prefixes                   = var.spoke_vnet_address_prefixes
   # Jumpbox VM
-  bastion_resource_id           = var.bastion_resource_id
   bastion_subnet_address_prefix = var.bastion_subnet_address_prefix
   enable_bastion_access         = var.enable_bastion_access
   enable_egress_lockdown        = var.enable_egress_lockdown
