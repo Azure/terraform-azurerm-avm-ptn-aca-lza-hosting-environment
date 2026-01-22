@@ -64,14 +64,6 @@ Type: `list(string)`
 
 The following input variables are optional (have default values):
 
-### <a name="input_bastion_resource_id"></a> [bastion\_resource\_id](#input\_bastion\_resource\_id)
-
-Description: Optional. The resource ID of the bastion host.
-
-Type: `string`
-
-Default: `null`
-
 ### <a name="input_bastion_subnet_address_prefix"></a> [bastion\_subnet\_address\_prefix](#input\_bastion\_subnet\_address\_prefix)
 
 Description: Optional. The CIDR address prefix of the bastion subnet. Required when enable\_bastion\_access is true.

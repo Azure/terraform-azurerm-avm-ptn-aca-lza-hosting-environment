@@ -109,10 +109,6 @@ resource "azapi_resource" "waf" {
   response_export_values    = ["*"]
   schema_validation_enabled = true
   tags                      = var.tags
-
-  # Ensure WAF policy is destroyed after the Application Gateway
-  # The app_gateway module references this resource via app_gateway_waf_policy_resource_id
-  # which creates an implicit dependency. No additional depends_on needed.
 }
 
 locals {

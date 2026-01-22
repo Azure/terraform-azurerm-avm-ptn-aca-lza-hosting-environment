@@ -29,6 +29,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 }
 
@@ -39,6 +43,14 @@ provider "azurerm" {
     }
   }
   storage_use_azuread = true
+}
+
+# Random suffix for globally unique names
+resource "random_string" "suffix" {
+  length  = 5
+  numeric = true
+  special = false
+  upper   = false
 }
 
 # This ensures we have unique CAF compliant names for our resources.
@@ -82,8 +94,8 @@ module "aca_lza_hosting" {
   tags                                        = {}
   use_existing_resource_group                 = true
   vm_jumpbox_os_type                          = "none" # disable VM for this example
-  # Naming
-  workload_name = "fd"
+  # Naming - include random suffix for globally unique names
+  workload_name = "fd${random_string.suffix.result}"
 }
 
 
@@ -103,11 +115,14 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
+- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.6)
+
 ## Resources
 
 The following resources are used by this module:
 
 - [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
+- [random_string.suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) (resource)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs

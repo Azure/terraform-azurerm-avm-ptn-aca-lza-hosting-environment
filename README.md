@@ -75,14 +75,6 @@ Type: `list(string)`
 
 The following input variables are optional (have default values):
 
-### <a name="input_bastion_resource_id"></a> [bastion\_resource\_id](#input\_bastion\_resource\_id)
-
-Description: Optional. The resource ID of the bastion host. If set, the spoke virtual network will be peered with the hub virtual network and the bastion host will be allowed to connect to the jump box. Default is null.
-
-Type: `string`
-
-Default: `null`
-
 ### <a name="input_bastion_subnet_address_prefix"></a> [bastion\_subnet\_address\_prefix](#input\_bastion\_subnet\_address\_prefix)
 
 Description: Optional. The CIDR address prefix of the bastion subnet. Required when enable\_bastion\_access is true. Example: 10.0.1.0/27

@@ -100,7 +100,6 @@ module "aca_lza_hosting" {
   spoke_private_endpoints_subnet_address_prefix = "10.40.2.0/24"
   # Spoke networking - avoid overlap with hub
   spoke_vnet_address_prefixes   = ["10.40.0.0/16"]
-  bastion_resource_id           = azurerm_bastion_host.this.id
   bastion_subnet_address_prefix = azurerm_subnet.bastion.address_prefixes[0]
   # Deploy all optional features
   deploy_sample_application = true
