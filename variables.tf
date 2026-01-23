@@ -45,6 +45,11 @@ variable "created_resource_group_name" {
   type        = string
   default     = null
   description = "Optional. Name to use when use_existing_resource_group is true and the module is creating a resource group. Leave null for auto-generation."
+
+  validation {
+    condition     = !(var.created_resource_group_name != null && var.existing_resource_group_id != null)
+    error_message = "Cannot specify both created_resource_group_name (for new RG) and existing_resource_group_id (for existing RG). Please provide only one, or leave both null for auto-generation."
+  }
 }
 
 variable "deploy_sample_application" {

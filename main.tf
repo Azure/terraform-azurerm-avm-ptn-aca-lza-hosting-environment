@@ -2,16 +2,6 @@
 
 data "azapi_client_config" "naming" {}
 
-# Validation to ensure only one resource group approach is used
-resource "null_resource" "resource_group_validation" {
-  lifecycle {
-    precondition {
-      condition     = !(var.created_resource_group_name != null && var.existing_resource_group_id != null)
-      error_message = "Cannot specify both created_resource_group_name (for new RG) and existing_resource_group_id (for existing RG). Please provide only one, or leave both null for auto-generation."
-    }
-  }
-}
-
 locals {
   create_custom_named_rg = !local.use_existing_resource_group && var.created_resource_group_name != null && trimspace(var.created_resource_group_name) != ""
   # Deterministic uniqueness token derived from subscription + inputs
@@ -24,8 +14,8 @@ locals {
   ])
   # Resource group ID logic
   resource_group_id = local.use_existing_resource_group ? var.existing_resource_group_id : module.spoke_resource_group[0].resource_id
-  # Resource group name logic - for existing RG, extract from ID; for new RG with custom name, use it; otherwise use generated name from naming module
-  resource_group_name = local.use_existing_resource_group ? regex("/resourceGroups/([^/]+)", var.existing_resource_group_id)[0] : (local.create_custom_named_rg ? var.created_resource_group_name : module.naming.resources_names.resourceGroup)
+  # Resource group name logic - for existing RG, extract from ID using azapi provider function; for new RG with custom name, use it; otherwise use generated name from naming module
+  resource_group_name = local.use_existing_resource_group ? provider::azapi::parse_resource_id(var.existing_resource_group_id).resource_group_name : (local.create_custom_named_rg ? var.created_resource_group_name : module.naming.resources_names.resourceGroup)
   safe_location       = replace(var.location, " ", "")
   # Determine if we're using an existing resource group from the input variable
   use_existing_resource_group = var.use_existing_resource_group
@@ -209,8 +199,10 @@ module "front_door" {
   enable_waf = var.front_door_enable_waf
   # Diagnostics
   log_analytics_workspace_id = module.spoke.log_analytics_workspace_id
-  # SKU Configuration - Always Premium for Private Link support
-  sku_name        = "Premium_AzureFrontDoor" # Required for Private Link
+  # SKU Configuration - Premium SKU is required for Private Link support with internal Container Apps Environment
+  # This is intentionally hard-coded as Standard SKU does not support Private Link origins.
+  # See: https://learn.microsoft.com/azure/frontdoor/standard-premium/concept-private-link
+  sku_name        = "Premium_AzureFrontDoor"
   tags            = var.tags
   waf_policy_name = var.front_door_waf_policy_name != null ? var.front_door_waf_policy_name : "${module.naming.resources_names.frontDoor}-waf"
 }

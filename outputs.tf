@@ -10,7 +10,7 @@ output "application_gateway_public_ip" {
 
 output "application_insights_id" {
   description = "The resource ID of Application Insights (when enabled)."
-  value       = module.container_apps_environment.managed_environment_id # Application Insights is part of the managed environment
+  value       = module.container_apps_environment.application_insights_id
 }
 
 output "container_apps_environment_default_domain" {

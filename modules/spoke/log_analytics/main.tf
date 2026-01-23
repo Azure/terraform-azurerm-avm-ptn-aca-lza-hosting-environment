@@ -41,18 +41,3 @@ resource "azapi_resource" "workspace" {
 
   }
 }
-
-output "id" {
-  value       = azapi_resource.workspace.id
-  description = "Resource ID of the Log Analytics Workspace"
-}
-
-output "name" {
-  value       = azapi_resource.workspace.name
-  description = "Name of the Log Analytics Workspace"
-}
-
-output "workspace_id" {
-  value       = try(azapi_resource.workspace.output.properties.customerId, null)
-  description = "Workspace (customer) ID"
-}

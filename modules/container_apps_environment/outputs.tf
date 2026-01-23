@@ -1,3 +1,8 @@
+output "application_insights_id" {
+  description = "Resource ID of Application Insights if created, else null."
+  value       = var.enable_application_insights ? module.application_insights[0].resource_id : null
+}
+
 output "application_insights_name" {
   description = "Name of Application Insights if created, else empty string."
   value       = var.enable_application_insights ? module.application_insights[0].name : ""

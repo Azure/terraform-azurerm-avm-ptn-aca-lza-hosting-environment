@@ -57,3 +57,4 @@ examples/smoke-spoke/main.tf
 .avm
 pr-check.log
 PR_REVIEW_CHANGES.md
+*.code-workspace
