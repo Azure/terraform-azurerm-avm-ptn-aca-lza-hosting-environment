@@ -75,8 +75,6 @@ module "spoke" {
   vm_linux_ssh_authorized_key                     = var.vm_linux_ssh_authorized_key
   vm_size                                         = var.vm_size
   vm_zone                                         = var.deploy_zone_redundant_resources ? 2 : 0
-
-  depends_on = [module.spoke_resource_group]
 }
 
 # Supporting services (ACR, Key Vault, Storage)
@@ -96,8 +94,6 @@ module "supporting_services" {
   hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
   log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id
   tags                                      = var.tags
-
-  depends_on = [module.spoke_resource_group]
 }
 
 # Container Apps Managed Environment + Private DNS + optional App Insights
@@ -126,8 +122,6 @@ module "container_apps_environment" {
   enable_telemetry                = var.enable_telemetry
   hub_virtual_network_id          = var.hub_virtual_network_resource_id
   tags                            = var.tags
-
-  depends_on = [module.spoke_resource_group]
 }
 
 # Optional sample application (Hello World) deployed into the ACA environment
@@ -144,8 +138,6 @@ module "sample_application" {
   enable_telemetry      = var.enable_telemetry
   tags                  = var.tags
   workload_profile_name = module.container_apps_environment.workload_profile_names[0]
-
-  depends_on = [module.spoke_resource_group]
 }
 
 
