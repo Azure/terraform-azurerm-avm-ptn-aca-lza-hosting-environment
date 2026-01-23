@@ -8,17 +8,89 @@ This document outlines the review comments from PR #12 and the proposed changes 
 
 ---
 
-## Table of Contents
+## Changes by Size/Complexity
 
-1. [main.tf Changes](#maintf-changes)
-2. [variables.tf Changes](#variablestf-changes)
-3. [outputs.tf Changes](#outputstf-changes)
-4. [Module Structure Changes](#module-structure-changes)
-5. [File Cleanup](#file-cleanup)
+| Priority | Size | Category | Changes |
+|----------|------|----------|---------|
+| 🟢 | **Small** | Quick Fixes | #1, #3, #5, #13, #16, #17 |
+| 🟡 | **Medium** | Moderate Refactoring | #2, #4, #8, #10, #14, #15 |
+| 🔴 | **Large** | Breaking Changes (Renames) | #6, #7, #9, #11, #12 |
+
+### 🟢 Small Changes (Quick Wins)
+These can be done quickly with minimal risk:
+
+| # | Description | Files Affected | Est. Time |
+|---|-------------|----------------|-----------|
+| 1 | Move validation to variable block | `main.tf`, `variables.tf` | 10 min |
+| 3 | Use AzAPI `parse_resource_id` function | `main.tf` | 5 min |
+| 5 | Document/parameterize Front Door SKU | `main.tf` or `variables.tf` | 10 min |
+| 13 | Fix Application Insights output | `outputs.tf` | 5 min |
+| 16 | Move outputs to `outputs.tf` | `modules/spoke/log_analytics/` | 10 min |
+| 17 | Remove VS Code workspace file | Root directory | 2 min |
+
+### 🟡 Medium Changes (Moderate Effort)
+These require some refactoring but aren't breaking:
+
+| # | Description | Files Affected | Est. Time |
+|---|-------------|----------------|-----------|
+| 2 | Use `random_string` provider | `main.tf`, `terraform.tf` | 20 min |
+| 4 | Remove explicit `depends_on` blocks | `main.tf` | 15 min |
+| 8 | Clarify DDoS protection description | `variables.tf` | 10 min |
+| 10 | Document sensitive data state storage | `variables.tf` | 10 min |
+| 14 | Flatten nested submodules | `modules/` structure | 45 min |
+| 15 | Convert map keys to snake_case | `modules/spoke/main.tf` | 30 min |
+
+### 🔴 Large Changes (Breaking - Requires Migration Guide)
+These are breaking changes that affect all users:
+
+| # | Description | Files Affected | Est. Time |
+|---|-------------|----------------|-----------|
+| 6 | Rename booleans to `*_enabled` | All `.tf` files, all examples | 2 hrs |
+| 7 | Add `nullable = false` to variables | `variables.tf` | 30 min |
+| 9 | Change camelCase to snake_case values | `variables.tf`, `main.tf`, examples | 1 hr |
+| 11 | Rename `vm_size` → `virtual_machine_sku` | `variables.tf`, modules, examples | 30 min |
+| 12 | Rename `vm_*` → `virtual_machine_*` | `variables.tf`, modules, examples | 1.5 hrs |
 
 ---
 
-## main.tf Changes
+## Recommended Implementation Order
+
+### Phase 1: Quick Wins (Day 1)
+1. Remove VS Code workspace file (#17)
+2. Fix Application Insights output (#13)
+3. Move outputs to outputs.tf (#16)
+4. Use AzAPI parse_resource_id (#3)
+5. Move validation to variable block (#1)
+6. Document Front Door SKU (#5)
+
+### Phase 2: Moderate Refactoring (Day 1-2)
+7. Remove explicit depends_on (#4)
+8. Use random_string provider (#2)
+9. Update variable descriptions (#8, #10)
+10. Flatten nested submodules (#14)
+11. Convert map keys to snake_case (#15)
+
+### Phase 3: Breaking Changes (Day 2-3)
+12. Add nullable = false (#7)
+13. Change camelCase values to snake_case (#9)
+14. Rename vm_* to virtual_machine_* (#11, #12)
+15. Rename booleans to *_enabled (#6)
+16. Update all examples
+17. Run AVM validation
+
+---
+
+## Detailed Changes
+
+## Table of Contents
+
+1. [Small Changes](#small-changes)
+2. [Medium Changes](#medium-changes)
+3. [Large Changes](#large-changes)
+
+---
+
+## Small Changes
 
 ### 1. Move Validation to Variable Validation Block (Line 6)
 
@@ -540,21 +612,29 @@ module "aca_lza" {
 
 ## Implementation Checklist
 
-- [ ] Remove `null_resource` validation, add to variable validation
-- [ ] Replace deterministic hash with `random_string` resource
-- [ ] Use `azapi_parse_resource_id` function
-- [ ] Remove all `depends_on` blocks from modules
-- [ ] Document or parameterize Front Door SKU
-- [ ] Rename all boolean variables to `*_enabled` convention
-- [ ] Add `nullable = false` to appropriate variables
-- [ ] Clarify DDoS protection description
-- [ ] Change camelCase values to snake_case
-- [ ] Document sensitive data state storage
-- [ ] Rename `vm_*` variables to `virtual_machine_*`
-- [ ] Fix Application Insights output
-- [ ] Flatten nested submodules
-- [ ] Convert map keys to snake_case
-- [ ] Move outputs to `outputs.tf` files
-- [ ] Remove VS Code workspace file
+### 🟢 Phase 1: Small Changes (Quick Wins)
+- [ ] #17 - Remove VS Code workspace file, add to `.gitignore`
+- [ ] #13 - Fix Application Insights output reference
+- [ ] #16 - Move outputs to `outputs.tf` in log_analytics module
+- [ ] #3 - Use `azapi::parse_resource_id` instead of regex
+- [ ] #1 - Move validation from `null_resource` to variable validation
+- [ ] #5 - Document Front Door SKU requirement
+
+### 🟡 Phase 2: Medium Changes (Moderate Effort)
+- [ ] #4 - Remove all `depends_on` blocks from modules
+- [ ] #2 - Replace deterministic hash with `random_string` resource
+- [ ] #8 - Clarify DDoS protection description
+- [ ] #10 - Document sensitive data state storage
+- [ ] #14 - Flatten nested submodules structure
+- [ ] #15 - Convert map keys to snake_case
+
+### 🔴 Phase 3: Large Changes (Breaking - Update Examples)
+- [ ] #7 - Add `nullable = false` to appropriate variables
+- [ ] #9 - Change camelCase values to snake_case (`applicationGateway` → `application_gateway`)
+- [ ] #11 - Rename `vm_size` to `virtual_machine_sku`
+- [ ] #12 - Rename all `vm_*` variables to `virtual_machine_*`
+- [ ] #6 - Rename all boolean variables to `*_enabled` convention
 - [ ] Update all examples with new variable names
-- [ ] Run AVM pre-commit and pr-check validation
+- [ ] Run `PORCH_NO_TUI=1 ./avm pre-commit`
+- [ ] Run `PORCH_NO_TUI=1 ./avm pr-check`
+
