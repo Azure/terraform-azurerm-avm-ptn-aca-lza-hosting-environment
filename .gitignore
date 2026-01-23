@@ -56,3 +56,4 @@ examples/smoke-spoke/main.tf
 *.mptfbackup
 .avm
 pr-check.log
+PR_REVIEW_CHANGES.md
