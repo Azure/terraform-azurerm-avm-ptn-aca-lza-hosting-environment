@@ -237,7 +237,7 @@ module "nsg_pep" {
 module "nsg_jumpbox" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
   version = "0.5.0"
-  count   = var.vm_jumpbox_os_type != "none" ? 1 : 0
+  count   = var.virtual_machine_jumpbox_os_type != "none" ? 1 : 0
 
   location            = var.location
   name                = var.resources_names["vmJumpBoxNsg"]
@@ -249,7 +249,7 @@ module "nsg_jumpbox" {
     }
   }
   enable_telemetry = var.enable_telemetry
-  security_rules = var.enable_bastion_access && var.bastion_subnet_address_prefix != null ? {
+  security_rules = var.bastion_access_enabled && var.bastion_subnet_address_prefix != null ? {
     allow_bastion_inbound = {
       name                       = "allow-bastion-inbound"
       description                = "Allow inbound traffic from Bastion subnet to the JumpBox"
@@ -271,7 +271,7 @@ module "nsg_jumpbox" {
 ###############################################
 locals {
   # Use static boolean flag to determine route table creation
-  create_route_table = var.enable_egress_lockdown
+  create_route_table = var.egress_lockdown_enabled
   # Build routes only when needed - keys are fully static based on input variables
   route_table_routes = local.create_route_table ? merge(
     {
@@ -318,7 +318,7 @@ module "vnet_spoke" {
   address_space    = var.spoke_vnet_address_prefixes
   enable_telemetry = var.enable_telemetry
   name             = var.resources_names["vnetSpoke"]
-  peerings = var.enable_hub_peering ? {
+  peerings = var.hub_peering_enabled ? {
     spokeToHub = {
       name                                 = "spokeToHub"
       remote_virtual_network_resource_id   = var.hub_virtual_network_resource_id
@@ -366,10 +366,10 @@ module "vnet_spoke" {
         id = module.nsg_appgw[0].resource_id
       }
     }
-    } : {}, var.vm_jumpbox_os_type != "none" ? {
+    } : {}, var.virtual_machine_jumpbox_os_type != "none" ? {
     jumpbox = {
       name             = var.vm_subnet_name
-      address_prefixes = [var.vm_jumpbox_subnet_address_prefix]
+      address_prefixes = [var.virtual_machine_jumpbox_subnet_address_prefix]
       network_security_group = {
         id = module.nsg_jumpbox[0].resource_id
       }
@@ -384,40 +384,40 @@ module "vnet_spoke" {
 
 module "vm_linux" {
   source = "./linux_vm" # tflint-ignore: required_module_source_tffr1
-  count  = var.vm_jumpbox_os_type == "linux" ? 1 : 0
+  count  = var.virtual_machine_jumpbox_os_type == "linux" ? 1 : 0
 
-  enable_telemetry            = var.enable_telemetry
-  location                    = var.location
-  log_analytics_workspace_id  = module.log_analytics.id
-  name                        = var.resources_names["vmJumpBox"]
-  network_interface_name      = var.resources_names["vmJumpBoxNic"]
-  resource_group_name         = var.resource_group_name
-  subnet_id                   = module.vnet_spoke.subnets["jumpbox"].resource_id
-  vm_admin_password           = var.vm_admin_password
-  vm_size                     = var.vm_size
-  generate_ssh_key_for_vm     = var.generate_ssh_key_for_vm
-  storage_account_type        = var.storage_account_type
-  tags                        = var.tags
-  vm_authentication_type      = var.vm_authentication_type
-  vm_linux_ssh_authorized_key = var.vm_linux_ssh_authorized_key
-  vm_zone                     = var.vm_zone
+  enable_telemetry                           = var.enable_telemetry
+  location                                   = var.location
+  log_analytics_workspace_id                 = module.log_analytics.id
+  name                                       = var.resources_names["vmJumpBox"]
+  network_interface_name                     = var.resources_names["vmJumpBoxNic"]
+  resource_group_name                        = var.resource_group_name
+  subnet_id                                  = module.vnet_spoke.subnets["jumpbox"].resource_id
+  virtual_machine_admin_password             = var.virtual_machine_admin_password
+  virtual_machine_size                       = var.virtual_machine_size
+  virtual_machine_ssh_key_generation_enabled = var.virtual_machine_ssh_key_generation_enabled
+  storage_account_type                       = var.storage_account_type
+  tags                                       = var.tags
+  virtual_machine_authentication_type        = var.virtual_machine_authentication_type
+  virtual_machine_linux_ssh_authorized_key   = var.virtual_machine_linux_ssh_authorized_key
+  virtual_machine_zone                       = var.virtual_machine_zone
 }
 
 module "vm_windows" {
   source = "./windows_vm" # tflint-ignore: required_module_source_tffr1
-  count  = var.vm_jumpbox_os_type == "windows" ? 1 : 0
+  count  = var.virtual_machine_jumpbox_os_type == "windows" ? 1 : 0
 
-  enable_telemetry           = var.enable_telemetry
-  location                   = var.location
-  log_analytics_workspace_id = module.log_analytics.id
-  name                       = var.resources_names["vmJumpBox"]
-  network_interface_name     = var.resources_names["vmJumpBoxNic"]
-  resource_group_name        = var.resource_group_name
-  subnet_id                  = module.vnet_spoke.subnets["jumpbox"].resource_id
-  vm_admin_password          = var.vm_admin_password
-  vm_size                    = var.vm_size
-  storage_account_type       = var.storage_account_type
-  tags                       = var.tags
-  vm_windows_os_version      = "2016-Datacenter"
-  vm_zone                    = var.vm_zone
+  enable_telemetry               = var.enable_telemetry
+  location                       = var.location
+  log_analytics_workspace_id     = module.log_analytics.id
+  name                           = var.resources_names["vmJumpBox"]
+  network_interface_name         = var.resources_names["vmJumpBoxNic"]
+  resource_group_name            = var.resource_group_name
+  subnet_id                      = module.vnet_spoke.subnets["jumpbox"].resource_id
+  virtual_machine_admin_password = var.virtual_machine_admin_password
+  virtual_machine_size           = var.virtual_machine_size
+  storage_account_type           = var.storage_account_type
+  tags                           = var.tags
+  vm_windows_os_version          = "2016-Datacenter"
+  virtual_machine_zone           = var.virtual_machine_zone
 }

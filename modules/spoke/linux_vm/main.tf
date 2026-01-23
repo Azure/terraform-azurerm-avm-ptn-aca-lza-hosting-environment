@@ -1,7 +1,7 @@
 locals {
   # Compute SSH keys list to ensure type consistency
   # Convert to set then back to list to get consistent list(string) type
-  ssh_keys_set  = !var.generate_ssh_key_for_vm && var.vm_linux_ssh_authorized_key != null ? toset([var.vm_linux_ssh_authorized_key]) : toset([])
+  ssh_keys_set  = !var.virtual_machine_ssh_key_generation_enabled && var.virtual_machine_linux_ssh_authorized_key != null ? toset([var.virtual_machine_linux_ssh_authorized_key]) : toset([])
   ssh_keys_list = tolist(local.ssh_keys_set)
 }
 
@@ -14,21 +14,21 @@ module "vm" {
   resource_group_name = var.resource_group_name
   os_type             = "Linux"
   name                = var.name
-  sku_size            = var.vm_size
-  zone                = var.vm_zone
+  sku_size            = var.virtual_machine_size
+  zone                = var.virtual_machine_zone
 
   account_credentials = {
     admin_credentials = {
       username                           = "localAdministrator"
-      generate_admin_password_or_ssh_key = var.generate_ssh_key_for_vm
+      generate_admin_password_or_ssh_key = var.virtual_machine_ssh_key_generation_enabled
       ssh_keys                           = local.ssh_keys_list
     }
     password_authentication_disabled = true
   }
 
-  admin_ssh_keys = !var.generate_ssh_key_for_vm && var.vm_linux_ssh_authorized_key != null ? [{
+  admin_ssh_keys = !var.virtual_machine_ssh_key_generation_enabled && var.virtual_machine_linux_ssh_authorized_key != null ? [{
     username   = "localAdministrator"
-    public_key = var.vm_linux_ssh_authorized_key
+    public_key = var.virtual_machine_linux_ssh_authorized_key
   }] : []
 
   network_interfaces = {

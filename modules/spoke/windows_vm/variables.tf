@@ -7,8 +7,8 @@ variable "tags" {
   default = {}
 }
 
-variable "vm_size" { type = string }
-variable "vm_zone" {
+variable "virtual_machine_size" { type = string }
+variable "virtual_machine_zone" {
   type    = number
   default = 0
 }
@@ -20,7 +20,7 @@ variable "storage_account_type" {
 variable "subnet_id" { type = string }
 variable "network_interface_name" { type = string }
 
-variable "vm_admin_password" {
+variable "virtual_machine_admin_password" {
   type      = string
   sensitive = true
 }

@@ -7,7 +7,7 @@ locals {
   backend_fqdn_clean   = replace(replace(var.backend_fqdn, "https://", ""), "http://", "")
   certificate_password = local.has_backend ? random_password.cert_password[0].result : ""
   has_backend          = var.enable_backend
-  zones                = var.deploy_zone_redundant_resources ? ["1", "2", "3"] : []
+  zones                = var.zone_redundant_resources_enabled ? ["1", "2", "3"] : []
 }
 
 # Public IP for Application Gateway
@@ -19,7 +19,7 @@ module "appgw_pip" {
   name                 = var.public_ip_name
   resource_group_name  = var.resource_group_name
   allocation_method    = "Static"
-  ddos_protection_mode = var.enable_ddos_protection ? "Enabled" : "Disabled"
+  ddos_protection_mode = var.ddos_protection_enabled ? "Enabled" : "Disabled"
   diagnostic_settings = var.enable_diagnostics ? {
     diag = {
       name                  = "${var.public_ip_name}-diag"

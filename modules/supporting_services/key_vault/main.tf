@@ -11,7 +11,7 @@ locals {
     : "ServicePrincipal"
   )
 
-  # Use enable_hub_peering flag for static conditional logic
+  # Use hub_peering_enabled flag for static conditional logic
   vnet_links_map = merge(
     {
       spoke = {
@@ -20,7 +20,7 @@ locals {
         registration_enabled = false
       }
     },
-    var.enable_hub_peering ? {
+    var.hub_peering_enabled ? {
       hub = {
         name                 = "kv-hub-link"
         virtual_network_id   = var.hub_vnet_resource_id

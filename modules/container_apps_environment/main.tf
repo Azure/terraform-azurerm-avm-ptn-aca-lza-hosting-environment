@@ -10,7 +10,7 @@ locals {
       access_mode  = v.access_mode
     } if try(v.kind, "") == "SMB"
   }
-  # Build vnet links - use enable_hub_peering flag to determine keys statically
+  # Build vnet links - use hub_peering_enabled flag to determine keys statically
   # This avoids dynamic key issues when hub_virtual_network_id is computed
   virtual_network_links = merge(
     {
@@ -19,7 +19,7 @@ locals {
         virtual_network_id = var.spoke_virtual_network_id
       }
     },
-    var.enable_hub_peering ? {
+    var.hub_peering_enabled ? {
       hub = {
         name               = "${var.name}-hub-link"
         virtual_network_id = var.hub_virtual_network_id
@@ -33,7 +33,7 @@ locals {
 module "application_insights" {
   source  = "Azure/avm-res-insights-component/azurerm"
   version = "0.2.0"
-  count   = var.enable_application_insights ? 1 : 0
+  count   = var.application_insights_enabled ? 1 : 0
 
   location            = var.location
   name                = "${var.name}-ai"
@@ -52,7 +52,7 @@ module "managed_environment" {
   name                = var.name
   resource_group_name = var.resource_group_name
   # Dapr AI instrumentation (optional)
-  dapr_application_insights_connection_string = var.enable_application_insights && var.enable_dapr_instrumentation ? module.application_insights[0].connection_string : null
+  dapr_application_insights_connection_string = var.application_insights_enabled && var.dapr_instrumentation_enabled ? module.application_insights[0].connection_string : null
   enable_telemetry                            = var.enable_telemetry
   # Networking and internal load balancer
   infrastructure_subnet_id       = var.infrastructure_subnet_id
@@ -80,7 +80,7 @@ module "managed_environment" {
     minimum_count         = 0
     maximum_count         = 3
   }]
-  zone_redundancy_enabled = var.deploy_zone_redundant_resources
+  zone_redundancy_enabled = var.zone_redundant_resources_enabled
 }
 
 # Private DNS zone: domain is the defaultDomain from ACA env

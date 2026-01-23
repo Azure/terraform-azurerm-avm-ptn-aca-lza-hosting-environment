@@ -65,8 +65,8 @@ module "aca_lza_hosting" {
   source = "../../"
 
   # Full observability stack (COMPLEX)
-  enable_application_insights = true
-  enable_dapr_instrumentation = true
+  application_insights_enabled = true
+  dapr_instrumentation_enabled = true
   # Core
   location                                      = azurerm_resource_group.this.location
   spoke_infra_subnet_address_prefix             = "10.20.1.0/24"
@@ -74,18 +74,18 @@ module "aca_lza_hosting" {
   # Spoke networking - avoid overlap with hub
   spoke_vnet_address_prefixes = ["10.20.0.0/16"]
   # Deploy sample app
-  deploy_sample_application = true
+  sample_application_enabled = true
   # Zone redundancy for high availability (COMPLEX)
-  deploy_zone_redundant_resources = true
+  zone_redundant_resources_enabled = true
   # DDoS protection disabled for automated testing
-  enable_ddos_protection     = false
-  enable_egress_lockdown     = true
-  enable_hub_peering         = true
-  enable_telemetry           = var.enable_telemetry
-  environment                = "test"
-  existing_resource_group_id = azurerm_resource_group.this.id
-  expose_container_apps_with = "applicationGateway"
-  generate_ssh_key_for_vm    = true
+  ddos_protection_enabled                    = false
+  egress_lockdown_enabled                    = true
+  hub_peering_enabled                        = true
+  enable_telemetry                           = var.enable_telemetry
+  environment                                = "test"
+  existing_resource_group_id                 = azurerm_resource_group.this.id
+  expose_container_apps_with                 = "application_gateway"
+  virtual_machine_ssh_key_generation_enabled = true
   # Hub-Spoke Integration (COMPLEX)
   hub_virtual_network_resource_id                 = azurerm_virtual_network.hub.id
   log_analytics_workspace_replication_enabled     = false
@@ -93,13 +93,13 @@ module "aca_lza_hosting" {
   route_spoke_traffic_internally                  = false # Force traffic through hub
   spoke_application_gateway_subnet_address_prefix = "10.20.3.0/24"
   tags                                            = {}
-  use_existing_resource_group                     = true
-  vm_admin_password                               = "NotUsedForSSH123!" # Required but not used for SSH
-  vm_authentication_type                          = "sshPublicKey"
-  vm_jumpbox_os_type                              = "linux"
-  vm_jumpbox_subnet_address_prefix                = "10.20.5.0/24"
+  existing_resource_group_used                    = true
+  virtual_machine_admin_password                  = "NotUsedForSSH123!" # Required but not used for SSH
+  virtual_machine_authentication_type             = "ssh_public_key"
+  virtual_machine_jumpbox_os_type                 = "linux"
+  virtual_machine_jumpbox_subnet_address_prefix   = "10.20.5.0/24"
   # Linux VM with SSH authentication (COMPLEX)
-  vm_size = "Standard_D2ds_v5"
+  virtual_machine_size = "Standard_D2ds_v5"
   # Naming
   workload_name = "hubspoke"
 }

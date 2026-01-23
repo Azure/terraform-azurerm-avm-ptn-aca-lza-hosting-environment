@@ -3,12 +3,12 @@
 ###############################################
 
 # Observability & ACA
-variable "enable_application_insights" {
+variable "application_insights_enabled" {
   type        = bool
   description = "Required. Enable or disable the creation of Application Insights."
 }
 
-variable "enable_dapr_instrumentation" {
+variable "dapr_instrumentation_enabled" {
   type        = bool
   description = "Required. Enable or disable Dapr Application Instrumentation Key used for Dapr telemetry. If Application Insights is not enabled, this parameter is ignored."
 }
@@ -38,13 +38,13 @@ variable "spoke_vnet_address_prefixes" {
 variable "bastion_subnet_address_prefix" {
   type        = string
   default     = null
-  description = "Optional. The CIDR address prefix of the bastion subnet. Required when enable_bastion_access is true. Example: 10.0.1.0/27"
+  description = "Optional. The CIDR address prefix of the bastion subnet. Required when bastion_access_enabled is true. Example: 10.0.1.0/27"
 }
 
 variable "created_resource_group_name" {
   type        = string
   default     = null
-  description = "Optional. Name to use when use_existing_resource_group is true and the module is creating a resource group. Leave null for auto-generation."
+  description = "Optional. Name to use when existing_resource_group_used is true and the module is creating a resource group. Leave null for auto-generation."
 
   validation {
     condition     = !(var.created_resource_group_name != null && var.existing_resource_group_id != null)
@@ -52,32 +52,32 @@ variable "created_resource_group_name" {
   }
 }
 
-variable "deploy_sample_application" {
+variable "sample_application_enabled" {
   type        = bool
   default     = false
   description = "Optional. Deploy sample application to the container apps environment. Default is false."
 }
 
-variable "deploy_zone_redundant_resources" {
+variable "zone_redundant_resources_enabled" {
   type        = bool
   default     = true
   description = "Optional. Default value is true. If true, any resources that support AZ will be deployed in all three AZ. However if the selected region is not supporting AZ, this parameter needs to be set to false. Default is true."
 }
 
-variable "enable_bastion_access" {
+variable "bastion_access_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host with a VM jumpbox. Default is false."
   nullable    = false
 }
 
-variable "enable_ddos_protection" {
+variable "ddos_protection_enabled" {
   type        = bool
   default     = false
   description = "Optional. DDoS protection mode. see https://learn.microsoft.com/azure/ddos-protection/ddos-protection-sku-comparison#skus. Default is \"false\"."
 }
 
-variable "enable_egress_lockdown" {
+variable "egress_lockdown_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable egress lockdown by routing all traffic through a network appliance. When true, network_appliance_ip_address must be provided. Default is false."
@@ -85,7 +85,7 @@ variable "enable_egress_lockdown" {
 }
 
 # Hub/Spoke integration
-variable "enable_hub_peering" {
+variable "hub_peering_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable peering with a hub virtual network. When true, hub_virtual_network_resource_id must be provided. Default is false."
@@ -117,26 +117,26 @@ variable "environment" {
 variable "existing_resource_group_id" {
   type        = string
   default     = null
-  description = "Optional. The resource ID of an existing resource group to use when use_existing_resource_group is set to true. Default is null."
+  description = "Optional. The resource ID of an existing resource group to use when existing_resource_group_used is set to true. Default is null."
 
   validation {
-    condition     = !var.use_existing_resource_group || (var.use_existing_resource_group && var.existing_resource_group_id != null && trimspace(var.existing_resource_group_id) != "")
-    error_message = "existing_resource_group_id must be provided when use_existing_resource_group is true."
+    condition     = !var.existing_resource_group_used || (var.existing_resource_group_used && var.existing_resource_group_id != null && trimspace(var.existing_resource_group_id) != "")
+    error_message = "existing_resource_group_id must be provided when existing_resource_group_used is true."
   }
 }
 
 variable "expose_container_apps_with" {
   type        = string
-  default     = "applicationGateway"
+  default     = "application_gateway"
   description = "Optional. Specify the way container apps is going to be exposed. Options are applicationGateway, frontDoor, or none. Default is \"applicationGateway\"."
 
   validation {
-    condition     = contains(["applicationGateway", "frontDoor", "none"], var.expose_container_apps_with)
+    condition     = contains(["application_gateway", "front_door", "none"], var.expose_container_apps_with)
     error_message = "expose_container_apps_with must be one of: applicationGateway, frontDoor, none."
   }
 }
 
-variable "front_door_enable_waf" {
+variable "front_door_waf_enabled" {
   type        = bool
   default     = false
   description = "Optional. Enable Web Application Firewall for Front Door. Default is false."
@@ -145,24 +145,24 @@ variable "front_door_enable_waf" {
 variable "front_door_waf_policy_name" {
   type        = string
   default     = null
-  description = "Optional. Name of the WAF policy for Front Door. Required if front_door_enable_waf is true. Default is null."
+  description = "Optional. Name of the WAF policy for Front Door. Required if front_door_waf_enabled is true. Default is null."
 }
 
-variable "generate_ssh_key_for_vm" {
+variable "virtual_machine_ssh_key_generation_enabled" {
   type        = bool
   default     = false
-  description = "Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm_linux_ssh_authorized_key must be provided if using SSH authentication. Default is false."
+  description = "Optional. Whether to auto-generate an SSH key for the Linux VM. When false, virtual_machine_linux_ssh_authorized_key must be provided if using SSH authentication. Default is false."
   nullable    = false
 }
 
 variable "hub_virtual_network_resource_id" {
   type        = string
   default     = null
-  description = "Optional. The resource ID of the hub virtual network. Required when enable_hub_peering is true. If set, the spoke virtual network will be peered with the hub virtual network. Default is null."
+  description = "Optional. The resource ID of the hub virtual network. Required when hub_peering_enabled is true. If set, the spoke virtual network will be peered with the hub virtual network. Default is null."
 
   validation {
-    condition     = !var.enable_hub_peering || var.hub_virtual_network_resource_id != null
-    error_message = "hub_virtual_network_resource_id is required when enable_hub_peering is true."
+    condition     = !var.hub_peering_enabled || var.hub_virtual_network_resource_id != null
+    error_message = "hub_virtual_network_resource_id is required when hub_peering_enabled is true."
   }
 }
 
@@ -176,11 +176,11 @@ variable "log_analytics_workspace_replication_enabled" {
 variable "network_appliance_ip_address" {
   type        = string
   default     = null
-  description = "Optional. IP address of the network appliance (e.g., Azure Firewall) for routing egress traffic. Required when enable_egress_lockdown is true. Default is null."
+  description = "Optional. IP address of the network appliance (e.g., Azure Firewall) for routing egress traffic. Required when egress_lockdown_enabled is true. Default is null."
 
   validation {
-    condition     = !var.enable_egress_lockdown || var.network_appliance_ip_address != null
-    error_message = "network_appliance_ip_address is required when enable_egress_lockdown is true."
+    condition     = !var.egress_lockdown_enabled || var.network_appliance_ip_address != null
+    error_message = "network_appliance_ip_address is required when egress_lockdown_enabled is true."
   }
 }
 
@@ -196,7 +196,7 @@ variable "spoke_application_gateway_subnet_address_prefix" {
   description = "Optional. CIDR of the Spoke Application Gateway Subnet. Required when expose_container_apps_with is 'applicationGateway'. Default is null."
 
   validation {
-    condition     = var.expose_container_apps_with != "applicationGateway" || var.spoke_application_gateway_subnet_address_prefix != null
+    condition     = var.expose_container_apps_with != "application_gateway" || var.spoke_application_gateway_subnet_address_prefix != null
     error_message = "spoke_application_gateway_subnet_address_prefix is required when expose_container_apps_with is 'applicationGateway'."
   }
 }
@@ -213,78 +213,78 @@ variable "tags" {
   description = "Optional. Tags related to the Azure Container Apps deployment. Default is null."
 }
 
-variable "use_existing_resource_group" {
+variable "existing_resource_group_used" {
   type        = bool
   default     = false
   description = "Optional. Whether to use an existing resource group or create a new one. If true, the module will use the resource group specified in existing_resource_group_id. If false, a new resource group will be created with the name specified in create_resource_group_name (or selected one for you if not specified). Default is false."
 }
 
-variable "vm_admin_password" {
+variable "virtual_machine_admin_password" {
   type        = string
   default     = null
-  description = "Optional. The password to use for the virtual machine. Required when vm_jumpbox_os_type is not 'none'. Default is null."
+  description = "Optional. The password to use for the virtual machine. Required when virtual_machine_jumpbox_os_type is not 'none'. Default is null."
   sensitive   = true
 
   validation {
-    condition     = var.vm_jumpbox_os_type == "none" || var.vm_admin_password != null
-    error_message = "vm_admin_password is required when vm_jumpbox_os_type is not 'none'."
+    condition     = var.virtual_machine_jumpbox_os_type == "none" || var.virtual_machine_admin_password != null
+    error_message = "virtual_machine_admin_password is required when virtual_machine_jumpbox_os_type is not 'none'."
   }
 }
 
-variable "vm_authentication_type" {
+variable "virtual_machine_authentication_type" {
   type        = string
-  default     = "sshPublicKey"
+  default     = "ssh_public_key"
   description = "Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security. Default is \"sshPublicKey\"."
 
   validation {
-    condition     = contains(["sshPublicKey", "password"], var.vm_authentication_type)
-    error_message = "vm_authentication_type must be 'sshPublicKey' or 'password'."
+    condition     = contains(["ssh_public_key", "password"], var.virtual_machine_authentication_type)
+    error_message = "virtual_machine_authentication_type must be 'sshPublicKey' or 'password'."
   }
 }
 
-variable "vm_jumpbox_os_type" {
+variable "virtual_machine_jumpbox_os_type" {
   type        = string
   default     = "none"
   description = "Optional. The operating system type of the virtual machine. Default is \"none\" which results in no VM deployment."
 
   validation {
-    condition     = contains(["linux", "windows", "none"], var.vm_jumpbox_os_type)
-    error_message = "vm_jumpbox_os_type must be 'linux', 'windows', or 'none'."
+    condition     = contains(["linux", "windows", "none"], var.virtual_machine_jumpbox_os_type)
+    error_message = "virtual_machine_jumpbox_os_type must be 'linux', 'windows', or 'none'."
   }
 }
 
-variable "vm_jumpbox_subnet_address_prefix" {
+variable "virtual_machine_jumpbox_subnet_address_prefix" {
   type        = string
   default     = null
-  description = "Optional. CIDR to use for the virtual machine subnet. Required when vm_jumpbox_os_type is not 'none'. Default is null."
+  description = "Optional. CIDR to use for the virtual machine subnet. Required when virtual_machine_jumpbox_os_type is not 'none'. Default is null."
 
   validation {
-    condition     = var.vm_jumpbox_os_type == "none" || var.vm_jumpbox_subnet_address_prefix != null
-    error_message = "vm_jumpbox_subnet_address_prefix is required when vm_jumpbox_os_type is not 'none'."
+    condition     = var.virtual_machine_jumpbox_os_type == "none" || var.virtual_machine_jumpbox_subnet_address_prefix != null
+    error_message = "virtual_machine_jumpbox_subnet_address_prefix is required when virtual_machine_jumpbox_os_type is not 'none'."
   }
 }
 
-variable "vm_linux_ssh_authorized_key" {
+variable "virtual_machine_linux_ssh_authorized_key" {
   type        = string
   default     = null
-  description = "Optional. The SSH public key to use for the virtual machine. Required when vm_jumpbox_os_type is 'linux', vm_authentication_type is 'sshPublicKey', and generate_ssh_key_for_vm is false."
+  description = "Optional. The SSH public key to use for the virtual machine. Required when virtual_machine_jumpbox_os_type is 'linux', virtual_machine_authentication_type is 'sshPublicKey', and virtual_machine_ssh_key_generation_enabled is false."
   sensitive   = true
 
   validation {
-    condition     = var.vm_jumpbox_os_type != "linux" || var.vm_authentication_type != "sshPublicKey" || var.generate_ssh_key_for_vm || var.vm_linux_ssh_authorized_key != null
-    error_message = "vm_linux_ssh_authorized_key is required when vm_jumpbox_os_type is 'linux' and vm_authentication_type is 'sshPublicKey' and generate_ssh_key_for_vm is false."
+    condition     = var.virtual_machine_jumpbox_os_type != "linux" || var.virtual_machine_authentication_type != "ssh_public_key" || var.virtual_machine_ssh_key_generation_enabled || var.virtual_machine_linux_ssh_authorized_key != null
+    error_message = "virtual_machine_linux_ssh_authorized_key is required when virtual_machine_jumpbox_os_type is 'linux' and virtual_machine_authentication_type is 'sshPublicKey' and virtual_machine_ssh_key_generation_enabled is false."
   }
 }
 
 # Jumpbox VM controls
-variable "vm_size" {
+variable "virtual_machine_size" {
   type        = string
   default     = null
-  description = "Optional. The size of the virtual machine to create. Required when vm_jumpbox_os_type is not 'none'. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information. Default is null."
+  description = "Optional. The size of the virtual machine to create. Required when virtual_machine_jumpbox_os_type is not 'none'. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information. Default is null."
 
   validation {
-    condition     = var.vm_jumpbox_os_type == "none" || var.vm_size != null
-    error_message = "vm_size is required when vm_jumpbox_os_type is not 'none'."
+    condition     = var.virtual_machine_jumpbox_os_type == "none" || var.virtual_machine_size != null
+    error_message = "virtual_machine_size is required when virtual_machine_jumpbox_os_type is not 'none'."
   }
 }
 

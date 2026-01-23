@@ -57,25 +57,25 @@ variable "container_apps_environment_storages" {
   sensitive   = true
 }
 
-variable "deploy_zone_redundant_resources" {
+variable "zone_redundant_resources_enabled" {
   type        = bool
   default     = true
   description = "If true, deploy zone-redundant resources (ACA env)."
 }
 
-variable "enable_application_insights" {
+variable "application_insights_enabled" {
   type        = bool
   default     = true
   description = "Whether to deploy Application Insights and link to LAW."
 }
 
-variable "enable_dapr_instrumentation" {
+variable "dapr_instrumentation_enabled" {
   type        = bool
   default     = false
-  description = "Enable Dapr instrumentation using Application Insights (requires enable_application_insights)."
+  description = "Enable Dapr instrumentation using Application Insights (requires application_insights_enabled)."
 }
 
-variable "enable_hub_peering" {
+variable "hub_peering_enabled" {
   type        = bool
   default     = false
   description = "Whether hub peering is enabled. Used to determine if hub VNet link should be created."
@@ -91,7 +91,7 @@ variable "enable_telemetry" {
 variable "hub_virtual_network_id" {
   type        = string
   default     = null
-  description = "Optional hub VNet resource ID to link to the private DNS zone. Required when enable_hub_peering is true."
+  description = "Optional hub VNet resource ID to link to the private DNS zone. Required when hub_peering_enabled is true."
 }
 
 variable "tags" {

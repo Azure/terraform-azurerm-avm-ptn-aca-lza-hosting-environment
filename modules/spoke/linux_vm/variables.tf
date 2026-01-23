@@ -7,8 +7,8 @@ variable "tags" {
   default = {}
 }
 
-variable "vm_size" { type = string }
-variable "vm_zone" {
+variable "virtual_machine_size" { type = string }
+variable "virtual_machine_zone" {
   type    = number
   default = 0
 }
@@ -21,23 +21,23 @@ variable "subnet_id" { type = string }
 
 variable "network_interface_name" { type = string }
 
-variable "vm_admin_password" {
+variable "virtual_machine_admin_password" {
   type      = string
   sensitive = true
 }
-variable "generate_ssh_key_for_vm" {
+variable "virtual_machine_ssh_key_generation_enabled" {
   type        = bool
   default     = false
   description = "Whether to auto-generate an SSH key"
 }
-variable "vm_linux_ssh_authorized_key" {
+variable "virtual_machine_linux_ssh_authorized_key" {
   type      = string
   sensitive = true
   default   = null
 }
-variable "vm_authentication_type" {
+variable "virtual_machine_authentication_type" {
   type    = string
-  default = "sshPublicKey"
+  default = "ssh_public_key"
 }
 
 variable "log_analytics_workspace_id" { type = string }

@@ -49,24 +49,24 @@ variable "spoke_vnet_address_prefixes" {
 variable "bastion_subnet_address_prefix" {
   type        = string
   default     = null
-  description = "Optional. The CIDR address prefix of the bastion subnet. Required when enable_bastion_access is true."
+  description = "Optional. The CIDR address prefix of the bastion subnet. Required when bastion_access_enabled is true."
 }
 
-variable "enable_bastion_access" {
+variable "bastion_access_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host."
   nullable    = false
 }
 
-variable "enable_egress_lockdown" {
+variable "egress_lockdown_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable egress lockdown by creating a route table. When true, network_appliance_ip_address must be provided."
   nullable    = false
 }
 
-variable "enable_hub_peering" {
+variable "hub_peering_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable VNet peering to the hub virtual network. When true, hub_virtual_network_resource_id must be provided."
@@ -79,7 +79,7 @@ variable "enable_telemetry" {
   description = "Optional. Enable/Disable module telemetry for AVM submodules."
 }
 
-variable "generate_ssh_key_for_vm" {
+variable "virtual_machine_ssh_key_generation_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to auto-generate an SSH key for the Linux VM."
@@ -89,7 +89,7 @@ variable "generate_ssh_key_for_vm" {
 variable "hub_virtual_network_resource_id" {
   type        = string
   default     = null
-  description = "Optional. The resource ID of the existing hub virtual network. Required when enable_hub_peering is true."
+  description = "Optional. The resource ID of the existing hub virtual network. Required when hub_peering_enabled is true."
 }
 
 variable "log_analytics_workspace_replication_enabled" {
@@ -102,7 +102,7 @@ variable "log_analytics_workspace_replication_enabled" {
 variable "network_appliance_ip_address" {
   type        = string
   default     = null
-  description = "Optional. The IP address of the network appliance (e.g. firewall) that will be used to route traffic to the internet. Required when enable_egress_lockdown is true."
+  description = "Optional. The IP address of the network appliance (e.g. firewall) that will be used to route traffic to the internet. Required when egress_lockdown_enabled is true."
 }
 
 variable "route_spoke_traffic_internally" {
@@ -147,42 +147,42 @@ variable "tags" {
   description = "Optional. Tags to apply to spoke resources."
 }
 
-variable "vm_admin_password" {
+variable "virtual_machine_admin_password" {
   type        = string
   default     = null
-  description = "Optional. The password to use for the virtual machine. Required when vm_authentication_type == 'password' and vm_jumpbox_os_type != 'none'."
+  description = "Optional. The password to use for the virtual machine. Required when virtual_machine_authentication_type == 'password' and virtual_machine_jumpbox_os_type != 'none'."
   sensitive   = true
 }
 
-variable "vm_authentication_type" {
+variable "virtual_machine_authentication_type" {
   type        = string
-  default     = "sshPublicKey"
+  default     = "ssh_public_key"
   description = "Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security."
 }
 
-variable "vm_jumpbox_os_type" {
+variable "virtual_machine_jumpbox_os_type" {
   type        = string
   default     = "none"
   description = "Optional. The operating system type of the virtual machine. If 'none', no VM is deployed."
 }
 
-variable "vm_jumpbox_subnet_address_prefix" {
+variable "virtual_machine_jumpbox_subnet_address_prefix" {
   type        = string
   default     = null
-  description = "Optional. CIDR to use for the virtual machine subnet. Required when vm_jumpbox_os_type != 'none'."
+  description = "Optional. CIDR to use for the virtual machine subnet. Required when virtual_machine_jumpbox_os_type != 'none'."
 }
 
-variable "vm_linux_ssh_authorized_key" {
+variable "virtual_machine_linux_ssh_authorized_key" {
   type        = string
   default     = null
-  description = "Optional. The SSH public key to use for the Linux virtual machine. Required when generate_ssh_key_for_vm is false and using SSH authentication."
+  description = "Optional. The SSH public key to use for the Linux virtual machine. Required when virtual_machine_ssh_key_generation_enabled is false and using SSH authentication."
   sensitive   = true
 }
 
-variable "vm_size" {
+variable "virtual_machine_size" {
   type        = string
   default     = null
-  description = "Optional. The size of the virtual machine to create when vm_jumpbox_os_type != 'none'."
+  description = "Optional. The size of the virtual machine to create when virtual_machine_jumpbox_os_type != 'none'."
 }
 
 variable "vm_subnet_name" {
@@ -191,7 +191,7 @@ variable "vm_subnet_name" {
   description = "Optional. The name of the subnet to create for the jump box."
 }
 
-variable "vm_zone" {
+variable "virtual_machine_zone" {
   type        = number
   default     = 0
   description = "Optional. The zone to create the jump box in. Defaults to 0."

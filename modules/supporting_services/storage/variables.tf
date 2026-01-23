@@ -28,13 +28,13 @@ variable "spoke_vnet_resource_id" {
   description = "Spoke VNet ID"
   type        = string
 }
-variable "enable_hub_peering" {
+variable "hub_peering_enabled" {
   description = "Whether hub peering is enabled"
   type        = bool
   default     = false
 }
 variable "hub_vnet_resource_id" {
-  description = "Hub VNet ID. Required when enable_hub_peering is true."
+  description = "Hub VNet ID. Required when hub_peering_enabled is true."
   type        = string
   default     = null
 }
