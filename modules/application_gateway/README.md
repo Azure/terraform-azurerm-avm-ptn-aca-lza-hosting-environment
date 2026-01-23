@@ -181,7 +181,7 @@ Version: 0.4.3
 
 Source: Azure/avm-res-network-publicipaddress/azurerm
 
-Version: 0.2.0
+Version: 0.2.1
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->
