@@ -13,7 +13,7 @@ locals {
 # Public IP for Application Gateway
 module "appgw_pip" {
   source  = "Azure/avm-res-network-publicipaddress/azurerm"
-  version = "0.2.0"
+  version = "0.2.1"
 
   location             = var.location
   name                 = var.public_ip_name
