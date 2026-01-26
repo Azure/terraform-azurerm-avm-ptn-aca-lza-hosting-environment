@@ -209,7 +209,7 @@ Version: 0.4.4
 
 Source: Azure/avm-res-storage-storageaccount/azurerm
 
-Version: 0.6.1
+Version: 0.6.7
 
 ### <a name="module_st_dns_zone"></a> [st\_dns\_zone](#module\_st\_dns\_zone)
 

@@ -220,7 +220,7 @@ module "st_dns_zone" {
 
 module "st" {
   source  = "Azure/avm-res-storage-storageaccount/azurerm"
-  version = "0.6.1"
+  version = "0.6.7"
 
   location                 = var.location
   name                     = var.resources_names.storageAccount
@@ -232,7 +232,7 @@ module "st" {
     sa = {
       name                  = "storage-diagnosticSettings"
       workspace_resource_id = var.log_analytics_workspace_id
-      metric_categories     = ["Transaction"]
+      metric_categories     = ["AllMetrics"]
     }
   } : {}
   enable_telemetry = var.enable_telemetry
