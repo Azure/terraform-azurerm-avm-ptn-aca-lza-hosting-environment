@@ -1,33 +1,42 @@
 variable "enable_telemetry" {
-  type = bool
+  type        = bool
+  description = "Whether to enable telemetry for the module."
 }
 
 variable "location" {
-  type = string
+  type        = string
+  description = "The Azure region where the VM will be deployed."
+  nullable    = false
 }
 
 variable "log_analytics_workspace_id" {
-  type = string
+  type        = string
+  description = "The resource ID of the Log Analytics workspace for VM diagnostics."
 }
 
 variable "name" {
-  type = string
+  type        = string
+  description = "The name of the virtual machine."
 }
 
 variable "network_interface_name" {
-  type = string
+  type        = string
+  description = "The name of the network interface for the VM."
 }
 
 variable "resource_group_name" {
-  type = string
+  type        = string
+  description = "The name of the resource group in which to create the VM."
 }
 
 variable "subnet_id" {
-  type = string
+  type        = string
+  description = "The resource ID of the subnet for the VM's network interface."
 }
 
 variable "virtual_machine_size" {
-  type = string
+  type        = string
+  description = "The size of the virtual machine."
 }
 
 variable "key_vault_resource_id" {
@@ -37,13 +46,15 @@ variable "key_vault_resource_id" {
 }
 
 variable "storage_account_type" {
-  type    = string
-  default = "Standard_LRS"
+  type        = string
+  default     = "Standard_LRS"
+  description = "The type of storage account for the OS disk."
 }
 
 variable "tags" {
-  type    = map(string)
-  default = {}
+  type        = map(string)
+  default     = null
+  description = "A map of tags to apply to the resources."
 }
 
 variable "virtual_machine_admin_password" {
@@ -60,11 +71,13 @@ variable "virtual_machine_admin_password_generate" {
 }
 
 variable "virtual_machine_zone" {
-  type    = number
-  default = 0
+  type        = number
+  default     = 0
+  description = "The availability zone for the virtual machine (0 for no zone)."
 }
 
 variable "vm_windows_os_version" {
-  type    = string
-  default = "2016-Datacenter"
+  type        = string
+  default     = "2016-Datacenter"
+  description = "The Windows Server SKU version for the VM image."
 }

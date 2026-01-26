@@ -91,14 +91,6 @@ Type: `bool`
 
 Default: `true`
 
-### <a name="input_expose_container_apps_with"></a> [expose\_container\_apps\_with](#input\_expose\_container\_apps\_with)
-
-Description: Ingress method: 'applicationGateway', 'frontDoor', or 'none'
-
-Type: `string`
-
-Default: `"application_gateway"`
-
 ### <a name="input_hub_peering_enabled"></a> [hub\_peering\_enabled](#input\_hub\_peering\_enabled)
 
 Description: Whether hub peering is enabled. Used to determine if hub VNet link should be created.

@@ -11,7 +11,7 @@ This submodule deploys a Linux virtual machine with optional SSH key or password
 
 The following requirements are needed by this module:
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 1.0, < 3.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71.0, < 5.0.0)
 
@@ -31,49 +31,49 @@ The following input variables are required:
 
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
-Description: n/a
+Description: Whether to enable telemetry for the module.
 
 Type: `bool`
 
 ### <a name="input_location"></a> [location](#input\_location)
 
-Description: n/a
+Description: The Azure region where the VM will be deployed.
 
 Type: `string`
 
 ### <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id)
 
-Description: n/a
+Description: The resource ID of the Log Analytics workspace for VM diagnostics.
 
 Type: `string`
 
 ### <a name="input_name"></a> [name](#input\_name)
 
-Description: n/a
+Description: The name of the virtual machine.
 
 Type: `string`
 
 ### <a name="input_network_interface_name"></a> [network\_interface\_name](#input\_network\_interface\_name)
 
-Description: n/a
+Description: The name of the network interface for the VM.
 
 Type: `string`
 
 ### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
 
-Description: n/a
+Description: The name of the resource group in which to create the VM.
 
 Type: `string`
 
 ### <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id)
 
-Description: n/a
+Description: The resource ID of the subnet for the VM's network interface.
 
 Type: `string`
 
 ### <a name="input_virtual_machine_size"></a> [virtual\_machine\_size](#input\_virtual\_machine\_size)
 
-Description: n/a
+Description: The size of the virtual machine.
 
 Type: `string`
 
@@ -91,7 +91,7 @@ Default: `null`
 
 ### <a name="input_storage_account_type"></a> [storage\_account\_type](#input\_storage\_account\_type)
 
-Description: n/a
+Description: The type of storage account for the OS disk.
 
 Type: `string`
 
@@ -99,11 +99,11 @@ Default: `"Standard_LRS"`
 
 ### <a name="input_tags"></a> [tags](#input\_tags)
 
-Description: n/a
+Description: A map of tags to apply to the resources.
 
 Type: `map(string)`
 
-Default: `{}`
+Default: `null`
 
 ### <a name="input_virtual_machine_admin_password"></a> [virtual\_machine\_admin\_password](#input\_virtual\_machine\_admin\_password)
 
@@ -123,7 +123,7 @@ Default: `false`
 
 ### <a name="input_virtual_machine_authentication_type"></a> [virtual\_machine\_authentication\_type](#input\_virtual\_machine\_authentication\_type)
 
-Description: n/a
+Description: The authentication type for the VM. Allowed values: 'ssh\_public\_key' or 'password'.
 
 Type: `string`
 
@@ -131,7 +131,7 @@ Default: `"ssh_public_key"`
 
 ### <a name="input_virtual_machine_linux_ssh_authorized_key"></a> [virtual\_machine\_linux\_ssh\_authorized\_key](#input\_virtual\_machine\_linux\_ssh\_authorized\_key)
 
-Description: n/a
+Description: The SSH public key for the Linux VM administrator.
 
 Type: `string`
 
@@ -139,7 +139,7 @@ Default: `null`
 
 ### <a name="input_virtual_machine_ssh_key_generation_enabled"></a> [virtual\_machine\_ssh\_key\_generation\_enabled](#input\_virtual\_machine\_ssh\_key\_generation\_enabled)
 
-Description: Whether to auto-generate an SSH key
+Description: Whether to auto-generate an SSH key for the VM.
 
 Type: `bool`
 
@@ -147,7 +147,7 @@ Default: `false`
 
 ### <a name="input_virtual_machine_zone"></a> [virtual\_machine\_zone](#input\_virtual\_machine\_zone)
 
-Description: n/a
+Description: The availability zone for the virtual machine (0 for no zone).
 
 Type: `number`
 
@@ -156,6 +156,10 @@ Default: `0`
 ## Outputs
 
 The following outputs are exported:
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: The resource ID of the Linux virtual machine.
 
 ### <a name="output_vm_id"></a> [vm\_id](#output\_vm\_id)
 

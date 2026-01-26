@@ -23,6 +23,7 @@ resource "azurerm_key_vault_secret" "admin_password" {
   key_vault_id = var.key_vault_resource_id
   name         = "${var.name}-admin-password"
   content_type = "text/plain"
+  tags         = var.tags
   value        = local.effective_password
 
   lifecycle {

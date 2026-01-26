@@ -1,3 +1,8 @@
+output "resource_id" {
+  description = "The resource ID of the Windows virtual machine."
+  value       = module.vm.resource_id
+}
+
 output "vm_id" {
   description = "The resource ID of the Windows virtual machine."
   value       = module.vm.resource_id

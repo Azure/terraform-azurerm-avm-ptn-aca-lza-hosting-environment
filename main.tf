@@ -1,7 +1,5 @@
 # Naming module wiring
 
-data "azapi_client_config" "naming" {}
-
 # Random string for unique naming - stored in state for consistency
 resource "random_string" "naming_unique_id" {
   length  = 13
@@ -84,7 +82,6 @@ module "supporting_services" {
   resources_names                           = module.naming.resources_names
   spoke_private_endpoint_subnet_resource_id = module.spoke.spoke_private_endpoints_subnet_id
   spoke_vnet_resource_id                    = module.spoke.spoke_vnet_id
-  expose_container_apps_with                = var.expose_container_apps_with
   hub_peering_enabled                       = var.hub_peering_enabled
   hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
   log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id

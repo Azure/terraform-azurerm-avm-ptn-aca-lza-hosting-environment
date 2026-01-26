@@ -48,12 +48,6 @@ variable "enable_diagnostics" {
   description = "Enable diagnostics settings for supporting services"
 }
 
-variable "expose_container_apps_with" {
-  type        = string
-  default     = "application_gateway"
-  description = "Ingress method: 'applicationGateway', 'frontDoor', or 'none'"
-}
-
 variable "hub_peering_enabled" {
   type        = bool
   default     = false
