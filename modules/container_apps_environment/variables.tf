@@ -44,6 +44,12 @@ variable "spoke_virtual_network_id" {
   description = "Spoke VNet resource ID to link to the private DNS zone."
 }
 
+variable "application_insights_enabled" {
+  type        = bool
+  default     = true
+  description = "Whether to deploy Application Insights and link to LAW."
+}
+
 variable "container_apps_environment_storages" {
   type = map(object({
     access_mode  = string
@@ -57,22 +63,16 @@ variable "container_apps_environment_storages" {
   sensitive   = true
 }
 
-variable "zone_redundant_resources_enabled" {
-  type        = bool
-  default     = true
-  description = "If true, deploy zone-redundant resources (ACA env)."
-}
-
-variable "application_insights_enabled" {
-  type        = bool
-  default     = true
-  description = "Whether to deploy Application Insights and link to LAW."
-}
-
 variable "dapr_instrumentation_enabled" {
   type        = bool
   default     = false
   description = "Enable Dapr instrumentation using Application Insights (requires application_insights_enabled)."
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = "Enable or disable AVM telemetry."
 }
 
 variable "hub_peering_enabled" {
@@ -80,12 +80,6 @@ variable "hub_peering_enabled" {
   default     = false
   description = "Whether hub peering is enabled. Used to determine if hub VNet link should be created."
   nullable    = false
-}
-
-variable "enable_telemetry" {
-  type        = bool
-  default     = true
-  description = "Enable or disable AVM telemetry."
 }
 
 variable "hub_virtual_network_id" {
@@ -98,4 +92,10 @@ variable "tags" {
   type        = map(string)
   default     = null
   description = "Tags to apply to all resources."
+}
+
+variable "zone_redundant_resources_enabled" {
+  type        = bool
+  default     = true
+  description = "If true, deploy zone-redundant resources (ACA env)."
 }

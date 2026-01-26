@@ -9,9 +9,16 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.6, < 2.0)
 
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 2.0.0, < 3.0.0)
+
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71.0, < 5.0.0)
+
 ## Resources
 
-No resources.
+The following resources are used by this module:
+
+- [azapi_resource.file_share](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -76,14 +83,6 @@ Type: `string`
 
 The following input variables are optional (have default values):
 
-### <a name="input_deploy_zone_redundant_resources"></a> [deploy\_zone\_redundant\_resources](#input\_deploy\_zone\_redundant\_resources)
-
-Description: If true, use AZ-enabled SKUs where supported
-
-Type: `bool`
-
-Default: `true`
-
 ### <a name="input_enable_diagnostics"></a> [enable\_diagnostics](#input\_enable\_diagnostics)
 
 Description: Enable diagnostics settings for supporting services
@@ -92,7 +91,15 @@ Type: `bool`
 
 Default: `true`
 
-### <a name="input_enable_hub_peering"></a> [enable\_hub\_peering](#input\_enable\_hub\_peering)
+### <a name="input_expose_container_apps_with"></a> [expose\_container\_apps\_with](#input\_expose\_container\_apps\_with)
+
+Description: Ingress method: 'applicationGateway', 'frontDoor', or 'none'
+
+Type: `string`
+
+Default: `"application_gateway"`
+
+### <a name="input_hub_peering_enabled"></a> [hub\_peering\_enabled](#input\_hub\_peering\_enabled)
 
 Description: Whether hub peering is enabled. Used to determine if hub VNet link should be created.
 
@@ -100,17 +107,9 @@ Type: `bool`
 
 Default: `false`
 
-### <a name="input_expose_container_apps_with"></a> [expose\_container\_apps\_with](#input\_expose\_container\_apps\_with)
-
-Description: Ingress method: 'applicationGateway', 'frontDoor', or 'none'
-
-Type: `string`
-
-Default: `"applicationGateway"`
-
 ### <a name="input_hub_vnet_resource_id"></a> [hub\_vnet\_resource\_id](#input\_hub\_vnet\_resource\_id)
 
-Description: Hub VNet resource ID. Required when enable\_hub\_peering is true.
+Description: Hub VNet resource ID. Required when hub\_peering\_enabled is true.
 
 Type: `string`
 
@@ -131,6 +130,14 @@ Description: Tags to apply
 Type: `map(string)`
 
 Default: `null`
+
+### <a name="input_zone_redundant_resources_enabled"></a> [zone\_redundant\_resources\_enabled](#input\_zone\_redundant\_resources\_enabled)
+
+Description: If true, use AZ-enabled SKUs where supported
+
+Type: `bool`
+
+Default: `true`
 
 ## Outputs
 
@@ -176,23 +183,47 @@ Description: Storage Account name
 
 The following Modules are called:
 
-### <a name="module_container_registry"></a> [container\_registry](#module\_container\_registry)
+### <a name="module_acr"></a> [acr](#module\_acr)
 
-Source: ./container_registry
+Source: Azure/avm-res-containerregistry-registry/azurerm
 
-Version:
+Version: 0.5.1
 
-### <a name="module_key_vault"></a> [key\_vault](#module\_key\_vault)
+### <a name="module_acr_dns_zone"></a> [acr\_dns\_zone](#module\_acr\_dns\_zone)
 
-Source: ./key_vault
+Source: Azure/avm-res-network-privatednszone/azurerm
 
-Version:
+Version: 0.4.4
 
-### <a name="module_storage"></a> [storage](#module\_storage)
+### <a name="module_acr_uai"></a> [acr\_uai](#module\_acr\_uai)
 
-Source: ./storage
+Source: Azure/avm-res-managedidentity-userassignedidentity/azurerm
 
-Version:
+Version: 0.3.4
+
+### <a name="module_kv"></a> [kv](#module\_kv)
+
+Source: Azure/avm-res-keyvault-vault/azurerm
+
+Version: 0.10.0
+
+### <a name="module_kv_dns_zone"></a> [kv\_dns\_zone](#module\_kv\_dns\_zone)
+
+Source: Azure/avm-res-network-privatednszone/azurerm
+
+Version: 0.4.4
+
+### <a name="module_st"></a> [st](#module\_st)
+
+Source: Azure/avm-res-storage-storageaccount/azurerm
+
+Version: 0.6.1
+
+### <a name="module_st_dns_zone"></a> [st\_dns\_zone](#module\_st\_dns\_zone)
+
+Source: Azure/avm-res-network-privatednszone/azurerm
+
+Version: 0.4.4
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->

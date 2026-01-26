@@ -35,6 +35,13 @@ variable "spoke_vnet_address_prefixes" {
   description = "Required. CIDR of the Spoke Virtual Network."
 }
 
+variable "bastion_access_enabled" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host with a VM jumpbox. Default is false."
+  nullable    = false
+}
+
 variable "bastion_subnet_address_prefix" {
   type        = string
   default     = null
@@ -52,31 +59,9 @@ variable "created_resource_group_name" {
   }
 }
 
-variable "sample_application_enabled" {
-  type        = bool
-  default     = false
-  nullable    = false
-  description = "Optional. Deploy sample application to the container apps environment. Default is false."
-}
-
-variable "zone_redundant_resources_enabled" {
-  type        = bool
-  default     = true
-  nullable    = false
-  description = "Optional. Default value is true. If true, any resources that support AZ will be deployed in all three AZ. However if the selected region is not supporting AZ, this parameter needs to be set to false. Default is true."
-}
-
-variable "bastion_access_enabled" {
-  type        = bool
-  default     = false
-  description = "Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host with a VM jumpbox. Default is false."
-  nullable    = false
-}
-
 variable "ddos_protection_enabled" {
   type        = bool
   default     = false
-  nullable    = false
   description = <<-EOT
     Optional. Enable DDoS IP Protection on the Application Gateway public IP address.
 
@@ -92,20 +77,13 @@ variable "ddos_protection_enabled" {
 
     Default is false.
   EOT
+  nullable    = false
 }
 
 variable "egress_lockdown_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable egress lockdown by routing all traffic through a network appliance. When true, network_appliance_ip_address must be provided. Default is false."
-  nullable    = false
-}
-
-# Hub/Spoke integration
-variable "hub_peering_enabled" {
-  type        = bool
-  default     = false
-  description = "Optional. Whether to enable peering with a hub virtual network. When true, hub_virtual_network_resource_id must be provided. Default is false."
   nullable    = false
 }
 
@@ -123,8 +101,8 @@ DESCRIPTION
 variable "environment" {
   type        = string
   default     = "test"
-  nullable    = false
   description = "Optional. The name of the environment (e.g. \"dev\", \"test\", \"prod\", \"uat\", \"dr\", \"qa\"). Up to 8 characters long. Default is \"test\"."
+  nullable    = false
 
   validation {
     condition     = length(var.environment) <= 8
@@ -143,11 +121,18 @@ variable "existing_resource_group_id" {
   }
 }
 
+variable "existing_resource_group_used" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to use an existing resource group or create a new one. If true, the module will use the resource group specified in existing_resource_group_id. If false, a new resource group will be created with the name specified in create_resource_group_name (or selected one for you if not specified). Default is false."
+  nullable    = false
+}
+
 variable "expose_container_apps_with" {
   type        = string
   default     = "application_gateway"
-  nullable    = false
   description = "Optional. Specify the way container apps is going to be exposed. Options are applicationGateway, frontDoor, or none. Default is \"applicationGateway\"."
+  nullable    = false
 
   validation {
     condition     = contains(["application_gateway", "front_door", "none"], var.expose_container_apps_with)
@@ -158,8 +143,8 @@ variable "expose_container_apps_with" {
 variable "front_door_waf_enabled" {
   type        = bool
   default     = false
-  nullable    = false
   description = "Optional. Enable Web Application Firewall for Front Door. Default is false."
+  nullable    = false
 }
 
 variable "front_door_waf_policy_name" {
@@ -168,10 +153,11 @@ variable "front_door_waf_policy_name" {
   description = "Optional. Name of the WAF policy for Front Door. Required if front_door_waf_enabled is true. Default is null."
 }
 
-variable "virtual_machine_ssh_key_generation_enabled" {
+# Hub/Spoke integration
+variable "hub_peering_enabled" {
   type        = bool
   default     = false
-  description = "Optional. Whether to auto-generate an SSH key for the Linux VM. When false, virtual_machine_linux_ssh_authorized_key must be provided if using SSH authentication. Default is false."
+  description = "Optional. Whether to enable peering with a hub virtual network. When true, hub_virtual_network_resource_id must be provided. Default is false."
   nullable    = false
 }
 
@@ -207,8 +193,15 @@ variable "network_appliance_ip_address" {
 variable "route_spoke_traffic_internally" {
   type        = bool
   default     = false
-  nullable    = false
   description = "Optional. Define whether to route spoke-internal traffic within the spoke network. If false, traffic will be sent to the hub network. Default is false."
+  nullable    = false
+}
+
+variable "sample_application_enabled" {
+  type        = bool
+  default     = false
+  description = "Optional. Deploy sample application to the container apps environment. Default is false."
+  nullable    = false
 }
 
 variable "spoke_application_gateway_subnet_address_prefix" {
@@ -225,8 +218,8 @@ variable "spoke_application_gateway_subnet_address_prefix" {
 variable "storage_account_type" {
   type        = string
   default     = "Premium_LRS"
-  nullable    = false
   description = "Optional. The storage account type to use for the jump box. Defaults to `Premium_LRS` for APRL compliance."
+  nullable    = false
 }
 
 variable "tags" {
@@ -235,17 +228,9 @@ variable "tags" {
   description = "Optional. Tags related to the Azure Container Apps deployment. Default is null."
 }
 
-variable "existing_resource_group_used" {
-  type        = bool
-  default     = false
-  nullable    = false
-  description = "Optional. Whether to use an existing resource group or create a new one. If true, the module will use the resource group specified in existing_resource_group_id. If false, a new resource group will be created with the name specified in create_resource_group_name (or selected one for you if not specified). Default is false."
-}
-
 variable "virtual_machine_admin_password" {
   type        = string
   default     = null
-  sensitive   = true
   description = <<-EOT
     Optional. The password to use for the virtual machine admin account.
     Required when virtual_machine_jumpbox_os_type is not 'none' and virtual_machine_admin_password_generate is false.
@@ -257,6 +242,7 @@ variable "virtual_machine_admin_password" {
     For production deployments, consider using virtual_machine_admin_password_generate = true
     to auto-generate the password and store it securely in Azure Key Vault instead.
   EOT
+  sensitive   = true
 
   validation {
     condition     = var.virtual_machine_jumpbox_os_type == "none" || var.virtual_machine_admin_password_generate || var.virtual_machine_admin_password != null
@@ -267,15 +253,15 @@ variable "virtual_machine_admin_password" {
 variable "virtual_machine_admin_password_generate" {
   type        = bool
   default     = false
-  nullable    = false
   description = "Optional. When true, auto-generate the admin password and store in Key Vault. The Key Vault is always created by the supporting_services module. Default is false."
+  nullable    = false
 }
 
 variable "virtual_machine_authentication_type" {
   type        = string
   default     = "ssh_public_key"
-  nullable    = false
   description = "Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security. Default is \"sshPublicKey\"."
+  nullable    = false
 
   validation {
     condition     = contains(["ssh_public_key", "password"], var.virtual_machine_authentication_type)
@@ -286,8 +272,8 @@ variable "virtual_machine_authentication_type" {
 variable "virtual_machine_jumpbox_os_type" {
   type        = string
   default     = "none"
-  nullable    = false
   description = "Optional. The operating system type of the virtual machine. Default is \"none\" which results in no VM deployment."
+  nullable    = false
 
   validation {
     condition     = contains(["linux", "windows", "none"], var.virtual_machine_jumpbox_os_type)
@@ -330,15 +316,29 @@ variable "virtual_machine_size" {
   }
 }
 
+variable "virtual_machine_ssh_key_generation_enabled" {
+  type        = bool
+  default     = false
+  description = "Optional. Whether to auto-generate an SSH key for the Linux VM. When false, virtual_machine_linux_ssh_authorized_key must be provided if using SSH authentication. Default is false."
+  nullable    = false
+}
+
 # Naming/Env
 variable "workload_name" {
   type        = string
   default     = "aca-lza"
-  nullable    = false
   description = "Optional. The name of the workload that is being deployed. Up to 10 characters long."
+  nullable    = false
 
   validation {
     condition     = length(var.workload_name) >= 2 && length(var.workload_name) <= 10
     error_message = "workload_name must be 2 to 10 characters."
   }
+}
+
+variable "zone_redundant_resources_enabled" {
+  type        = bool
+  default     = true
+  description = "Optional. Default value is true. If true, any resources that support AZ will be deployed in all three AZ. However if the selected region is not supporting AZ, this parameter needs to be set to false. Default is true."
+  nullable    = false
 }

@@ -55,24 +55,24 @@ module "aca_lza_hosting" {
   spoke_infra_subnet_address_prefix             = "10.20.1.0/24"
   spoke_private_endpoints_subnet_address_prefix = "10.20.2.0/24"
   # Networking - Front Door doesn't need Application Gateway subnet
-  spoke_vnet_address_prefixes = ["10.20.0.0/16"]
-  # Optional features
-  sample_application_enabled       = true
-  zone_redundant_resources_enabled = true
-  ddos_protection_enabled          = false
-  enable_telemetry                 = var.enable_telemetry
-  environment                      = "test"
-  existing_resource_group_id       = azurerm_resource_group.this.id
+  spoke_vnet_address_prefixes  = ["10.20.0.0/16"]
+  ddos_protection_enabled      = false
+  enable_telemetry             = var.enable_telemetry
+  environment                  = "test"
+  existing_resource_group_id   = azurerm_resource_group.this.id
+  existing_resource_group_used = true
   # Front Door Configuration
   # Front Door automatically uses Premium SKU with Private Link enabled
   expose_container_apps_with                  = "front_door"
   front_door_waf_enabled                      = false # WAF is optional, defaults to disabled
   log_analytics_workspace_replication_enabled = false
-  tags                                        = {}
-  existing_resource_group_used                = true
-  virtual_machine_jumpbox_os_type             = "none" # disable VM for this example
+  # Optional features
+  sample_application_enabled      = true
+  tags                            = {}
+  virtual_machine_jumpbox_os_type = "none" # disable VM for this example
   # Naming - include random suffix for globally unique names
-  workload_name = "fd${random_string.suffix.result}"
+  workload_name                    = "fd${random_string.suffix.result}"
+  zone_redundant_resources_enabled = true
 }
 
 

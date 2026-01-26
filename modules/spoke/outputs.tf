@@ -51,6 +51,11 @@ output "spoke_infra_subnet_name" {
   value       = module.vnet_spoke.subnets["infra"].name
 }
 
+output "spoke_jumpbox_subnet_id" {
+  description = "The resource ID of the jumpbox subnet, if created; otherwise empty string."
+  value       = try(module.vnet_spoke.subnets["jumpbox"].resource_id, "")
+}
+
 output "spoke_private_endpoints_subnet_id" {
   description = "The resource ID of the spoke private endpoints subnet."
   value       = module.vnet_spoke.subnets["pep"].resource_id
@@ -69,9 +74,4 @@ output "spoke_vnet_id" {
 output "spoke_vnet_name" {
   description = "The name of the spoke virtual network."
   value       = module.vnet_spoke.name
-}
-
-output "spoke_jumpbox_subnet_id" {
-  description = "The resource ID of the jumpbox subnet, if created; otherwise empty string."
-  value       = try(module.vnet_spoke.subnets["jumpbox"].resource_id, "")
 }

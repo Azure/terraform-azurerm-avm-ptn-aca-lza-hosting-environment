@@ -7,6 +7,23 @@
 ###############################################
 
 locals {
+  effective_replication_location = lookup(local.location_pairs, lower(var.location), null)
+  law_base_properties = {
+    sku = {
+      name = "PerGB2018"
+    }
+    retentionInDays = 30
+    features = {
+      searchVersion = "2"
+    }
+  }
+  law_replication_block = var.log_analytics_workspace_replication_enabled && local.effective_replication_location != null ? {
+    replication = {
+      enabled  = true
+      location = local.effective_replication_location
+    }
+  } : {}
+  law_workspace_properties = merge(local.law_base_properties, local.law_replication_block)
   # Location pairs for Log Analytics replication (ported from Bicep)
   location_pairs = {
     canadacentral      = "centralus"
@@ -59,41 +76,19 @@ locals {
     southafricanorth   = "southafricawest"
     southafricawest    = "southafricanorth"
   }
-
-  effective_replication_location = lookup(local.location_pairs, lower(var.location), null)
-
-  law_base_properties = {
-    sku = {
-      name = "PerGB2018"
-    }
-    retentionInDays = 30
-    features = {
-      searchVersion = "2"
-    }
-  }
-
-  law_replication_block = var.log_analytics_workspace_replication_enabled && local.effective_replication_location != null ? {
-    replication = {
-      enabled  = true
-      location = local.effective_replication_location
-    }
-  } : {}
-
-  law_workspace_properties = merge(local.law_base_properties, local.law_replication_block)
 }
 
 resource "azapi_resource" "log_analytics_workspace" {
-  type      = "Microsoft.OperationalInsights/workspaces@2025-02-01"
-  name      = var.resources_names["logAnalyticsWorkspace"]
   location  = var.location
+  name      = var.resources_names["logAnalyticsWorkspace"]
   parent_id = var.resource_group_id
-  tags      = var.tags
-
+  type      = "Microsoft.OperationalInsights/workspaces@2025-02-01"
   body = {
     properties = local.law_workspace_properties
   }
-
   response_export_values = ["id", "name", "properties.customerId"]
+  tags                   = var.tags
+
   lifecycle {
     ignore_changes = [body.properties.features.searchVersion]
   }

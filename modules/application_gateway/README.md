@@ -87,25 +87,17 @@ Type: `string`
 
 Default: `"/"`
 
-### <a name="input_deploy_zone_redundant_resources"></a> [deploy\_zone\_redundant\_resources](#input\_deploy\_zone\_redundant\_resources)
+### <a name="input_ddos_protection_enabled"></a> [ddos\_protection\_enabled](#input\_ddos\_protection\_enabled)
 
-Description: Optional. When true, deploy zone-redundant resources (zones 1,2,3 where supported).
-
-Type: `bool`
-
-Default: `true`
-
-### <a name="input_enable_backend"></a> [enable\_backend](#input\_enable\_backend)
-
-Description: Optional. Enable backend configuration including HTTPS listener and certificate. Set to true when a backend is available.
+Description: Optional. Enable DDoS protection on the Public IP.
 
 Type: `bool`
 
 Default: `false`
 
-### <a name="input_enable_ddos_protection"></a> [enable\_ddos\_protection](#input\_enable\_ddos\_protection)
+### <a name="input_enable_backend"></a> [enable\_backend](#input\_enable\_backend)
 
-Description: Optional. Enable DDoS protection on the Public IP.
+Description: Optional. Enable backend configuration including HTTPS listener and certificate. Set to true when a backend is available.
 
 Type: `bool`
 
@@ -150,6 +142,14 @@ Description: Optional. Tags to apply.
 Type: `map(string)`
 
 Default: `null`
+
+### <a name="input_zone_redundant_resources_enabled"></a> [zone\_redundant\_resources\_enabled](#input\_zone\_redundant\_resources\_enabled)
+
+Description: Optional. When true, deploy zone-redundant resources (zones 1,2,3 where supported).
+
+Type: `bool`
+
+Default: `true`
 
 ## Outputs
 

@@ -24,7 +24,7 @@ The following requirements are needed by this module:
 The following resources are used by this module:
 
 - [modtm_telemetry.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/resources/telemetry) (resource)
-- [null_resource.resource_group_validation](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) (resource)
+- [random_string.naming_unique_id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) (resource)
 - [random_uuid.telemetry](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) (resource)
 - [azapi_client_config.naming](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 - [azapi_client_config.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
@@ -35,13 +35,13 @@ The following resources are used by this module:
 
 The following input variables are required:
 
-### <a name="input_enable_application_insights"></a> [enable\_application\_insights](#input\_enable\_application\_insights)
+### <a name="input_application_insights_enabled"></a> [application\_insights\_enabled](#input\_application\_insights\_enabled)
 
 Description: Required. Enable or disable the creation of Application Insights.
 
 Type: `bool`
 
-### <a name="input_enable_dapr_instrumentation"></a> [enable\_dapr\_instrumentation](#input\_enable\_dapr\_instrumentation)
+### <a name="input_dapr_instrumentation_enabled"></a> [dapr\_instrumentation\_enabled](#input\_dapr\_instrumentation\_enabled)
 
 Description: Required. Enable or disable Dapr Application Instrumentation Key used for Dapr telemetry. If Application Insights is not enabled, this parameter is ignored.
 
@@ -75,39 +75,7 @@ Type: `list(string)`
 
 The following input variables are optional (have default values):
 
-### <a name="input_bastion_subnet_address_prefix"></a> [bastion\_subnet\_address\_prefix](#input\_bastion\_subnet\_address\_prefix)
-
-Description: Optional. The CIDR address prefix of the bastion subnet. Required when enable\_bastion\_access is true. Example: 10.0.1.0/27
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_created_resource_group_name"></a> [created\_resource\_group\_name](#input\_created\_resource\_group\_name)
-
-Description: Optional. Name to use when use\_existing\_resource\_group is true and the module is creating a resource group. Leave null for auto-generation.
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_deploy_sample_application"></a> [deploy\_sample\_application](#input\_deploy\_sample\_application)
-
-Description: Optional. Deploy sample application to the container apps environment. Default is false.
-
-Type: `bool`
-
-Default: `false`
-
-### <a name="input_deploy_zone_redundant_resources"></a> [deploy\_zone\_redundant\_resources](#input\_deploy\_zone\_redundant\_resources)
-
-Description: Optional. Default value is true. If true, any resources that support AZ will be deployed in all three AZ. However if the selected region is not supporting AZ, this parameter needs to be set to false. Default is true.
-
-Type: `bool`
-
-Default: `true`
-
-### <a name="input_enable_bastion_access"></a> [enable\_bastion\_access](#input\_enable\_bastion\_access)
+### <a name="input_bastion_access_enabled"></a> [bastion\_access\_enabled](#input\_bastion\_access\_enabled)
 
 Description: Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host with a VM jumpbox. Default is false.
 
@@ -115,25 +83,45 @@ Type: `bool`
 
 Default: `false`
 
-### <a name="input_enable_ddos_protection"></a> [enable\_ddos\_protection](#input\_enable\_ddos\_protection)
+### <a name="input_bastion_subnet_address_prefix"></a> [bastion\_subnet\_address\_prefix](#input\_bastion\_subnet\_address\_prefix)
 
-Description: Optional. DDoS protection mode. see https://learn.microsoft.com/azure/ddos-protection/ddos-protection-sku-comparison#skus. Default is "false".
+Description: Optional. The CIDR address prefix of the bastion subnet. Required when bastion\_access\_enabled is true. Example: 10.0.1.0/27
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_created_resource_group_name"></a> [created\_resource\_group\_name](#input\_created\_resource\_group\_name)
+
+Description: Optional. Name to use when existing\_resource\_group\_used is true and the module is creating a resource group. Leave null for auto-generation.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_ddos_protection_enabled"></a> [ddos\_protection\_enabled](#input\_ddos\_protection\_enabled)
+
+Description: Optional. Enable DDoS IP Protection on the Application Gateway public IP address.
+
+When enabled, this configures per-IP DDoS protection mode on the Application Gateway's  
+public IP only. This is NOT a DDoS Network Protection Plan.
+
+Note: Per-IP DDoS protection incurs additional costs (~$199/month per protected IP).  
+For enterprise deployments using Azure Landing Zones, consider using a centralized  
+DDoS Network Protection Plan instead.
+
+See https://learn.microsoft.com/azure/ddos-protection/ddos-protection-sku-comparison  
+for SKU comparison and pricing information.
+
+Default is false.
 
 Type: `bool`
 
 Default: `false`
 
-### <a name="input_enable_egress_lockdown"></a> [enable\_egress\_lockdown](#input\_enable\_egress\_lockdown)
+### <a name="input_egress_lockdown_enabled"></a> [egress\_lockdown\_enabled](#input\_egress\_lockdown\_enabled)
 
 Description: Optional. Whether to enable egress lockdown by routing all traffic through a network appliance. When true, network\_appliance\_ip\_address must be provided. Default is false.
-
-Type: `bool`
-
-Default: `false`
-
-### <a name="input_enable_hub_peering"></a> [enable\_hub\_peering](#input\_enable\_hub\_peering)
-
-Description: Optional. Whether to enable peering with a hub virtual network. When true, hub\_virtual\_network\_resource\_id must be provided. Default is false.
 
 Type: `bool`
 
@@ -159,11 +147,19 @@ Default: `"test"`
 
 ### <a name="input_existing_resource_group_id"></a> [existing\_resource\_group\_id](#input\_existing\_resource\_group\_id)
 
-Description: Optional. The resource ID of an existing resource group to use when use\_existing\_resource\_group is set to true. Default is null.
+Description: Optional. The resource ID of an existing resource group to use when existing\_resource\_group\_used is set to true. Default is null.
 
 Type: `string`
 
 Default: `null`
+
+### <a name="input_existing_resource_group_used"></a> [existing\_resource\_group\_used](#input\_existing\_resource\_group\_used)
+
+Description: Optional. Whether to use an existing resource group or create a new one. If true, the module will use the resource group specified in existing\_resource\_group\_id. If false, a new resource group will be created with the name specified in create\_resource\_group\_name (or selected one for you if not specified). Default is false.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_expose_container_apps_with"></a> [expose\_container\_apps\_with](#input\_expose\_container\_apps\_with)
 
@@ -171,9 +167,9 @@ Description: Optional. Specify the way container apps is going to be exposed. Op
 
 Type: `string`
 
-Default: `"applicationGateway"`
+Default: `"application_gateway"`
 
-### <a name="input_front_door_enable_waf"></a> [front\_door\_enable\_waf](#input\_front\_door\_enable\_waf)
+### <a name="input_front_door_waf_enabled"></a> [front\_door\_waf\_enabled](#input\_front\_door\_waf\_enabled)
 
 Description: Optional. Enable Web Application Firewall for Front Door. Default is false.
 
@@ -183,15 +179,15 @@ Default: `false`
 
 ### <a name="input_front_door_waf_policy_name"></a> [front\_door\_waf\_policy\_name](#input\_front\_door\_waf\_policy\_name)
 
-Description: Optional. Name of the WAF policy for Front Door. Required if front\_door\_enable\_waf is true. Default is null.
+Description: Optional. Name of the WAF policy for Front Door. Required if front\_door\_waf\_enabled is true. Default is null.
 
 Type: `string`
 
 Default: `null`
 
-### <a name="input_generate_ssh_key_for_vm"></a> [generate\_ssh\_key\_for\_vm](#input\_generate\_ssh\_key\_for\_vm)
+### <a name="input_hub_peering_enabled"></a> [hub\_peering\_enabled](#input\_hub\_peering\_enabled)
 
-Description: Optional. Whether to auto-generate an SSH key for the Linux VM. When false, vm\_linux\_ssh\_authorized\_key must be provided if using SSH authentication. Default is false.
+Description: Optional. Whether to enable peering with a hub virtual network. When true, hub\_virtual\_network\_resource\_id must be provided. Default is false.
 
 Type: `bool`
 
@@ -199,7 +195,7 @@ Default: `false`
 
 ### <a name="input_hub_virtual_network_resource_id"></a> [hub\_virtual\_network\_resource\_id](#input\_hub\_virtual\_network\_resource\_id)
 
-Description: Optional. The resource ID of the hub virtual network. Required when enable\_hub\_peering is true. If set, the spoke virtual network will be peered with the hub virtual network. Default is null.
+Description: Optional. The resource ID of the hub virtual network. Required when hub\_peering\_enabled is true. If set, the spoke virtual network will be peered with the hub virtual network. Default is null.
 
 Type: `string`
 
@@ -215,7 +211,7 @@ Default: `true`
 
 ### <a name="input_network_appliance_ip_address"></a> [network\_appliance\_ip\_address](#input\_network\_appliance\_ip\_address)
 
-Description: Optional. IP address of the network appliance (e.g., Azure Firewall) for routing egress traffic. Required when enable\_egress\_lockdown is true. Default is null.
+Description: Optional. IP address of the network appliance (e.g., Azure Firewall) for routing egress traffic. Required when egress\_lockdown\_enabled is true. Default is null.
 
 Type: `string`
 
@@ -224,6 +220,14 @@ Default: `null`
 ### <a name="input_route_spoke_traffic_internally"></a> [route\_spoke\_traffic\_internally](#input\_route\_spoke\_traffic\_internally)
 
 Description: Optional. Define whether to route spoke-internal traffic within the spoke network. If false, traffic will be sent to the hub network. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_sample_application_enabled"></a> [sample\_application\_enabled](#input\_sample\_application\_enabled)
+
+Description: Optional. Deploy sample application to the container apps environment. Default is false.
 
 Type: `bool`
 
@@ -253,31 +257,39 @@ Type: `map(string)`
 
 Default: `null`
 
-### <a name="input_use_existing_resource_group"></a> [use\_existing\_resource\_group](#input\_use\_existing\_resource\_group)
+### <a name="input_virtual_machine_admin_password"></a> [virtual\_machine\_admin\_password](#input\_virtual\_machine\_admin\_password)
 
-Description: Optional. Whether to use an existing resource group or create a new one. If true, the module will use the resource group specified in existing\_resource\_group\_id. If false, a new resource group will be created with the name specified in create\_resource\_group\_name (or selected one for you if not specified). Default is false.
+Description: Optional. The password to use for the virtual machine admin account.  
+Required when virtual\_machine\_jumpbox\_os\_type is not 'none' and virtual\_machine\_admin\_password\_generate is false.
 
-Type: `bool`
+NOTE: This value is marked as sensitive and will not be displayed in logs or plan output.  
+However, it will be stored in Terraform state. Ensure your state backend is properly secured
+(e.g., Azure Storage with encryption, Terraform Cloud, etc.).
 
-Default: `false`
-
-### <a name="input_vm_admin_password"></a> [vm\_admin\_password](#input\_vm\_admin\_password)
-
-Description: Optional. The password to use for the virtual machine. Required when vm\_jumpbox\_os\_type is not 'none'. Default is null.
+For production deployments, consider using virtual\_machine\_admin\_password\_generate = true  
+to auto-generate the password and store it securely in Azure Key Vault instead.
 
 Type: `string`
 
 Default: `null`
 
-### <a name="input_vm_authentication_type"></a> [vm\_authentication\_type](#input\_vm\_authentication\_type)
+### <a name="input_virtual_machine_admin_password_generate"></a> [virtual\_machine\_admin\_password\_generate](#input\_virtual\_machine\_admin\_password\_generate)
+
+Description: Optional. When true, auto-generate the admin password and store in Key Vault. The Key Vault is always created by the supporting\_services module. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_virtual_machine_authentication_type"></a> [virtual\_machine\_authentication\_type](#input\_virtual\_machine\_authentication\_type)
 
 Description: Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security. Default is "sshPublicKey".
 
 Type: `string`
 
-Default: `"sshPublicKey"`
+Default: `"ssh_public_key"`
 
-### <a name="input_vm_jumpbox_os_type"></a> [vm\_jumpbox\_os\_type](#input\_vm\_jumpbox\_os\_type)
+### <a name="input_virtual_machine_jumpbox_os_type"></a> [virtual\_machine\_jumpbox\_os\_type](#input\_virtual\_machine\_jumpbox\_os\_type)
 
 Description: Optional. The operating system type of the virtual machine. Default is "none" which results in no VM deployment.
 
@@ -285,29 +297,37 @@ Type: `string`
 
 Default: `"none"`
 
-### <a name="input_vm_jumpbox_subnet_address_prefix"></a> [vm\_jumpbox\_subnet\_address\_prefix](#input\_vm\_jumpbox\_subnet\_address\_prefix)
+### <a name="input_virtual_machine_jumpbox_subnet_address_prefix"></a> [virtual\_machine\_jumpbox\_subnet\_address\_prefix](#input\_virtual\_machine\_jumpbox\_subnet\_address\_prefix)
 
-Description: Optional. CIDR to use for the virtual machine subnet. Required when vm\_jumpbox\_os\_type is not 'none'. Default is null.
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_vm_linux_ssh_authorized_key"></a> [vm\_linux\_ssh\_authorized\_key](#input\_vm\_linux\_ssh\_authorized\_key)
-
-Description: Optional. The SSH public key to use for the virtual machine. Required when vm\_jumpbox\_os\_type is 'linux', vm\_authentication\_type is 'sshPublicKey', and generate\_ssh\_key\_for\_vm is false.
+Description: Optional. CIDR to use for the virtual machine subnet. Required when virtual\_machine\_jumpbox\_os\_type is not 'none'. Default is null.
 
 Type: `string`
 
 Default: `null`
 
-### <a name="input_vm_size"></a> [vm\_size](#input\_vm\_size)
+### <a name="input_virtual_machine_linux_ssh_authorized_key"></a> [virtual\_machine\_linux\_ssh\_authorized\_key](#input\_virtual\_machine\_linux\_ssh\_authorized\_key)
 
-Description: Optional. The size of the virtual machine to create. Required when vm\_jumpbox\_os\_type is not 'none'. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information. Default is null.
+Description: Optional. The SSH public key to use for the virtual machine. Required when virtual\_machine\_jumpbox\_os\_type is 'linux', virtual\_machine\_authentication\_type is 'sshPublicKey', and virtual\_machine\_ssh\_key\_generation\_enabled is false.
 
 Type: `string`
 
 Default: `null`
+
+### <a name="input_virtual_machine_size"></a> [virtual\_machine\_size](#input\_virtual\_machine\_size)
+
+Description: Optional. The size of the virtual machine to create. Required when virtual\_machine\_jumpbox\_os\_type is not 'none'. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information. Default is null.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_virtual_machine_ssh_key_generation_enabled"></a> [virtual\_machine\_ssh\_key\_generation\_enabled](#input\_virtual\_machine\_ssh\_key\_generation\_enabled)
+
+Description: Optional. Whether to auto-generate an SSH key for the Linux VM. When false, virtual\_machine\_linux\_ssh\_authorized\_key must be provided if using SSH authentication. Default is false.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_workload_name"></a> [workload\_name](#input\_workload\_name)
 
@@ -316,6 +336,14 @@ Description: Optional. The name of the workload that is being deployed. Up to 10
 Type: `string`
 
 Default: `"aca-lza"`
+
+### <a name="input_zone_redundant_resources_enabled"></a> [zone\_redundant\_resources\_enabled](#input\_zone\_redundant\_resources\_enabled)
+
+Description: Optional. Default value is true. If true, any resources that support AZ will be deployed in all three AZ. However if the selected region is not supporting AZ, this parameter needs to be set to false. Default is true.
+
+Type: `bool`
+
+Default: `true`
 
 ## Outputs
 
@@ -486,6 +514,18 @@ Version: 0.2.0
 ### <a name="module_supporting_services"></a> [supporting\_services](#module\_supporting\_services)
 
 Source: ./modules/supporting_services
+
+Version:
+
+### <a name="module_vm_linux"></a> [vm\_linux](#module\_vm\_linux)
+
+Source: ./modules/linux_vm
+
+Version:
+
+### <a name="module_vm_windows"></a> [vm\_windows](#module\_vm\_windows)
+
+Source: ./modules/windows_vm
 
 Version:
 

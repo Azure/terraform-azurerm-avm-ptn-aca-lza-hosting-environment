@@ -80,6 +80,14 @@ Type: `string`
 
 The following input variables are optional (have default values):
 
+### <a name="input_application_insights_enabled"></a> [application\_insights\_enabled](#input\_application\_insights\_enabled)
+
+Description: Whether to deploy Application Insights and link to LAW.
+
+Type: `bool`
+
+Default: `true`
+
 ### <a name="input_container_apps_environment_storages"></a> [container\_apps\_environment\_storages](#input\_container\_apps\_environment\_storages)
 
 Description: Additional storage mounts for the ACA environment. Keys are logical names.
@@ -98,33 +106,9 @@ map(object({
 
 Default: `{}`
 
-### <a name="input_deploy_zone_redundant_resources"></a> [deploy\_zone\_redundant\_resources](#input\_deploy\_zone\_redundant\_resources)
+### <a name="input_dapr_instrumentation_enabled"></a> [dapr\_instrumentation\_enabled](#input\_dapr\_instrumentation\_enabled)
 
-Description: If true, deploy zone-redundant resources (ACA env).
-
-Type: `bool`
-
-Default: `true`
-
-### <a name="input_enable_application_insights"></a> [enable\_application\_insights](#input\_enable\_application\_insights)
-
-Description: Whether to deploy Application Insights and link to LAW.
-
-Type: `bool`
-
-Default: `true`
-
-### <a name="input_enable_dapr_instrumentation"></a> [enable\_dapr\_instrumentation](#input\_enable\_dapr\_instrumentation)
-
-Description: Enable Dapr instrumentation using Application Insights (requires enable\_application\_insights).
-
-Type: `bool`
-
-Default: `false`
-
-### <a name="input_enable_hub_peering"></a> [enable\_hub\_peering](#input\_enable\_hub\_peering)
-
-Description: Whether hub peering is enabled. Used to determine if hub VNet link should be created.
+Description: Enable Dapr instrumentation using Application Insights (requires application\_insights\_enabled).
 
 Type: `bool`
 
@@ -138,9 +122,17 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_hub_peering_enabled"></a> [hub\_peering\_enabled](#input\_hub\_peering\_enabled)
+
+Description: Whether hub peering is enabled. Used to determine if hub VNet link should be created.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_hub_virtual_network_id"></a> [hub\_virtual\_network\_id](#input\_hub\_virtual\_network\_id)
 
-Description: Optional hub VNet resource ID to link to the private DNS zone. Required when enable\_hub\_peering is true.
+Description: Optional hub VNet resource ID to link to the private DNS zone. Required when hub\_peering\_enabled is true.
 
 Type: `string`
 
@@ -154,9 +146,21 @@ Type: `map(string)`
 
 Default: `null`
 
+### <a name="input_zone_redundant_resources_enabled"></a> [zone\_redundant\_resources\_enabled](#input\_zone\_redundant\_resources\_enabled)
+
+Description: If true, deploy zone-redundant resources (ACA env).
+
+Type: `bool`
+
+Default: `true`
+
 ## Outputs
 
 The following outputs are exported:
+
+### <a name="output_application_insights_id"></a> [application\_insights\_id](#output\_application\_insights\_id)
+
+Description: Resource ID of Application Insights if created, else null.
 
 ### <a name="output_application_insights_name"></a> [application\_insights\_name](#output\_application\_insights\_name)
 

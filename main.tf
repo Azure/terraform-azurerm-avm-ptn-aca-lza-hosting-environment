@@ -6,13 +6,15 @@ data "azapi_client_config" "naming" {}
 resource "random_string" "naming_unique_id" {
   length  = 13
   lower   = true
-  upper   = false
-  special = false
   numeric = true
+  special = false
+  upper   = false
 }
 
 locals {
   create_custom_named_rg = !local.existing_resource_group_used && var.created_resource_group_name != null && trimspace(var.created_resource_group_name) != ""
+  # Determine if we're using an existing resource group from the input variable
+  existing_resource_group_used = var.existing_resource_group_used
   # Unique naming token from random_string resource (stored in state)
   naming_unique_id = random_string.naming_unique_id.result
   # Resource group ID logic
@@ -20,8 +22,6 @@ locals {
   # Resource group name logic - for existing RG, extract from ID using azapi provider function; for new RG with custom name, use it; otherwise use generated name from naming module
   resource_group_name = local.existing_resource_group_used ? provider::azapi::parse_resource_id("Microsoft.Resources/resourceGroups", var.existing_resource_group_id).resource_group_name : (local.create_custom_named_rg ? var.created_resource_group_name : module.naming.resources_names.resourceGroup)
   safe_location       = replace(var.location, " ", "")
-  # Determine if we're using an existing resource group from the input variable
-  existing_resource_group_used = var.existing_resource_group_used
 }
 
 module "naming" {
@@ -56,14 +56,12 @@ module "spoke" {
   spoke_infra_subnet_address_prefix             = var.spoke_infra_subnet_address_prefix
   spoke_private_endpoints_subnet_address_prefix = var.spoke_private_endpoints_subnet_address_prefix
   spoke_vnet_address_prefixes                   = var.spoke_vnet_address_prefixes
-  # Jumpbox subnet (VM deployed separately)
-  bastion_subnet_address_prefix                 = var.bastion_subnet_address_prefix
   bastion_access_enabled                        = var.bastion_access_enabled
-  egress_lockdown_enabled                       = var.egress_lockdown_enabled
-  hub_peering_enabled                           = var.hub_peering_enabled
-  enable_telemetry                              = var.enable_telemetry
-  virtual_machine_jumpbox_os_type               = var.virtual_machine_jumpbox_os_type
-  virtual_machine_jumpbox_subnet_address_prefix = var.virtual_machine_jumpbox_subnet_address_prefix
+  # Jumpbox subnet (VM deployed separately)
+  bastion_subnet_address_prefix = var.bastion_subnet_address_prefix
+  egress_lockdown_enabled       = var.egress_lockdown_enabled
+  enable_telemetry              = var.enable_telemetry
+  hub_peering_enabled           = var.hub_peering_enabled
   # Networking
   hub_virtual_network_resource_id                 = var.hub_virtual_network_resource_id
   log_analytics_workspace_replication_enabled     = var.log_analytics_workspace_replication_enabled
@@ -71,6 +69,8 @@ module "spoke" {
   route_spoke_traffic_internally                  = var.route_spoke_traffic_internally
   spoke_application_gateway_subnet_address_prefix = var.spoke_application_gateway_subnet_address_prefix
   tags                                            = var.tags
+  virtual_machine_jumpbox_os_type                 = var.virtual_machine_jumpbox_os_type
+  virtual_machine_jumpbox_subnet_address_prefix   = var.virtual_machine_jumpbox_subnet_address_prefix
 }
 
 # Supporting services (ACR, Key Vault, Storage)
@@ -84,12 +84,12 @@ module "supporting_services" {
   resources_names                           = module.naming.resources_names
   spoke_private_endpoint_subnet_resource_id = module.spoke.spoke_private_endpoints_subnet_id
   spoke_vnet_resource_id                    = module.spoke.spoke_vnet_id
-  zone_redundant_resources_enabled          = var.zone_redundant_resources_enabled
-  hub_peering_enabled                       = var.hub_peering_enabled
   expose_container_apps_with                = var.expose_container_apps_with
+  hub_peering_enabled                       = var.hub_peering_enabled
   hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
   log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id
   tags                                      = var.tags
+  zone_redundant_resources_enabled          = var.zone_redundant_resources_enabled
 }
 
 ###############################################
@@ -103,21 +103,21 @@ module "vm_linux" {
   count  = var.virtual_machine_jumpbox_os_type == "linux" ? 1 : 0
 
   enable_telemetry                           = var.enable_telemetry
-  key_vault_resource_id                      = module.supporting_services.key_vault_id
   location                                   = local.safe_location
   log_analytics_workspace_id                 = module.spoke.log_analytics_workspace_id
   name                                       = module.naming.resources_names["vmJumpBox"]
   network_interface_name                     = module.naming.resources_names["vmJumpBoxNic"]
   resource_group_name                        = local.resource_group_name
   subnet_id                                  = module.spoke.spoke_jumpbox_subnet_id
-  virtual_machine_admin_password             = var.virtual_machine_admin_password
-  virtual_machine_admin_password_generate    = var.virtual_machine_admin_password_generate
   virtual_machine_size                       = var.virtual_machine_size
-  virtual_machine_ssh_key_generation_enabled = var.virtual_machine_ssh_key_generation_enabled
+  key_vault_resource_id                      = module.supporting_services.key_vault_id
   storage_account_type                       = var.storage_account_type
   tags                                       = var.tags
+  virtual_machine_admin_password             = var.virtual_machine_admin_password
+  virtual_machine_admin_password_generate    = var.virtual_machine_admin_password_generate
   virtual_machine_authentication_type        = var.virtual_machine_authentication_type
   virtual_machine_linux_ssh_authorized_key   = var.virtual_machine_linux_ssh_authorized_key
+  virtual_machine_ssh_key_generation_enabled = var.virtual_machine_ssh_key_generation_enabled
   virtual_machine_zone                       = var.zone_redundant_resources_enabled ? 2 : 0
 }
 
@@ -126,20 +126,20 @@ module "vm_windows" {
   count  = var.virtual_machine_jumpbox_os_type == "windows" ? 1 : 0
 
   enable_telemetry                        = var.enable_telemetry
-  key_vault_resource_id                   = module.supporting_services.key_vault_id
   location                                = local.safe_location
   log_analytics_workspace_id              = module.spoke.log_analytics_workspace_id
   name                                    = module.naming.resources_names["vmJumpBox"]
   network_interface_name                  = module.naming.resources_names["vmJumpBoxNic"]
   resource_group_name                     = local.resource_group_name
   subnet_id                               = module.spoke.spoke_jumpbox_subnet_id
-  virtual_machine_admin_password          = var.virtual_machine_admin_password
-  virtual_machine_admin_password_generate = var.virtual_machine_admin_password_generate
   virtual_machine_size                    = var.virtual_machine_size
+  key_vault_resource_id                   = module.supporting_services.key_vault_id
   storage_account_type                    = var.storage_account_type
   tags                                    = var.tags
-  vm_windows_os_version                   = "2016-Datacenter"
+  virtual_machine_admin_password          = var.virtual_machine_admin_password
+  virtual_machine_admin_password_generate = var.virtual_machine_admin_password_generate
   virtual_machine_zone                    = var.zone_redundant_resources_enabled ? 2 : 0
+  vm_windows_os_version                   = "2016-Datacenter"
 }
 
 # Container Apps Managed Environment + Private DNS + optional App Insights
@@ -157,17 +157,17 @@ module "container_apps_environment" {
   resource_group_id          = local.resource_group_id
   resource_group_name        = local.resource_group_name
   # Networking
-  spoke_virtual_network_id = module.spoke.spoke_vnet_id
+  spoke_virtual_network_id     = module.spoke.spoke_vnet_id
+  application_insights_enabled = var.application_insights_enabled
   # Optional storage mounts (none by default)
   container_apps_environment_storages = {}
+  dapr_instrumentation_enabled        = var.dapr_instrumentation_enabled
+  enable_telemetry                    = var.enable_telemetry
+  hub_peering_enabled                 = var.hub_peering_enabled
+  hub_virtual_network_id              = var.hub_virtual_network_resource_id
+  tags                                = var.tags
   # Zone redundancy per workload setting
   zone_redundant_resources_enabled = var.zone_redundant_resources_enabled
-  application_insights_enabled     = var.application_insights_enabled
-  dapr_instrumentation_enabled     = var.dapr_instrumentation_enabled
-  hub_peering_enabled              = var.hub_peering_enabled
-  enable_telemetry                 = var.enable_telemetry
-  hub_virtual_network_id           = var.hub_virtual_network_resource_id
-  tags                             = var.tags
 }
 
 # Optional sample application (Hello World) deployed into the ACA environment
@@ -199,19 +199,19 @@ module "application_gateway" {
   resource_group_name = local.resource_group_name
   subnet_id           = module.spoke.spoke_application_gateway_subnet_id
   # Backend - route to sample app if deployed, otherwise leave empty
-  backend_fqdn                     = var.sample_application_enabled ? module.sample_application[0].fqdn : ""
-  backend_probe_path               = "/"
-  zone_redundant_resources_enabled = var.zone_redundant_resources_enabled
-  enable_backend                   = var.sample_application_enabled
-  ddos_protection_enabled          = var.ddos_protection_enabled
-  enable_diagnostics               = true
-  enable_telemetry                 = var.enable_telemetry
+  backend_fqdn            = var.sample_application_enabled ? module.sample_application[0].fqdn : ""
+  backend_probe_path      = "/"
+  ddos_protection_enabled = var.ddos_protection_enabled
+  enable_backend          = var.sample_application_enabled
+  enable_diagnostics      = true
+  enable_telemetry        = var.enable_telemetry
   # Diagnostics and HA
   log_analytics_workspace_id = module.spoke.log_analytics_workspace_id
   # NSG dependency for proper destroy ordering
   # This ensures the Application Gateway is fully destroyed before NSG rules are deleted
-  subnet_nsg_id = module.spoke.spoke_application_gateway_nsg_id
-  tags          = var.tags
+  subnet_nsg_id                    = module.spoke.spoke_application_gateway_nsg_id
+  tags                             = var.tags
+  zone_redundant_resources_enabled = var.zone_redundant_resources_enabled
 }
 
 # Ingress via Front Door (alternative path)

@@ -46,17 +46,17 @@ variable "spoke_vnet_address_prefixes" {
   description = "Required. CIDR of the spoke virtual network."
 }
 
-variable "bastion_subnet_address_prefix" {
-  type        = string
-  default     = null
-  description = "Optional. The CIDR address prefix of the bastion subnet. Required when bastion_access_enabled is true."
-}
-
 variable "bastion_access_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host."
   nullable    = false
+}
+
+variable "bastion_subnet_address_prefix" {
+  type        = string
+  default     = null
+  description = "Optional. The CIDR address prefix of the bastion subnet. Required when bastion_access_enabled is true."
 }
 
 variable "egress_lockdown_enabled" {
@@ -66,17 +66,17 @@ variable "egress_lockdown_enabled" {
   nullable    = false
 }
 
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = "Optional. Enable/Disable module telemetry for AVM submodules."
+}
+
 variable "hub_peering_enabled" {
   type        = bool
   default     = false
   description = "Optional. Whether to enable VNet peering to the hub virtual network. When true, hub_virtual_network_resource_id must be provided."
   nullable    = false
-}
-
-variable "enable_telemetry" {
-  type        = bool
-  default     = true
-  description = "Optional. Enable/Disable module telemetry for AVM submodules."
 }
 
 variable "hub_virtual_network_resource_id" {

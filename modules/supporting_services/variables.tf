@@ -42,16 +42,16 @@ variable "spoke_vnet_resource_id" {
   description = "Spoke VNet resource ID"
 }
 
-variable "zone_redundant_resources_enabled" {
-  type        = bool
-  default     = true
-  description = "If true, use AZ-enabled SKUs where supported"
-}
-
 variable "enable_diagnostics" {
   type        = bool
   default     = true
   description = "Enable diagnostics settings for supporting services"
+}
+
+variable "expose_container_apps_with" {
+  type        = string
+  default     = "application_gateway"
+  description = "Ingress method: 'applicationGateway', 'frontDoor', or 'none'"
 }
 
 variable "hub_peering_enabled" {
@@ -59,12 +59,6 @@ variable "hub_peering_enabled" {
   default     = false
   description = "Whether hub peering is enabled. Used to determine if hub VNet link should be created."
   nullable    = false
-}
-
-variable "expose_container_apps_with" {
-  type        = string
-  default     = "application_gateway"
-  description = "Ingress method: 'applicationGateway', 'frontDoor', or 'none'"
 }
 
 variable "hub_vnet_resource_id" {
@@ -83,4 +77,10 @@ variable "tags" {
   type        = map(string)
   default     = null
   description = "Tags to apply"
+}
+
+variable "zone_redundant_resources_enabled" {
+  type        = bool
+  default     = true
+  description = "If true, use AZ-enabled SKUs where supported"
 }

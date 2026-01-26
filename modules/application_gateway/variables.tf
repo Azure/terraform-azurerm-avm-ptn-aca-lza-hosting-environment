@@ -40,22 +40,16 @@ variable "backend_probe_path" {
   description = "Optional. Path for backend health probe."
 }
 
-variable "zone_redundant_resources_enabled" {
+variable "ddos_protection_enabled" {
   type        = bool
-  default     = true
-  description = "Optional. When true, deploy zone-redundant resources (zones 1,2,3 where supported)."
+  default     = false
+  description = "Optional. Enable DDoS protection on the Public IP."
 }
 
 variable "enable_backend" {
   type        = bool
   default     = false
   description = "Optional. Enable backend configuration including HTTPS listener and certificate. Set to true when a backend is available."
-}
-
-variable "ddos_protection_enabled" {
-  type        = bool
-  default     = false
-  description = "Optional. Enable DDoS protection on the Public IP."
 }
 
 variable "enable_diagnostics" {
@@ -86,4 +80,10 @@ variable "tags" {
   type        = map(string)
   default     = null
   description = "Optional. Tags to apply."
+}
+
+variable "zone_redundant_resources_enabled" {
+  type        = bool
+  default     = true
+  description = "Optional. When true, deploy zone-redundant resources (zones 1,2,3 where supported)."
 }

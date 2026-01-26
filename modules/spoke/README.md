@@ -9,9 +9,15 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.6, < 2.0)
 
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 2.0.0, < 3.0.0)
+
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71.0, < 5.0.0)
+
 ## Resources
 
-No resources.
+The following resources are used by this module:
+
+- [azapi_resource.log_analytics_workspace](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -64,15 +70,7 @@ Type: `list(string)`
 
 The following input variables are optional (have default values):
 
-### <a name="input_bastion_subnet_address_prefix"></a> [bastion\_subnet\_address\_prefix](#input\_bastion\_subnet\_address\_prefix)
-
-Description: Optional. The CIDR address prefix of the bastion subnet. Required when enable\_bastion\_access is true.
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_enable_bastion_access"></a> [enable\_bastion\_access](#input\_enable\_bastion\_access)
+### <a name="input_bastion_access_enabled"></a> [bastion\_access\_enabled](#input\_bastion\_access\_enabled)
 
 Description: Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host.
 
@@ -80,17 +78,17 @@ Type: `bool`
 
 Default: `false`
 
-### <a name="input_enable_egress_lockdown"></a> [enable\_egress\_lockdown](#input\_enable\_egress\_lockdown)
+### <a name="input_bastion_subnet_address_prefix"></a> [bastion\_subnet\_address\_prefix](#input\_bastion\_subnet\_address\_prefix)
+
+Description: Optional. The CIDR address prefix of the bastion subnet. Required when bastion\_access\_enabled is true.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_egress_lockdown_enabled"></a> [egress\_lockdown\_enabled](#input\_egress\_lockdown\_enabled)
 
 Description: Optional. Whether to enable egress lockdown by creating a route table. When true, network\_appliance\_ip\_address must be provided.
-
-Type: `bool`
-
-Default: `false`
-
-### <a name="input_enable_hub_peering"></a> [enable\_hub\_peering](#input\_enable\_hub\_peering)
-
-Description: Optional. Whether to enable VNet peering to the hub virtual network. When true, hub\_virtual\_network\_resource\_id must be provided.
 
 Type: `bool`
 
@@ -104,9 +102,9 @@ Type: `bool`
 
 Default: `true`
 
-### <a name="input_generate_ssh_key_for_vm"></a> [generate\_ssh\_key\_for\_vm](#input\_generate\_ssh\_key\_for\_vm)
+### <a name="input_hub_peering_enabled"></a> [hub\_peering\_enabled](#input\_hub\_peering\_enabled)
 
-Description: Optional. Whether to auto-generate an SSH key for the Linux VM.
+Description: Optional. Whether to enable VNet peering to the hub virtual network. When true, hub\_virtual\_network\_resource\_id must be provided.
 
 Type: `bool`
 
@@ -114,7 +112,7 @@ Default: `false`
 
 ### <a name="input_hub_virtual_network_resource_id"></a> [hub\_virtual\_network\_resource\_id](#input\_hub\_virtual\_network\_resource\_id)
 
-Description: Optional. The resource ID of the existing hub virtual network. Required when enable\_hub\_peering is true.
+Description: Optional. The resource ID of the existing hub virtual network. Required when hub\_peering\_enabled is true.
 
 Type: `string`
 
@@ -130,7 +128,7 @@ Default: `true`
 
 ### <a name="input_network_appliance_ip_address"></a> [network\_appliance\_ip\_address](#input\_network\_appliance\_ip\_address)
 
-Description: Optional. The IP address of the network appliance (e.g. firewall) that will be used to route traffic to the internet. Required when enable\_egress\_lockdown is true.
+Description: Optional. The IP address of the network appliance (e.g. firewall) that will be used to route traffic to the internet. Required when egress\_lockdown\_enabled is true.
 
 Type: `string`
 
@@ -176,14 +174,6 @@ Type: `string`
 
 Default: `"snet-pep"`
 
-### <a name="input_storage_account_type"></a> [storage\_account\_type](#input\_storage\_account\_type)
-
-Description: Optional. The storage account type to use for the jump box. Premium\_LRS is the default for APRL compliance.
-
-Type: `string`
-
-Default: `"Premium_LRS"`
-
 ### <a name="input_tags"></a> [tags](#input\_tags)
 
 Description: Optional. Tags to apply to spoke resources.
@@ -192,49 +182,17 @@ Type: `map(string)`
 
 Default: `null`
 
-### <a name="input_vm_admin_password"></a> [vm\_admin\_password](#input\_vm\_admin\_password)
+### <a name="input_virtual_machine_jumpbox_os_type"></a> [virtual\_machine\_jumpbox\_os\_type](#input\_virtual\_machine\_jumpbox\_os\_type)
 
-Description: Optional. The password to use for the virtual machine. Required when vm\_authentication\_type == 'password' and vm\_jumpbox\_os\_type != 'none'.
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_vm_authentication_type"></a> [vm\_authentication\_type](#input\_vm\_authentication\_type)
-
-Description: Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security.
-
-Type: `string`
-
-Default: `"sshPublicKey"`
-
-### <a name="input_vm_jumpbox_os_type"></a> [vm\_jumpbox\_os\_type](#input\_vm\_jumpbox\_os\_type)
-
-Description: Optional. The operating system type of the virtual machine. If 'none', no VM is deployed.
+Description: Optional. The operating system type of the virtual machine. If 'none', no jumpbox subnet is created.
 
 Type: `string`
 
 Default: `"none"`
 
-### <a name="input_vm_jumpbox_subnet_address_prefix"></a> [vm\_jumpbox\_subnet\_address\_prefix](#input\_vm\_jumpbox\_subnet\_address\_prefix)
+### <a name="input_virtual_machine_jumpbox_subnet_address_prefix"></a> [virtual\_machine\_jumpbox\_subnet\_address\_prefix](#input\_virtual\_machine\_jumpbox\_subnet\_address\_prefix)
 
-Description: Optional. CIDR to use for the virtual machine subnet. Required when vm\_jumpbox\_os\_type != 'none'.
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_vm_linux_ssh_authorized_key"></a> [vm\_linux\_ssh\_authorized\_key](#input\_vm\_linux\_ssh\_authorized\_key)
-
-Description: Optional. The SSH public key to use for the Linux virtual machine. Required when generate\_ssh\_key\_for\_vm is false and using SSH authentication.
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_vm_size"></a> [vm\_size](#input\_vm\_size)
-
-Description: Optional. The size of the virtual machine to create when vm\_jumpbox\_os\_type != 'none'.
+Description: Optional. CIDR to use for the virtual machine subnet. Required when virtual\_machine\_jumpbox\_os\_type != 'none'.
 
 Type: `string`
 
@@ -247,14 +205,6 @@ Description: Optional. The name of the subnet to create for the jump box.
 Type: `string`
 
 Default: `"snet-jumpbox"`
-
-### <a name="input_vm_zone"></a> [vm\_zone](#input\_vm\_zone)
-
-Description: Optional. The zone to create the jump box in. Defaults to 0.
-
-Type: `number`
-
-Default: `0`
 
 ## Outputs
 
@@ -296,6 +246,10 @@ Description: The resource ID of the spoke infrastructure subnet.
 
 Description: The name of the spoke infrastructure subnet.
 
+### <a name="output_spoke_jumpbox_subnet_id"></a> [spoke\_jumpbox\_subnet\_id](#output\_spoke\_jumpbox\_subnet\_id)
+
+Description: The resource ID of the jumpbox subnet, if created; otherwise empty string.
+
 ### <a name="output_spoke_private_endpoints_subnet_id"></a> [spoke\_private\_endpoints\_subnet\_id](#output\_spoke\_private\_endpoints\_subnet\_id)
 
 Description: The resource ID of the spoke private endpoints subnet.
@@ -312,27 +266,9 @@ Description: The resource ID of the spoke virtual network.
 
 Description: The name of the spoke virtual network.
 
-### <a name="output_vm_jumpbox_id"></a> [vm\_jumpbox\_id](#output\_vm\_jumpbox\_id)
-
-Description: The resource ID of the Linux jump box virtual machine (when deployed).
-
-### <a name="output_vm_jumpbox_name"></a> [vm\_jumpbox\_name](#output\_vm\_jumpbox\_name)
-
-Description: The name of the jump box virtual machine, if created; otherwise empty string.
-
-### <a name="output_vm_jumpbox_private_ip"></a> [vm\_jumpbox\_private\_ip](#output\_vm\_jumpbox\_private\_ip)
-
-Description: The private IP address of the jump box virtual machine (when deployed).
-
 ## Modules
 
 The following Modules are called:
-
-### <a name="module_log_analytics"></a> [log\_analytics](#module\_log\_analytics)
-
-Source: ./log_analytics
-
-Version:
 
 ### <a name="module_nsg_appgw"></a> [nsg\_appgw](#module\_nsg\_appgw)
 
@@ -363,18 +299,6 @@ Version: 0.5.0
 Source: Azure/avm-res-network-routetable/azurerm
 
 Version: 0.4.1
-
-### <a name="module_vm_linux"></a> [vm\_linux](#module\_vm\_linux)
-
-Source: ./linux_vm
-
-Version:
-
-### <a name="module_vm_windows"></a> [vm\_windows](#module\_vm\_windows)
-
-Source: ./windows_vm
-
-Version:
 
 ### <a name="module_vnet_spoke"></a> [vnet\_spoke](#module\_vnet\_spoke)
 

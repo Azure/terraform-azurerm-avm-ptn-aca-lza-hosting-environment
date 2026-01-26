@@ -93,34 +93,34 @@ module "aca_lza_hosting" {
   spoke_private_endpoints_subnet_address_prefix = "10.40.2.0/24"
   # Spoke networking - avoid overlap with hub
   spoke_vnet_address_prefixes   = ["10.40.0.0/16"]
+  bastion_access_enabled        = true
   bastion_subnet_address_prefix = azurerm_subnet.bastion.address_prefixes[0]
-  # Deploy all optional features
-  sample_application_enabled = true
-  # Zone redundancy for maximum availability (COMPLEX)
-  zone_redundant_resources_enabled = true
-  bastion_access_enabled           = true
   # DDoS protection disabled for automated testing
-  ddos_protection_enabled                    = false
-  enable_telemetry                           = var.enable_telemetry
-  environment                                = "test"
-  existing_resource_group_id                 = azurerm_resource_group.this.id
-  expose_container_apps_with                 = "application_gateway"
-  virtual_machine_ssh_key_generation_enabled = true
+  ddos_protection_enabled      = false
+  enable_telemetry             = var.enable_telemetry
+  environment                  = "test"
+  existing_resource_group_id   = azurerm_resource_group.this.id
+  existing_resource_group_used = true
+  expose_container_apps_with   = "application_gateway"
   # Bastion Integration (COMPLEX)
-  hub_virtual_network_resource_id                 = azurerm_virtual_network.hub.id
-  log_analytics_workspace_replication_enabled     = false
-  route_spoke_traffic_internally                  = false
+  hub_virtual_network_resource_id             = azurerm_virtual_network.hub.id
+  log_analytics_workspace_replication_enabled = false
+  route_spoke_traffic_internally              = false
+  # Deploy all optional features
+  sample_application_enabled                      = true
   spoke_application_gateway_subnet_address_prefix = "10.40.3.0/24"
   tags                                            = {}
-  existing_resource_group_used                    = true
   virtual_machine_admin_password_generate         = true # Auto-generate password and store in Key Vault
   virtual_machine_authentication_type             = "ssh_public_key"
   virtual_machine_jumpbox_os_type                 = "linux"
   virtual_machine_jumpbox_subnet_address_prefix   = "10.40.5.0/24"
   # Linux VM with SSH for Bastion testing (COMPLEX)
-  virtual_machine_size = "Standard_D2ds_v5"
+  virtual_machine_size                       = "Standard_D2ds_v5"
+  virtual_machine_ssh_key_generation_enabled = true
   # Naming
   workload_name = "bastion"
+  # Zone redundancy for maximum availability (COMPLEX)
+  zone_redundant_resources_enabled = true
 }
 
 

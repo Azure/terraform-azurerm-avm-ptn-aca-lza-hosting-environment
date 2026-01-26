@@ -43,26 +43,26 @@ module "aca_lza_hosting" {
   spoke_private_endpoints_subnet_address_prefix = "172.16.0.32/28" # /28 = 16 IPs
   # Minimal networking - small address spaces
   spoke_vnet_address_prefixes = ["172.16.0.0/24"] # Small /24
-  # NO sample application
-  sample_application_enabled = false
-  # Minimal availability - single zone
-  zone_redundant_resources_enabled = false
   # NO DDoS protection
-  ddos_protection_enabled    = false
-  enable_telemetry           = var.enable_telemetry
-  environment                = "dev"
-  existing_resource_group_id = azurerm_resource_group.this.id
-  expose_container_apps_with = "none" # NO App Gateway
+  ddos_protection_enabled      = false
+  enable_telemetry             = var.enable_telemetry
+  environment                  = "dev"
+  existing_resource_group_id   = azurerm_resource_group.this.id
+  existing_resource_group_used = true
+  expose_container_apps_with   = "none" # NO App Gateway
   # No hub integration - isolated spoke
   hub_virtual_network_resource_id             = ""
   log_analytics_workspace_replication_enabled = false
   network_appliance_ip_address                = ""
   route_spoke_traffic_internally              = true
-  tags                                        = {}
-  existing_resource_group_used                = true
-  virtual_machine_jumpbox_os_type             = "none" # NO VM
+  # NO sample application
+  sample_application_enabled      = false
+  tags                            = {}
+  virtual_machine_jumpbox_os_type = "none" # NO VM
   # Naming - short names to test validation
   workload_name = "min"
+  # Minimal availability - single zone
+  zone_redundant_resources_enabled = false
 }
 
 
