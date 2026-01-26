@@ -177,7 +177,7 @@ The following Modules are called:
 
 Source: Azure/avm-res-compute-virtualmachine/azurerm
 
-Version: ~> 0.19
+Version: 0.19.0
 
 <!-- END\_TF\_DOCS -->
 <!-- END_TF_DOCS -->
