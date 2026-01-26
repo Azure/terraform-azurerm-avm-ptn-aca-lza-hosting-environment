@@ -113,7 +113,7 @@ module "aca_lza_hosting" {
   spoke_application_gateway_subnet_address_prefix = "10.40.3.0/24"
   tags                                            = {}
   existing_resource_group_used                    = true
-  virtual_machine_admin_password                  = "NotUsedForSSH123!" # Required but not used for SSH
+  virtual_machine_admin_password_generate         = true # Auto-generate password and store in Key Vault
   virtual_machine_authentication_type             = "ssh_public_key"
   virtual_machine_jumpbox_os_type                 = "linux"
   virtual_machine_jumpbox_subnet_address_prefix   = "10.40.5.0/24"

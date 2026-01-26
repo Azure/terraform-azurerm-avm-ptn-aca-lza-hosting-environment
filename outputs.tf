@@ -75,12 +75,12 @@ output "key_vault_name" {
 
 output "linux_vm_id" {
   description = "The resource ID of the Linux jump box VM (when deployed)."
-  value       = module.spoke.vm_jumpbox_id
+  value       = var.virtual_machine_jumpbox_os_type == "linux" ? module.vm_linux[0].vm_id : null
 }
 
 output "linux_vm_private_ip" {
   description = "The private IP address of the Linux jump box VM (when deployed)."
-  value       = module.spoke.vm_jumpbox_private_ip
+  value       = var.virtual_machine_jumpbox_os_type == "linux" ? module.vm_linux[0].vm_private_ip : null
 }
 
 output "log_analytics_workspace_id" {

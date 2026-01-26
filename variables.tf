@@ -55,12 +55,14 @@ variable "created_resource_group_name" {
 variable "sample_application_enabled" {
   type        = bool
   default     = false
+  nullable    = false
   description = "Optional. Deploy sample application to the container apps environment. Default is false."
 }
 
 variable "zone_redundant_resources_enabled" {
   type        = bool
   default     = true
+  nullable    = false
   description = "Optional. Default value is true. If true, any resources that support AZ will be deployed in all three AZ. However if the selected region is not supporting AZ, this parameter needs to be set to false. Default is true."
 }
 
@@ -74,7 +76,22 @@ variable "bastion_access_enabled" {
 variable "ddos_protection_enabled" {
   type        = bool
   default     = false
-  description = "Optional. DDoS protection mode. see https://learn.microsoft.com/azure/ddos-protection/ddos-protection-sku-comparison#skus. Default is \"false\"."
+  nullable    = false
+  description = <<-EOT
+    Optional. Enable DDoS IP Protection on the Application Gateway public IP address.
+
+    When enabled, this configures per-IP DDoS protection mode on the Application Gateway's
+    public IP only. This is NOT a DDoS Network Protection Plan.
+
+    Note: Per-IP DDoS protection incurs additional costs (~$199/month per protected IP).
+    For enterprise deployments using Azure Landing Zones, consider using a centralized
+    DDoS Network Protection Plan instead.
+
+    See https://learn.microsoft.com/azure/ddos-protection/ddos-protection-sku-comparison
+    for SKU comparison and pricing information.
+
+    Default is false.
+  EOT
 }
 
 variable "egress_lockdown_enabled" {
@@ -106,6 +123,7 @@ DESCRIPTION
 variable "environment" {
   type        = string
   default     = "test"
+  nullable    = false
   description = "Optional. The name of the environment (e.g. \"dev\", \"test\", \"prod\", \"uat\", \"dr\", \"qa\"). Up to 8 characters long. Default is \"test\"."
 
   validation {
@@ -128,6 +146,7 @@ variable "existing_resource_group_id" {
 variable "expose_container_apps_with" {
   type        = string
   default     = "application_gateway"
+  nullable    = false
   description = "Optional. Specify the way container apps is going to be exposed. Options are applicationGateway, frontDoor, or none. Default is \"applicationGateway\"."
 
   validation {
@@ -139,6 +158,7 @@ variable "expose_container_apps_with" {
 variable "front_door_waf_enabled" {
   type        = bool
   default     = false
+  nullable    = false
   description = "Optional. Enable Web Application Firewall for Front Door. Default is false."
 }
 
@@ -187,6 +207,7 @@ variable "network_appliance_ip_address" {
 variable "route_spoke_traffic_internally" {
   type        = bool
   default     = false
+  nullable    = false
   description = "Optional. Define whether to route spoke-internal traffic within the spoke network. If false, traffic will be sent to the hub network. Default is false."
 }
 
@@ -204,6 +225,7 @@ variable "spoke_application_gateway_subnet_address_prefix" {
 variable "storage_account_type" {
   type        = string
   default     = "Premium_LRS"
+  nullable    = false
   description = "Optional. The storage account type to use for the jump box. Defaults to `Premium_LRS` for APRL compliance."
 }
 
@@ -216,24 +238,43 @@ variable "tags" {
 variable "existing_resource_group_used" {
   type        = bool
   default     = false
+  nullable    = false
   description = "Optional. Whether to use an existing resource group or create a new one. If true, the module will use the resource group specified in existing_resource_group_id. If false, a new resource group will be created with the name specified in create_resource_group_name (or selected one for you if not specified). Default is false."
 }
 
 variable "virtual_machine_admin_password" {
   type        = string
   default     = null
-  description = "Optional. The password to use for the virtual machine. Required when virtual_machine_jumpbox_os_type is not 'none'. Default is null."
   sensitive   = true
+  description = <<-EOT
+    Optional. The password to use for the virtual machine admin account.
+    Required when virtual_machine_jumpbox_os_type is not 'none' and virtual_machine_admin_password_generate is false.
+
+    NOTE: This value is marked as sensitive and will not be displayed in logs or plan output.
+    However, it will be stored in Terraform state. Ensure your state backend is properly secured
+    (e.g., Azure Storage with encryption, Terraform Cloud, etc.).
+
+    For production deployments, consider using virtual_machine_admin_password_generate = true
+    to auto-generate the password and store it securely in Azure Key Vault instead.
+  EOT
 
   validation {
-    condition     = var.virtual_machine_jumpbox_os_type == "none" || var.virtual_machine_admin_password != null
-    error_message = "virtual_machine_admin_password is required when virtual_machine_jumpbox_os_type is not 'none'."
+    condition     = var.virtual_machine_jumpbox_os_type == "none" || var.virtual_machine_admin_password_generate || var.virtual_machine_admin_password != null
+    error_message = "virtual_machine_admin_password must be provided when virtual_machine_jumpbox_os_type is not 'none' and virtual_machine_admin_password_generate is false."
   }
+}
+
+variable "virtual_machine_admin_password_generate" {
+  type        = bool
+  default     = false
+  nullable    = false
+  description = "Optional. When true, auto-generate the admin password and store in Key Vault. The Key Vault is always created by the supporting_services module. Default is false."
 }
 
 variable "virtual_machine_authentication_type" {
   type        = string
   default     = "ssh_public_key"
+  nullable    = false
   description = "Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security. Default is \"sshPublicKey\"."
 
   validation {
@@ -245,6 +286,7 @@ variable "virtual_machine_authentication_type" {
 variable "virtual_machine_jumpbox_os_type" {
   type        = string
   default     = "none"
+  nullable    = false
   description = "Optional. The operating system type of the virtual machine. Default is \"none\" which results in no VM deployment."
 
   validation {
@@ -292,6 +334,7 @@ variable "virtual_machine_size" {
 variable "workload_name" {
   type        = string
   default     = "aca-lza"
+  nullable    = false
   description = "Optional. The name of the workload that is being deployed. Up to 10 characters long."
 
   validation {

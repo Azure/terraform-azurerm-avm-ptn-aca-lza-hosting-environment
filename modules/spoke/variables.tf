@@ -79,13 +79,6 @@ variable "enable_telemetry" {
   description = "Optional. Enable/Disable module telemetry for AVM submodules."
 }
 
-variable "virtual_machine_ssh_key_generation_enabled" {
-  type        = bool
-  default     = false
-  description = "Optional. Whether to auto-generate an SSH key for the Linux VM."
-  nullable    = false
-}
-
 variable "hub_virtual_network_resource_id" {
   type        = string
   default     = null
@@ -135,35 +128,16 @@ variable "spoke_private_endpoints_subnet_name" {
   description = "Optional. The name of the subnet to create for the spoke private endpoints. If set, overrides the default name 'snet-pep'."
 }
 
-variable "storage_account_type" {
-  type        = string
-  default     = "Premium_LRS"
-  description = "Optional. The storage account type to use for the jump box. Premium_LRS is the default for APRL compliance."
-}
-
 variable "tags" {
   type        = map(string)
   default     = null
   description = "Optional. Tags to apply to spoke resources."
 }
 
-variable "virtual_machine_admin_password" {
-  type        = string
-  default     = null
-  description = "Optional. The password to use for the virtual machine. Required when virtual_machine_authentication_type == 'password' and virtual_machine_jumpbox_os_type != 'none'."
-  sensitive   = true
-}
-
-variable "virtual_machine_authentication_type" {
-  type        = string
-  default     = "ssh_public_key"
-  description = "Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security."
-}
-
 variable "virtual_machine_jumpbox_os_type" {
   type        = string
   default     = "none"
-  description = "Optional. The operating system type of the virtual machine. If 'none', no VM is deployed."
+  description = "Optional. The operating system type of the virtual machine. If 'none', no jumpbox subnet is created."
 }
 
 variable "virtual_machine_jumpbox_subnet_address_prefix" {
@@ -172,27 +146,8 @@ variable "virtual_machine_jumpbox_subnet_address_prefix" {
   description = "Optional. CIDR to use for the virtual machine subnet. Required when virtual_machine_jumpbox_os_type != 'none'."
 }
 
-variable "virtual_machine_linux_ssh_authorized_key" {
-  type        = string
-  default     = null
-  description = "Optional. The SSH public key to use for the Linux virtual machine. Required when virtual_machine_ssh_key_generation_enabled is false and using SSH authentication."
-  sensitive   = true
-}
-
-variable "virtual_machine_size" {
-  type        = string
-  default     = null
-  description = "Optional. The size of the virtual machine to create when virtual_machine_jumpbox_os_type != 'none'."
-}
-
 variable "vm_subnet_name" {
   type        = string
   default     = "snet-jumpbox"
   description = "Optional. The name of the subnet to create for the jump box."
-}
-
-variable "virtual_machine_zone" {
-  type        = number
-  default     = 0
-  description = "Optional. The zone to create the jump box in. Defaults to 0."
 }

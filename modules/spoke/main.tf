@@ -1,17 +1,102 @@
 ###############################################
-# Spoke core resources via AVM submodules    #
+# Spoke core resources                       #
 ###############################################
 
-module "log_analytics" {
-  source = "./log_analytics" # tflint-ignore: required_module_source_tffr1
+###############################################
+# Log Analytics Workspace (AzAPI)            #
+###############################################
 
-  location            = var.location
-  name                = var.resources_names["logAnalyticsWorkspace"]
-  resource_group_id   = var.resource_group_id
-  replication_enabled = var.log_analytics_workspace_replication_enabled
-  retention_in_days   = 30
-  sku                 = "PerGB2018"
-  tags                = var.tags
+locals {
+  # Location pairs for Log Analytics replication (ported from Bicep)
+  location_pairs = {
+    canadacentral      = "centralus"
+    canadaeast         = "canadacentral"
+    centralus          = "eastus"
+    eastus             = "centralus"
+    eastus2            = "centralus"
+    northcentralus     = "centralus"
+    southcentralus     = "westus"
+    westcentralus      = "westus"
+    westus             = "westus2"
+    westus2            = "westus"
+    westus3            = "westus2"
+    brazilsouth        = "brazilsoutheast"
+    brazilsoutheast    = "brazilsouth"
+    francecentral      = "westeurope"
+    francesouth        = "francecentral"
+    germanynorth       = "northeurope"
+    germanywestcentral = "germanynorth"
+    italynorth         = "francecentral"
+    northeurope        = "westeurope"
+    norwayeast         = "northeurope"
+    norwaywest         = "northeurope"
+    polandcentral      = "northeurope"
+    southuk            = "westeurope"
+    uksouth            = "westeurope"
+    spaincentral       = "francecentral"
+    swedencentral      = "northeurope"
+    swedensouth        = "swedencentral"
+    switzerlandnorth   = "westeurope"
+    switzerlandwest    = "westeurope"
+    westeurope         = "northeurope"
+    westuk             = "southuk"
+    ukwest             = "uksouth"
+    qatarcentral       = "uaecentral"
+    uaecentral         = "uaenorth"
+    uaenorth           = "qatarcentral"
+    centralindia       = "southindia"
+    southindia         = "centralindia"
+    eastasia           = "southeastasia"
+    japaneast          = "japanwest"
+    japanwest          = "japaneast"
+    koreacentral       = "koreasouth"
+    koreasouth         = "koreacentral"
+    southeastasia      = "eastasia"
+    australiacentral   = "australiaeast"
+    australiacentral2  = "australiacentral"
+    australiaeast      = "australiasoutheast"
+    australiasoutheast = "australiaeast"
+    southafricanorth   = "southafricawest"
+    southafricawest    = "southafricanorth"
+  }
+
+  effective_replication_location = lookup(local.location_pairs, lower(var.location), null)
+
+  law_base_properties = {
+    sku = {
+      name = "PerGB2018"
+    }
+    retentionInDays = 30
+    features = {
+      searchVersion = "2"
+    }
+  }
+
+  law_replication_block = var.log_analytics_workspace_replication_enabled && local.effective_replication_location != null ? {
+    replication = {
+      enabled  = true
+      location = local.effective_replication_location
+    }
+  } : {}
+
+  law_workspace_properties = merge(local.law_base_properties, local.law_replication_block)
+}
+
+resource "azapi_resource" "log_analytics_workspace" {
+  type      = "Microsoft.OperationalInsights/workspaces@2025-02-01"
+  name      = var.resources_names["logAnalyticsWorkspace"]
+  location  = var.location
+  parent_id = var.resource_group_id
+  tags      = var.tags
+
+  body = {
+    properties = local.law_workspace_properties
+  }
+
+  response_export_values = ["id", "name", "properties.customerId"]
+  lifecycle {
+    ignore_changes = [body.properties.features.searchVersion]
+  }
 }
 
 ###############################################
@@ -31,15 +116,15 @@ module "nsg_container_apps_env" {
   name                = var.resources_names["containerAppsEnvironmentNsg"]
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
-    logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
+    log_analytics_settings = {
+      name                  = "log-analytics-settings"
+      workspace_resource_id = azapi_resource.log_analytics_workspace.id
     }
   }
   enable_telemetry = var.enable_telemetry
   security_rules = {
-    Allow_Internal_AKS_Connection_Between_Nodes_And_Control_Plane_UDP = {
-      name                       = "Allow_Internal_AKS_Connection_Between_Nodes_And_Control_Plane_UDP"
+    allow_internal_aks_connection_between_nodes_and_control_plane_udp = {
+      name                       = "allow-internal-aks-connection-between-nodes-and-control-plane-udp"
       description                = "internal AKS secure connection between underlying nodes and control plane.."
       protocol                   = "Udp"
       source_address_prefix      = "VirtualNetwork"
@@ -50,8 +135,8 @@ module "nsg_container_apps_env" {
       priority                   = 100
       direction                  = "Outbound"
     }
-    Allow_Internal_AKS_Connection_Between_Nodes_And_Control_Plane_TCP = {
-      name                       = "Allow_Internal_AKS_Connection_Between_Nodes_And_Control_Plane_TCP"
+    allow_internal_aks_connection_between_nodes_and_control_plane_tcp = {
+      name                       = "allow-internal-aks-connection-between-nodes-and-control-plane-tcp"
       description                = "internal AKS secure connection between underlying nodes and control plane.."
       protocol                   = "Tcp"
       source_address_prefix      = "VirtualNetwork"
@@ -62,8 +147,8 @@ module "nsg_container_apps_env" {
       priority                   = 110
       direction                  = "Outbound"
     }
-    Allow_Azure_Monitor = {
-      name                       = "Allow_Azure_Monitor"
+    allow_azure_monitor = {
+      name                       = "allow-azure-monitor"
       description                = "Allows outbound calls to Azure Monitor."
       protocol                   = "Tcp"
       source_address_prefix      = "VirtualNetwork"
@@ -74,8 +159,8 @@ module "nsg_container_apps_env" {
       priority                   = 120
       direction                  = "Outbound"
     }
-    Allow_Outbound_443 = {
-      name                       = "Allow_Outbound_443"
+    allow_outbound_443 = {
+      name                       = "allow-outbound-443"
       description                = "Allowing all outbound on port 443 provides a way to allow all FQDN based outbound dependencies that don't have a static IP"
       protocol                   = "Tcp"
       source_address_prefix      = "VirtualNetwork"
@@ -86,8 +171,8 @@ module "nsg_container_apps_env" {
       priority                   = 130
       direction                  = "Outbound"
     }
-    Allow_NTP_Server = {
-      name                       = "Allow_NTP_Server"
+    allow_ntp_server = {
+      name                       = "allow-ntp-server"
       description                = "NTP server"
       protocol                   = "Udp"
       source_address_prefix      = "VirtualNetwork"
@@ -98,8 +183,8 @@ module "nsg_container_apps_env" {
       priority                   = 140
       direction                  = "Outbound"
     }
-    Allow_Container_Apps_control_plane = {
-      name                       = "Allow_Container_Apps_control_plane"
+    allow_container_apps_control_plane = {
+      name                       = "allow-container-apps-control-plane"
       description                = "Container Apps control plane"
       protocol                   = "Tcp"
       source_address_prefix      = "VirtualNetwork"
@@ -134,15 +219,15 @@ module "nsg_appgw" {
   name                = var.resources_names["applicationGatewayNsg"]
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
-    logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
+    log_analytics_settings = {
+      name                  = "log-analytics-settings"
+      workspace_resource_id = azapi_resource.log_analytics_workspace.id
     }
   }
   enable_telemetry = var.enable_telemetry
   security_rules = {
-    HealthProbes = {
-      name                       = "HealthProbes"
+    health_probes = {
+      name                       = "health-probes"
       description                = "allow HealthProbes from gateway Manager."
       protocol                   = "*"
       source_address_prefix      = "GatewayManager"
@@ -153,8 +238,8 @@ module "nsg_appgw" {
       priority                   = 100
       direction                  = "Inbound"
     }
-    Allow_TLS = {
-      name                       = "Allow_TLS"
+    allow_tls = {
+      name                       = "allow-tls"
       description                = "allow https incoming connections"
       protocol                   = "*"
       source_address_prefix      = "*"
@@ -165,8 +250,8 @@ module "nsg_appgw" {
       priority                   = 110
       direction                  = "Inbound"
     }
-    Allow_HTTP = {
-      name                       = "Allow_HTTP"
+    allow_http = {
+      name                       = "allow-http"
       description                = "allow http incoming connections"
       protocol                   = "*"
       source_address_prefix      = "*"
@@ -177,8 +262,8 @@ module "nsg_appgw" {
       priority                   = 120
       direction                  = "Inbound"
     }
-    Allow_AzureLoadBalancer = {
-      name                       = "Allow_AzureLoadBalancer"
+    allow_azure_load_balancer = {
+      name                       = "allow-azure-load-balancer"
       description                = "allow AzureLoadBalancer incoming connections"
       protocol                   = "*"
       source_address_prefix      = "AzureLoadBalancer"
@@ -212,9 +297,9 @@ module "nsg_pep" {
   name                = var.resources_names["pepNsg"]
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
-    logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
+    log_analytics_settings = {
+      name                  = "log-analytics-settings"
+      workspace_resource_id = azapi_resource.log_analytics_workspace.id
     }
   }
   enable_telemetry = var.enable_telemetry
@@ -243,9 +328,9 @@ module "nsg_jumpbox" {
   name                = var.resources_names["vmJumpBoxNsg"]
   resource_group_name = var.resource_group_name
   diagnostic_settings = {
-    logAnalyticsSettings = {
-      name                  = "logAnalyticsSettings"
-      workspace_resource_id = module.log_analytics.id
+    log_analytics_settings = {
+      name                  = "log-analytics-settings"
+      workspace_resource_id = azapi_resource.log_analytics_workspace.id
     }
   }
   enable_telemetry = var.enable_telemetry
@@ -275,8 +360,8 @@ locals {
   # Build routes only when needed - keys are fully static based on input variables
   route_table_routes = local.create_route_table ? merge(
     {
-      defaultEgressLockdown = {
-        name                   = "defaultEgressLockdown"
+      default_egress_lockdown = {
+        name                   = "default-egress-lockdown"
         address_prefix         = "0.0.0.0/0"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = var.network_appliance_ip_address
@@ -284,8 +369,8 @@ locals {
     },
     var.route_spoke_traffic_internally ? {
       for idx, prefix in var.spoke_vnet_address_prefixes :
-      "spokeInternalTraffic-${idx}" => {
-        name           = "spokeInternalTraffic-${idx}"
+      "spoke_internal_traffic_${idx}" => {
+        name           = "spoke-internal-traffic-${idx}"
         address_prefix = prefix
         next_hop_type  = "VnetLocal"
       }
@@ -319,15 +404,15 @@ module "vnet_spoke" {
   enable_telemetry = var.enable_telemetry
   name             = var.resources_names["vnetSpoke"]
   peerings = var.hub_peering_enabled ? {
-    spokeToHub = {
-      name                                 = "spokeToHub"
+    spoke_to_hub = {
+      name                                 = "spoke-to-hub"
       remote_virtual_network_resource_id   = var.hub_virtual_network_resource_id
       allow_forwarded_traffic              = true
       allow_gateway_transit                = false
       allow_virtual_network_access         = true
       use_remote_gateways                  = false
       create_reverse_peering               = true
-      reverse_name                         = "hubToSpoke"
+      reverse_name                         = "hub-to-spoke"
       reverse_allow_forwarded_traffic      = true
       reverse_allow_gateway_transit        = false
       reverse_allow_virtual_network_access = true
@@ -382,42 +467,3 @@ module "vnet_spoke" {
 # Optional Jumpbox VM                         #
 ###############################################
 
-module "vm_linux" {
-  source = "./linux_vm" # tflint-ignore: required_module_source_tffr1
-  count  = var.virtual_machine_jumpbox_os_type == "linux" ? 1 : 0
-
-  enable_telemetry                           = var.enable_telemetry
-  location                                   = var.location
-  log_analytics_workspace_id                 = module.log_analytics.id
-  name                                       = var.resources_names["vmJumpBox"]
-  network_interface_name                     = var.resources_names["vmJumpBoxNic"]
-  resource_group_name                        = var.resource_group_name
-  subnet_id                                  = module.vnet_spoke.subnets["jumpbox"].resource_id
-  virtual_machine_admin_password             = var.virtual_machine_admin_password
-  virtual_machine_size                       = var.virtual_machine_size
-  virtual_machine_ssh_key_generation_enabled = var.virtual_machine_ssh_key_generation_enabled
-  storage_account_type                       = var.storage_account_type
-  tags                                       = var.tags
-  virtual_machine_authentication_type        = var.virtual_machine_authentication_type
-  virtual_machine_linux_ssh_authorized_key   = var.virtual_machine_linux_ssh_authorized_key
-  virtual_machine_zone                       = var.virtual_machine_zone
-}
-
-module "vm_windows" {
-  source = "./windows_vm" # tflint-ignore: required_module_source_tffr1
-  count  = var.virtual_machine_jumpbox_os_type == "windows" ? 1 : 0
-
-  enable_telemetry               = var.enable_telemetry
-  location                       = var.location
-  log_analytics_workspace_id     = module.log_analytics.id
-  name                           = var.resources_names["vmJumpBox"]
-  network_interface_name         = var.resources_names["vmJumpBoxNic"]
-  resource_group_name            = var.resource_group_name
-  subnet_id                      = module.vnet_spoke.subnets["jumpbox"].resource_id
-  virtual_machine_admin_password = var.virtual_machine_admin_password
-  virtual_machine_size           = var.virtual_machine_size
-  storage_account_type           = var.storage_account_type
-  tags                           = var.tags
-  vm_windows_os_version          = "2016-Datacenter"
-  virtual_machine_zone           = var.virtual_machine_zone
-}

@@ -3,6 +3,41 @@ locals {
   # Convert to set then back to list to get consistent list(string) type
   ssh_keys_set  = !var.virtual_machine_ssh_key_generation_enabled && var.virtual_machine_linux_ssh_authorized_key != null ? toset([var.virtual_machine_linux_ssh_authorized_key]) : toset([])
   ssh_keys_list = tolist(local.ssh_keys_set)
+
+  # Determine if we're using SSH authentication
+  use_ssh_auth = var.virtual_machine_authentication_type == "ssh_public_key"
+
+  # Determine the actual password to use (only relevant for password auth)
+  # If generating, use the generated password; otherwise use the provided password
+  effective_password = var.virtual_machine_admin_password_generate ? random_password.admin[0].result : var.virtual_machine_admin_password
+}
+
+# Generate password if requested (count is based on boolean, known at plan time)
+resource "random_password" "admin" {
+  count = var.virtual_machine_admin_password_generate ? 1 : 0
+
+  length           = 24
+  special          = true
+  override_special = "!@#$%&*()-_=+[]{}|;:,.<>?"
+  min_lower        = 2
+  min_upper        = 2
+  min_numeric      = 2
+  min_special      = 2
+}
+
+# Store password in Key Vault (only when using password auth, not SSH)
+# Uses azurerm_key_vault_secret as it handles soft-delete lifecycle properly
+resource "azurerm_key_vault_secret" "admin_password" {
+  count = !local.use_ssh_auth ? 1 : 0
+
+  name         = "${var.name}-admin-password"
+  value        = local.effective_password
+  key_vault_id = var.key_vault_resource_id
+  content_type = "text/plain"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 module "vm" {
@@ -17,13 +52,19 @@ module "vm" {
   sku_size            = var.virtual_machine_size
   zone                = var.virtual_machine_zone
 
+  # Disable encryption at host as it requires subscription feature registration
+  encryption_at_host_enabled = false
+
   account_credentials = {
     admin_credentials = {
-      username                           = "localAdministrator"
-      generate_admin_password_or_ssh_key = var.virtual_machine_ssh_key_generation_enabled
+      username = "localAdministrator"
+      # Only generate SSH key when using SSH auth and key generation is enabled
+      generate_admin_password_or_ssh_key = local.use_ssh_auth && var.virtual_machine_ssh_key_generation_enabled
       ssh_keys                           = local.ssh_keys_list
+      # Only pass password when using password authentication
+      password = local.use_ssh_auth ? null : local.effective_password
     }
-    password_authentication_disabled = true
+    password_authentication_disabled = local.use_ssh_auth
   }
 
   admin_ssh_keys = !var.virtual_machine_ssh_key_generation_enabled && var.virtual_machine_linux_ssh_authorized_key != null ? [{

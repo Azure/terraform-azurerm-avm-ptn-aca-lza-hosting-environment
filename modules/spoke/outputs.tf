@@ -6,23 +6,19 @@
 # Networking outputs                          #
 ###############################################
 
-###############################################
-# VM outputs                                   #
-###############################################
-
 output "log_analytics_workspace_customer_id" {
   description = "The customer ID (workspace ID) of the Azure Log Analytics Workspace."
-  value       = module.log_analytics.workspace_id
+  value       = try(azapi_resource.log_analytics_workspace.output.properties.customerId, null)
 }
 
 output "log_analytics_workspace_id" {
   description = "The resource ID of the Azure Log Analytics Workspace."
-  value       = module.log_analytics.id
+  value       = azapi_resource.log_analytics_workspace.id
 }
 
 output "log_analytics_workspace_name" {
   description = "The name of the Azure Log Analytics Workspace."
-  value       = module.log_analytics.name
+  value       = azapi_resource.log_analytics_workspace.name
 }
 
 output "resource_id" {
@@ -75,17 +71,7 @@ output "spoke_vnet_name" {
   value       = module.vnet_spoke.name
 }
 
-output "vm_jumpbox_id" {
-  description = "The resource ID of the Linux jump box virtual machine (when deployed)."
-  value       = var.virtual_machine_jumpbox_os_type == "linux" ? module.vm_linux[0].vm_id : (var.virtual_machine_jumpbox_os_type == "windows" ? null : null) # Windows VM doesn't have output yet
-}
-
-output "vm_jumpbox_name" {
-  description = "The name of the jump box virtual machine, if created; otherwise empty string."
-  value       = var.resources_names["vmJumpBox"]
-}
-
-output "vm_jumpbox_private_ip" {
-  description = "The private IP address of the jump box virtual machine (when deployed)."
-  value       = var.virtual_machine_jumpbox_os_type == "linux" ? module.vm_linux[0].vm_private_ip : (var.virtual_machine_jumpbox_os_type == "windows" ? null : null) # Windows VM doesn't have output yet
+output "spoke_jumpbox_subnet_id" {
+  description = "The resource ID of the jumpbox subnet, if created; otherwise empty string."
+  value       = try(module.vnet_spoke.subnets["jumpbox"].resource_id, "")
 }

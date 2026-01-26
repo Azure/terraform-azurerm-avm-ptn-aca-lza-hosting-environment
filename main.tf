@@ -2,20 +2,23 @@
 
 data "azapi_client_config" "naming" {}
 
+# Random string for unique naming - stored in state for consistency
+resource "random_string" "naming_unique_id" {
+  length  = 13
+  lower   = true
+  upper   = false
+  special = false
+  numeric = true
+}
+
 locals {
   create_custom_named_rg = !local.existing_resource_group_used && var.created_resource_group_name != null && trimspace(var.created_resource_group_name) != ""
-  # Deterministic uniqueness token derived from subscription + inputs
-  naming_unique_id = substr(lower(replace(base64encode(sha256(local.naming_unique_seed)), "=", "")), 0, 13)
-  naming_unique_seed = join("|", [
-    data.azapi_client_config.naming.subscription_id,
-    local.safe_location,
-    var.environment,
-    var.workload_name,
-  ])
+  # Unique naming token from random_string resource (stored in state)
+  naming_unique_id = random_string.naming_unique_id.result
   # Resource group ID logic
   resource_group_id = local.existing_resource_group_used ? var.existing_resource_group_id : module.spoke_resource_group[0].resource_id
   # Resource group name logic - for existing RG, extract from ID using azapi provider function; for new RG with custom name, use it; otherwise use generated name from naming module
-  resource_group_name = local.existing_resource_group_used ? provider::azapi::parse_resource_id(var.existing_resource_group_id).resource_group_name : (local.create_custom_named_rg ? var.created_resource_group_name : module.naming.resources_names.resourceGroup)
+  resource_group_name = local.existing_resource_group_used ? provider::azapi::parse_resource_id("Microsoft.Resources/resourceGroups", var.existing_resource_group_id).resource_group_name : (local.create_custom_named_rg ? var.created_resource_group_name : module.naming.resources_names.resourceGroup)
   safe_location       = replace(var.location, " ", "")
   # Determine if we're using an existing resource group from the input variable
   existing_resource_group_used = var.existing_resource_group_used
@@ -53,28 +56,21 @@ module "spoke" {
   spoke_infra_subnet_address_prefix             = var.spoke_infra_subnet_address_prefix
   spoke_private_endpoints_subnet_address_prefix = var.spoke_private_endpoints_subnet_address_prefix
   spoke_vnet_address_prefixes                   = var.spoke_vnet_address_prefixes
-  # Jumpbox VM
-  bastion_subnet_address_prefix              = var.bastion_subnet_address_prefix
-  bastion_access_enabled                     = var.bastion_access_enabled
-  egress_lockdown_enabled                    = var.egress_lockdown_enabled
-  hub_peering_enabled                        = var.hub_peering_enabled
-  enable_telemetry                           = var.enable_telemetry
-  virtual_machine_ssh_key_generation_enabled = var.virtual_machine_ssh_key_generation_enabled
+  # Jumpbox subnet (VM deployed separately)
+  bastion_subnet_address_prefix                 = var.bastion_subnet_address_prefix
+  bastion_access_enabled                        = var.bastion_access_enabled
+  egress_lockdown_enabled                       = var.egress_lockdown_enabled
+  hub_peering_enabled                           = var.hub_peering_enabled
+  enable_telemetry                              = var.enable_telemetry
+  virtual_machine_jumpbox_os_type               = var.virtual_machine_jumpbox_os_type
+  virtual_machine_jumpbox_subnet_address_prefix = var.virtual_machine_jumpbox_subnet_address_prefix
   # Networking
   hub_virtual_network_resource_id                 = var.hub_virtual_network_resource_id
   log_analytics_workspace_replication_enabled     = var.log_analytics_workspace_replication_enabled
   network_appliance_ip_address                    = var.network_appliance_ip_address
   route_spoke_traffic_internally                  = var.route_spoke_traffic_internally
   spoke_application_gateway_subnet_address_prefix = var.spoke_application_gateway_subnet_address_prefix
-  storage_account_type                            = var.storage_account_type
   tags                                            = var.tags
-  virtual_machine_admin_password                  = var.virtual_machine_admin_password
-  virtual_machine_authentication_type             = var.virtual_machine_authentication_type
-  virtual_machine_jumpbox_os_type                 = var.virtual_machine_jumpbox_os_type
-  virtual_machine_jumpbox_subnet_address_prefix   = var.virtual_machine_jumpbox_subnet_address_prefix
-  virtual_machine_linux_ssh_authorized_key        = var.virtual_machine_linux_ssh_authorized_key
-  virtual_machine_size                            = var.virtual_machine_size
-  virtual_machine_zone                            = var.zone_redundant_resources_enabled ? 2 : 0
 }
 
 # Supporting services (ACR, Key Vault, Storage)
@@ -94,6 +90,56 @@ module "supporting_services" {
   hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
   log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id
   tags                                      = var.tags
+}
+
+###############################################
+# Optional Jumpbox VMs                        #
+# Called after supporting_services to allow   #
+# Key Vault integration for password storage  #
+###############################################
+
+module "vm_linux" {
+  source = "./modules/linux_vm"
+  count  = var.virtual_machine_jumpbox_os_type == "linux" ? 1 : 0
+
+  enable_telemetry                           = var.enable_telemetry
+  key_vault_resource_id                      = module.supporting_services.key_vault_id
+  location                                   = local.safe_location
+  log_analytics_workspace_id                 = module.spoke.log_analytics_workspace_id
+  name                                       = module.naming.resources_names["vmJumpBox"]
+  network_interface_name                     = module.naming.resources_names["vmJumpBoxNic"]
+  resource_group_name                        = local.resource_group_name
+  subnet_id                                  = module.spoke.spoke_jumpbox_subnet_id
+  virtual_machine_admin_password             = var.virtual_machine_admin_password
+  virtual_machine_admin_password_generate    = var.virtual_machine_admin_password_generate
+  virtual_machine_size                       = var.virtual_machine_size
+  virtual_machine_ssh_key_generation_enabled = var.virtual_machine_ssh_key_generation_enabled
+  storage_account_type                       = var.storage_account_type
+  tags                                       = var.tags
+  virtual_machine_authentication_type        = var.virtual_machine_authentication_type
+  virtual_machine_linux_ssh_authorized_key   = var.virtual_machine_linux_ssh_authorized_key
+  virtual_machine_zone                       = var.zone_redundant_resources_enabled ? 2 : 0
+}
+
+module "vm_windows" {
+  source = "./modules/windows_vm"
+  count  = var.virtual_machine_jumpbox_os_type == "windows" ? 1 : 0
+
+  enable_telemetry                        = var.enable_telemetry
+  key_vault_resource_id                   = module.supporting_services.key_vault_id
+  location                                = local.safe_location
+  log_analytics_workspace_id              = module.spoke.log_analytics_workspace_id
+  name                                    = module.naming.resources_names["vmJumpBox"]
+  network_interface_name                  = module.naming.resources_names["vmJumpBoxNic"]
+  resource_group_name                     = local.resource_group_name
+  subnet_id                               = module.spoke.spoke_jumpbox_subnet_id
+  virtual_machine_admin_password          = var.virtual_machine_admin_password
+  virtual_machine_admin_password_generate = var.virtual_machine_admin_password_generate
+  virtual_machine_size                    = var.virtual_machine_size
+  storage_account_type                    = var.storage_account_type
+  tags                                    = var.tags
+  vm_windows_os_version                   = "2016-Datacenter"
+  virtual_machine_zone                    = var.zone_redundant_resources_enabled ? 2 : 0
 }
 
 # Container Apps Managed Environment + Private DNS + optional App Insights
