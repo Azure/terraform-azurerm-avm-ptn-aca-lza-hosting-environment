@@ -232,7 +232,7 @@ module "st" {
     sa = {
       name                  = "storage-diagnosticSettings"
       workspace_resource_id = var.log_analytics_workspace_id
-      metric_categories     = ["Capacity", "Transaction"]
+      metric_categories     = ["Transaction"]
     }
   } : {}
   enable_telemetry = var.enable_telemetry
