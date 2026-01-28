@@ -13,8 +13,6 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.4)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
-
 - <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
@@ -23,13 +21,8 @@ The following requirements are needed by this module:
 
 The following resources are used by this module:
 
-- [azurerm_management_lock.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) (resource)
-- [azurerm_private_endpoint.this_managed_dns_zone_groups](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
-- [azurerm_private_endpoint.this_unmanaged_dns_zone_groups](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
-- [azurerm_private_endpoint_application_security_group_association.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint_application_security_group_association) (resource)
-- [azurerm_resource_group.TODO](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
-- [azurerm_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
 - [modtm_telemetry.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/resources/telemetry) (resource)
+- [random_string.naming_unique_id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) (resource)
 - [random_uuid.telemetry](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) (resource)
 - [azapi_client_config.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 - [modtm_module_source.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/data-sources/module_source) (data source)
@@ -39,85 +32,97 @@ The following resources are used by this module:
 
 The following input variables are required:
 
+### <a name="input_application_insights_enabled"></a> [application\_insights\_enabled](#input\_application\_insights\_enabled)
+
+Description: Required. Enable or disable the creation of Application Insights.
+
+Type: `bool`
+
+### <a name="input_dapr_instrumentation_enabled"></a> [dapr\_instrumentation\_enabled](#input\_dapr\_instrumentation\_enabled)
+
+Description: Required. Enable or disable Dapr Application Instrumentation Key used for Dapr telemetry. If Application Insights is not enabled, this parameter is ignored.
+
+Type: `bool`
+
 ### <a name="input_location"></a> [location](#input\_location)
 
-Description: Azure region where the resource should be deployed.
+Description: Required. The location of the Azure Container Apps deployment.
 
 Type: `string`
 
-### <a name="input_name"></a> [name](#input\_name)
+### <a name="input_spoke_infra_subnet_address_prefix"></a> [spoke\_infra\_subnet\_address\_prefix](#input\_spoke\_infra\_subnet\_address\_prefix)
 
-Description: The name of the this resource.
+Description: Required. CIDR of the Spoke Infrastructure Subnet.
+
+Type: `string`
+
+### <a name="input_spoke_private_endpoints_subnet_address_prefix"></a> [spoke\_private\_endpoints\_subnet\_address\_prefix](#input\_spoke\_private\_endpoints\_subnet\_address\_prefix)
+
+Description: Required. CIDR of the Spoke Private Endpoints Subnet.
 
 Type: `string`
 
-### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
+### <a name="input_spoke_vnet_address_prefixes"></a> [spoke\_vnet\_address\_prefixes](#input\_spoke\_vnet\_address\_prefixes)
 
-Description: The resource group where the resources will be deployed.
+Description: Required. CIDR of the Spoke Virtual Network.
 
-Type: `string`
+Type: `list(string)`
 
 ## Optional Inputs
 
 The following input variables are optional (have default values):
 
-### <a name="input_customer_managed_key"></a> [customer\_managed\_key](#input\_customer\_managed\_key)
+### <a name="input_bastion_access_enabled"></a> [bastion\_access\_enabled](#input\_bastion\_access\_enabled)
 
-Description: A map describing customer-managed keys to associate with the resource. This includes the following properties:
-- `key_vault_resource_id` - The resource ID of the Key Vault where the key is stored.
-- `key_name` - The name of the key.
-- `key_version` - (Optional) The version of the key. If not specified, the latest version is used.
-- `user_assigned_identity` - (Optional) An object representing a user-assigned identity with the following properties:
-  - `resource_id` - The resource ID of the user-assigned identity.
+Description: Optional. Whether to enable bastion access rule in the VM NSG. Set to true when using a bastion host with a VM jumpbox. Default is false.
 
-Type:
+Type: `bool`
 
-```hcl
-object({
-    key_vault_resource_id = string
-    key_name              = string
-    key_version           = optional(string, null)
-    user_assigned_identity = optional(object({
-      resource_id = string
-    }), null)
-  })
-```
+Default: `false`
+
+### <a name="input_bastion_subnet_address_prefix"></a> [bastion\_subnet\_address\_prefix](#input\_bastion\_subnet\_address\_prefix)
+
+Description: Optional. The CIDR address prefix of the bastion subnet. Required when bastion\_access\_enabled is true. Example: 10.0.1.0/27
+
+Type: `string`
 
 Default: `null`
 
-### <a name="input_diagnostic_settings"></a> [diagnostic\_settings](#input\_diagnostic\_settings)
+### <a name="input_created_resource_group_name"></a> [created\_resource\_group\_name](#input\_created\_resource\_group\_name)
 
-Description: A map of diagnostic settings to create on the Key Vault. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+Description: Optional. Name to use when existing\_resource\_group\_used is true and the module is creating a resource group. Leave null for auto-generation.
 
-- `name` - (Optional) The name of the diagnostic setting. One will be generated if not set, however this will not be unique if you want to create multiple diagnostic setting resources.
-- `log_categories` - (Optional) A set of log categories to send to the log analytics workspace. Defaults to `[]`.
-- `log_groups` - (Optional) A set of log groups to send to the log analytics workspace. Defaults to `["allLogs"]`.
-- `metric_categories` - (Optional) A set of metric categories to send to the log analytics workspace. Defaults to `["AllMetrics"]`.
-- `log_analytics_destination_type` - (Optional) The destination type for the diagnostic setting. Possible values are `Dedicated` and `AzureDiagnostics`. Defaults to `Dedicated`.
-- `workspace_resource_id` - (Optional) The resource ID of the log analytics workspace to send logs and metrics to.
-- `storage_account_resource_id` - (Optional) The resource ID of the storage account to send logs and metrics to.
-- `event_hub_authorization_rule_resource_id` - (Optional) The resource ID of the event hub authorization rule to send logs and metrics to.
-- `event_hub_name` - (Optional) The name of the event hub. If none is specified, the default event hub will be selected.
-- `marketplace_partner_resource_id` - (Optional) The full ARM resource ID of the Marketplace resource to which you would like to send Diagnostic LogsLogs.
+Type: `string`
 
-Type:
+Default: `null`
 
-```hcl
-map(object({
-    name                                     = optional(string, null)
-    log_categories                           = optional(set(string), [])
-    log_groups                               = optional(set(string), ["allLogs"])
-    metric_categories                        = optional(set(string), ["AllMetrics"])
-    log_analytics_destination_type           = optional(string, "Dedicated")
-    workspace_resource_id                    = optional(string, null)
-    storage_account_resource_id              = optional(string, null)
-    event_hub_authorization_rule_resource_id = optional(string, null)
-    event_hub_name                           = optional(string, null)
-    marketplace_partner_resource_id          = optional(string, null)
-  }))
-```
+### <a name="input_ddos_protection_enabled"></a> [ddos\_protection\_enabled](#input\_ddos\_protection\_enabled)
 
-Default: `{}`
+Description: Optional. Enable DDoS IP Protection on the Application Gateway public IP address.
+
+When enabled, this configures per-IP DDoS protection mode on the Application Gateway's  
+public IP only. This is NOT a DDoS Network Protection Plan.
+
+Note: Per-IP DDoS protection incurs additional costs (~$199/month per protected IP).  
+For enterprise deployments using Azure Landing Zones, consider using a centralized  
+DDoS Network Protection Plan instead.
+
+See https://learn.microsoft.com/azure/ddos-protection/ddos-protection-sku-comparison  
+for SKU comparison and pricing information.
+
+Default is false.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_egress_lockdown_enabled"></a> [egress\_lockdown\_enabled](#input\_egress\_lockdown\_enabled)
+
+Description: Optional. Whether to enable egress lockdown by routing all traffic through a network appliance. When true, network\_appliance\_ip\_address must be provided. Default is false.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
@@ -129,157 +134,397 @@ Type: `bool`
 
 Default: `true`
 
-### <a name="input_lock"></a> [lock](#input\_lock)
+### <a name="input_environment"></a> [environment](#input\_environment)
 
-Description: Controls the Resource Lock configuration for this resource. The following properties can be specified:
+Description: Optional. The name of the environment (e.g. "dev", "test", "prod", "uat", "dr", "qa"). Up to 8 characters long. Default is "test".
 
-- `kind` - (Required) The type of lock. Possible values are `\"CanNotDelete\"` and `\"ReadOnly\"`.
-- `name` - (Optional) The name of the lock. If not specified, a name will be generated based on the `kind` value. Changing this forces the creation of a new resource.
+Type: `string`
 
-Type:
+Default: `"test"`
 
-```hcl
-object({
-    kind = string
-    name = optional(string, null)
-  })
-```
+### <a name="input_existing_resource_group_id"></a> [existing\_resource\_group\_id](#input\_existing\_resource\_group\_id)
+
+Description: Optional. The resource ID of an existing resource group to use when existing\_resource\_group\_used is set to true. Default is null.
+
+Type: `string`
 
 Default: `null`
 
-### <a name="input_managed_identities"></a> [managed\_identities](#input\_managed\_identities)
+### <a name="input_existing_resource_group_used"></a> [existing\_resource\_group\_used](#input\_existing\_resource\_group\_used)
 
-Description: Controls the Managed Identity configuration on this resource. The following properties can be specified:
+Description: Optional. Whether to use an existing resource group or create a new one. If true, the module will use the resource group specified in existing\_resource\_group\_id. If false, a new resource group will be created with the name specified in create\_resource\_group\_name (or selected one for you if not specified). Default is false.
 
-- `system_assigned` - (Optional) Specifies if the System Assigned Managed Identity should be enabled.
-- `user_assigned_resource_ids` - (Optional) Specifies a list of User Assigned Managed Identity resource IDs to be assigned to this resource.
+Type: `bool`
 
-Type:
+Default: `false`
 
-```hcl
-object({
-    system_assigned            = optional(bool, false)
-    user_assigned_resource_ids = optional(set(string), [])
-  })
-```
+### <a name="input_expose_container_apps_with"></a> [expose\_container\_apps\_with](#input\_expose\_container\_apps\_with)
 
-Default: `{}`
+Description: Optional. Specify the way container apps is going to be exposed. Options are applicationGateway, frontDoor, or none. Default is "applicationGateway".
 
-### <a name="input_private_endpoints"></a> [private\_endpoints](#input\_private\_endpoints)
+Type: `string`
 
-Description: A map of private endpoints to create on this resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+Default: `"application_gateway"`
 
-- `name` - (Optional) The name of the private endpoint. One will be generated if not set.
-- `role_assignments` - (Optional) A map of role assignments to create on the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time. See `var.role_assignments` for more information.
-- `lock` - (Optional) The lock level to apply to the private endpoint. Default is `None`. Possible values are `None`, `CanNotDelete`, and `ReadOnly`.
-- `tags` - (Optional) A mapping of tags to assign to the private endpoint.
-- `subnet_resource_id` - The resource ID of the subnet to deploy the private endpoint in.
-- `private_dns_zone_group_name` - (Optional) The name of the private DNS zone group. One will be generated if not set.
-- `private_dns_zone_resource_ids` - (Optional) A set of resource IDs of private DNS zones to associate with the private endpoint. If not set, no zone groups will be created and the private endpoint will not be associated with any private DNS zones. DNS records must be managed external to this module.
-- `application_security_group_resource_ids` - (Optional) A map of resource IDs of application security groups to associate with the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-- `private_service_connection_name` - (Optional) The name of the private service connection. One will be generated if not set.
-- `network_interface_name` - (Optional) The name of the network interface. One will be generated if not set.
-- `location` - (Optional) The Azure location where the resources will be deployed. Defaults to the location of the resource group.
-- `resource_group_name` - (Optional) The resource group where the resources will be deployed. Defaults to the resource group of this resource.
-- `ip_configurations` - (Optional) A map of IP configurations to create on the private endpoint. If not specified the platform will create one. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-  - `name` - The name of the IP configuration.
-  - `private_ip_address` - The private IP address of the IP configuration.
+### <a name="input_front_door_waf_enabled"></a> [front\_door\_waf\_enabled](#input\_front\_door\_waf\_enabled)
 
-Type:
+Description: Optional. Enable Web Application Firewall for Front Door. Default is false.
 
-```hcl
-map(object({
-    name = optional(string, null)
-    role_assignments = optional(map(object({
-      role_definition_id_or_name             = string
-      principal_id                           = string
-      description                            = optional(string, null)
-      skip_service_principal_aad_check       = optional(bool, false)
-      condition                              = optional(string, null)
-      condition_version                      = optional(string, null)
-      delegated_managed_identity_resource_id = optional(string, null)
-    })), {})
-    lock = optional(object({
-      kind = string
-      name = optional(string, null)
-    }), null)
-    tags                                    = optional(map(string), null)
-    subnet_resource_id                      = string
-    private_dns_zone_group_name             = optional(string, "default")
-    private_dns_zone_resource_ids           = optional(set(string), [])
-    application_security_group_associations = optional(map(string), {})
-    private_service_connection_name         = optional(string, null)
-    network_interface_name                  = optional(string, null)
-    location                                = optional(string, null)
-    resource_group_name                     = optional(string, null)
-    ip_configurations = optional(map(object({
-      name               = string
-      private_ip_address = string
-    })), {})
-  }))
-```
+Type: `bool`
 
-Default: `{}`
+Default: `false`
 
-### <a name="input_private_endpoints_manage_dns_zone_group"></a> [private\_endpoints\_manage\_dns\_zone\_group](#input\_private\_endpoints\_manage\_dns\_zone\_group)
+### <a name="input_front_door_waf_policy_name"></a> [front\_door\_waf\_policy\_name](#input\_front\_door\_waf\_policy\_name)
 
-Description: Whether to manage private DNS zone groups with this module. If set to false, you must manage private DNS zone groups externally, e.g. using Azure Policy.
+Description: Optional. Name of the WAF policy for Front Door. Required if front\_door\_waf\_enabled is true. Default is null.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_hub_peering_enabled"></a> [hub\_peering\_enabled](#input\_hub\_peering\_enabled)
+
+Description: Optional. Whether to enable peering with a hub virtual network. When true, hub\_virtual\_network\_resource\_id must be provided. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_hub_virtual_network_resource_id"></a> [hub\_virtual\_network\_resource\_id](#input\_hub\_virtual\_network\_resource\_id)
+
+Description: Optional. The resource ID of the hub virtual network. Required when hub\_peering\_enabled is true. If set, the spoke virtual network will be peered with the hub virtual network. Default is null.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_log_analytics_workspace_replication_enabled"></a> [log\_analytics\_workspace\_replication\_enabled](#input\_log\_analytics\_workspace\_replication\_enabled)
+
+Description: Optional. Enable cross-region replication for the Log Analytics workspace. Default is true. Set to false in test/example environments to avoid issues with resource destruction.
 
 Type: `bool`
 
 Default: `true`
 
-### <a name="input_role_assignments"></a> [role\_assignments](#input\_role\_assignments)
+### <a name="input_network_appliance_ip_address"></a> [network\_appliance\_ip\_address](#input\_network\_appliance\_ip\_address)
 
-Description: A map of role assignments to create on this resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+Description: Optional. IP address of the network appliance (e.g., Azure Firewall) for routing egress traffic. Required when egress\_lockdown\_enabled is true. Default is null.
 
-- `role_definition_id_or_name` - The ID or name of the role definition to assign to the principal.
-- `principal_id` - The ID of the principal to assign the role to.
-- `description` - The description of the role assignment.
-- `skip_service_principal_aad_check` - If set to true, skips the Azure Active Directory check for the service principal in the tenant. Defaults to false.
-- `condition` - The condition which will be used to scope the role assignment.
-- `condition_version` - The version of the condition syntax. Valid values are '2.0'.
-- `delegated_managed_identity_resource_id` - The delegated Azure Resource Id which contains a Managed Identity. Changing this forces a new resource to be created.
-- `principal_type` - The type of the principal\_id. Possible values are `User`, `Group` and `ServicePrincipal`. Changing this forces a new resource to be created. It is necessary to explicitly set this attribute when creating role assignments if the principal creating the assignment is constrained by ABAC rules that filters on the PrincipalType attribute.
+Type: `string`
 
-> Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
+Default: `null`
 
-Type:
+### <a name="input_route_spoke_traffic_internally"></a> [route\_spoke\_traffic\_internally](#input\_route\_spoke\_traffic\_internally)
 
-```hcl
-map(object({
-    role_definition_id_or_name             = string
-    principal_id                           = string
-    description                            = optional(string, null)
-    skip_service_principal_aad_check       = optional(bool, false)
-    condition                              = optional(string, null)
-    condition_version                      = optional(string, null)
-    delegated_managed_identity_resource_id = optional(string, null)
-    principal_type                         = optional(string, null)
-  }))
-```
+Description: Optional. Define whether to route spoke-internal traffic within the spoke network. If false, traffic will be sent to the hub network. Default is false.
 
-Default: `{}`
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_sample_application_enabled"></a> [sample\_application\_enabled](#input\_sample\_application\_enabled)
+
+Description: Optional. Deploy sample application to the container apps environment. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_spoke_application_gateway_subnet_address_prefix"></a> [spoke\_application\_gateway\_subnet\_address\_prefix](#input\_spoke\_application\_gateway\_subnet\_address\_prefix)
+
+Description: Optional. CIDR of the Spoke Application Gateway Subnet. Required when expose\_container\_apps\_with is 'applicationGateway'. Default is null.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_storage_account_type"></a> [storage\_account\_type](#input\_storage\_account\_type)
+
+Description: Optional. The storage account type to use for the jump box. Defaults to `Premium_LRS` for APRL compliance.
+
+Type: `string`
+
+Default: `"Premium_LRS"`
 
 ### <a name="input_tags"></a> [tags](#input\_tags)
 
-Description: (Optional) Tags of the resource.
+Description: Optional. Tags related to the Azure Container Apps deployment. Default is null.
 
 Type: `map(string)`
 
 Default: `null`
 
+### <a name="input_virtual_machine_admin_password"></a> [virtual\_machine\_admin\_password](#input\_virtual\_machine\_admin\_password)
+
+Description: Optional. The password to use for the virtual machine admin account.  
+Required when virtual\_machine\_jumpbox\_os\_type is not 'none' and virtual\_machine\_admin\_password\_generate is false.
+
+NOTE: This value is marked as sensitive and will not be displayed in logs or plan output.  
+However, it will be stored in Terraform state. Ensure your state backend is properly secured
+(e.g., Azure Storage with encryption, Terraform Cloud, etc.).
+
+For production deployments, consider using virtual\_machine\_admin\_password\_generate = true  
+to auto-generate the password and store it securely in Azure Key Vault instead.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_virtual_machine_admin_password_generate"></a> [virtual\_machine\_admin\_password\_generate](#input\_virtual\_machine\_admin\_password\_generate)
+
+Description: Optional. When true, auto-generate the admin password and store in Key Vault. The Key Vault is always created by the supporting\_services module. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_virtual_machine_authentication_type"></a> [virtual\_machine\_authentication\_type](#input\_virtual\_machine\_authentication\_type)
+
+Description: Optional. Type of authentication to use on the Virtual Machine. SSH key is recommended for security. Default is "sshPublicKey".
+
+Type: `string`
+
+Default: `"ssh_public_key"`
+
+### <a name="input_virtual_machine_jumpbox_os_type"></a> [virtual\_machine\_jumpbox\_os\_type](#input\_virtual\_machine\_jumpbox\_os\_type)
+
+Description: Optional. The operating system type of the virtual machine. Default is "none" which results in no VM deployment.
+
+Type: `string`
+
+Default: `"none"`
+
+### <a name="input_virtual_machine_jumpbox_subnet_address_prefix"></a> [virtual\_machine\_jumpbox\_subnet\_address\_prefix](#input\_virtual\_machine\_jumpbox\_subnet\_address\_prefix)
+
+Description: Optional. CIDR to use for the virtual machine subnet. Required when virtual\_machine\_jumpbox\_os\_type is not 'none'. Default is null.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_virtual_machine_linux_ssh_authorized_key"></a> [virtual\_machine\_linux\_ssh\_authorized\_key](#input\_virtual\_machine\_linux\_ssh\_authorized\_key)
+
+Description: Optional. The SSH public key to use for the virtual machine. Required when virtual\_machine\_jumpbox\_os\_type is 'linux', virtual\_machine\_authentication\_type is 'sshPublicKey', and virtual\_machine\_ssh\_key\_generation\_enabled is false.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_virtual_machine_size"></a> [virtual\_machine\_size](#input\_virtual\_machine\_size)
+
+Description: Optional. The size of the virtual machine to create. Required when virtual\_machine\_jumpbox\_os\_type is not 'none'. See https://learn.microsoft.com/azure/virtual-machines/sizes for more information. Default is null.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_virtual_machine_ssh_key_generation_enabled"></a> [virtual\_machine\_ssh\_key\_generation\_enabled](#input\_virtual\_machine\_ssh\_key\_generation\_enabled)
+
+Description: Optional. Whether to auto-generate an SSH key for the Linux VM. When false, virtual\_machine\_linux\_ssh\_authorized\_key must be provided if using SSH authentication. Default is false.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_workload_name"></a> [workload\_name](#input\_workload\_name)
+
+Description: Optional. The name of the workload that is being deployed. Up to 10 characters long.
+
+Type: `string`
+
+Default: `"aca-lza"`
+
+### <a name="input_zone_redundant_resources_enabled"></a> [zone\_redundant\_resources\_enabled](#input\_zone\_redundant\_resources\_enabled)
+
+Description: Optional. Default value is true. If true, any resources that support AZ will be deployed in all three AZ. However if the selected region is not supporting AZ, this parameter needs to be set to false. Default is true.
+
+Type: `bool`
+
+Default: `true`
+
 ## Outputs
 
 The following outputs are exported:
 
-### <a name="output_private_endpoints"></a> [private\_endpoints](#output\_private\_endpoints)
+### <a name="output_application_gateway_id"></a> [application\_gateway\_id](#output\_application\_gateway\_id)
 
-Description:   A map of the private endpoints created.
+Description: The resource ID of the Application Gateway (when deployed).
+
+### <a name="output_application_gateway_public_ip"></a> [application\_gateway\_public\_ip](#output\_application\_gateway\_public\_ip)
+
+Description: The public IP address of the Application Gateway (when deployed).
+
+### <a name="output_application_insights_id"></a> [application\_insights\_id](#output\_application\_insights\_id)
+
+Description: The resource ID of Application Insights (when enabled).
+
+### <a name="output_container_apps_environment_default_domain"></a> [container\_apps\_environment\_default\_domain](#output\_container\_apps\_environment\_default\_domain)
+
+Description: The default domain of the Container Apps Managed Environment.
+
+### <a name="output_container_apps_environment_id"></a> [container\_apps\_environment\_id](#output\_container\_apps\_environment\_id)
+
+Description: The resource ID of the Container Apps Managed Environment.
+
+### <a name="output_container_apps_environment_private_dns_zone_id"></a> [container\_apps\_environment\_private\_dns\_zone\_id](#output\_container\_apps\_environment\_private\_dns\_zone\_id)
+
+Description: The resource ID of the Private DNS Zone for the ACA environment default domain.
+
+### <a name="output_container_apps_environment_static_ip"></a> [container\_apps\_environment\_static\_ip](#output\_container\_apps\_environment\_static\_ip)
+
+Description: The static IP address of the Container Apps Managed Environment.
+
+### <a name="output_container_registry_id"></a> [container\_registry\_id](#output\_container\_registry\_id)
+
+Description: The resource ID of the Azure Container Registry.
+
+### <a name="output_container_registry_login_server"></a> [container\_registry\_login\_server](#output\_container\_registry\_login\_server)
+
+Description: The name of the container registry login server.
+
+### <a name="output_container_registry_name"></a> [container\_registry\_name](#output\_container\_registry\_name)
+
+Description: The name of the Azure Container Registry.
+
+### <a name="output_container_registry_user_assigned_identity_id"></a> [container\_registry\_user\_assigned\_identity\_id](#output\_container\_registry\_user\_assigned\_identity\_id)
+
+Description: The resource ID of the user-assigned managed identity for ACR pulls.
+
+### <a name="output_front_door_endpoint_hostname"></a> [front\_door\_endpoint\_hostname](#output\_front\_door\_endpoint\_hostname)
+
+Description: The hostname of the Front Door endpoint (*.azurefd.net with Microsoft-managed certificate, when deployed).
+
+### <a name="output_front_door_id"></a> [front\_door\_id](#output\_front\_door\_id)
+
+Description: The resource ID of the Front Door profile (when deployed).
+
+### <a name="output_key_vault_id"></a> [key\_vault\_id](#output\_key\_vault\_id)
+
+Description: The resource ID of the Azure Key Vault.
+
+### <a name="output_key_vault_name"></a> [key\_vault\_name](#output\_key\_vault\_name)
+
+Description: The name of the Azure Key Vault.
+
+### <a name="output_linux_vm_id"></a> [linux\_vm\_id](#output\_linux\_vm\_id)
+
+Description: The resource ID of the Linux jump box VM (when deployed).
+
+### <a name="output_linux_vm_private_ip"></a> [linux\_vm\_private\_ip](#output\_linux\_vm\_private\_ip)
+
+Description: The private IP address of the Linux jump box VM (when deployed).
+
+### <a name="output_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#output\_log\_analytics\_workspace\_id)
+
+Description: The resource ID of the Azure Log Analytics Workspace
+
+### <a name="output_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#output\_log\_analytics\_workspace\_name)
+
+Description: The name of the Azure Log Analytics Workspace
+
+### <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name)
+
+Description: The name of the resource group where resources are deployed.
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: The resource ID of the primary resource (resource group) deployed by this pattern module.
+
+### <a name="output_resource_type_abbreviations"></a> [resource\_type\_abbreviations](#output\_resource\_type\_abbreviations)
+
+Description: Resource type abbreviations used in naming
+
+### <a name="output_resources_names"></a> [resources\_names](#output\_resources\_names)
+
+Description: Computed resource names from naming module
+
+### <a name="output_sample_app_fqdn"></a> [sample\_app\_fqdn](#output\_sample\_app\_fqdn)
+
+Description: The FQDN of the sample Container App (when deployed).
+
+### <a name="output_sample_app_id"></a> [sample\_app\_id](#output\_sample\_app\_id)
+
+Description: The resource ID of the sample Container App (when deployed).
+
+### <a name="output_sample_app_name"></a> [sample\_app\_name](#output\_sample\_app\_name)
+
+Description: The name of the sample Container App (when deployed).
+
+### <a name="output_spoke_virtual_network_id"></a> [spoke\_virtual\_network\_id](#output\_spoke\_virtual\_network\_id)
+
+Description: The resource ID of the spoke virtual network.
+
+### <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name)
+
+Description: The account name of the storage account.
+
+### <a name="output_storage_account_resource_id"></a> [storage\_account\_resource\_id](#output\_storage\_account\_resource\_id)
+
+Description: The resource ID of the storage account.
 
 ## Modules
 
-No modules.
+The following Modules are called:
+
+### <a name="module_application_gateway"></a> [application\_gateway](#module\_application\_gateway)
+
+Source: ./modules/application_gateway
+
+Version:
+
+### <a name="module_container_apps_environment"></a> [container\_apps\_environment](#module\_container\_apps\_environment)
+
+Source: ./modules/container_apps_environment
+
+Version:
+
+### <a name="module_front_door"></a> [front\_door](#module\_front\_door)
+
+Source: ./modules/front_door
+
+Version:
+
+### <a name="module_naming"></a> [naming](#module\_naming)
+
+Source: ./modules/naming
+
+Version:
+
+### <a name="module_sample_application"></a> [sample\_application](#module\_sample\_application)
+
+Source: ./modules/sample_application
+
+Version:
+
+### <a name="module_spoke"></a> [spoke](#module\_spoke)
+
+Source: ./modules/spoke
+
+Version:
+
+### <a name="module_spoke_resource_group"></a> [spoke\_resource\_group](#module\_spoke\_resource\_group)
+
+Source: Azure/avm-res-resources-resourcegroup/azurerm
+
+Version: 0.2.0
+
+### <a name="module_supporting_services"></a> [supporting\_services](#module\_supporting\_services)
+
+Source: ./modules/supporting_services
+
+Version:
+
+### <a name="module_vm_linux"></a> [vm\_linux](#module\_vm\_linux)
+
+Source: ./modules/linux_vm
+
+Version:
+
+### <a name="module_vm_windows"></a> [vm\_windows](#module\_vm\_windows)
+
+Source: ./modules/windows_vm
+
+Version:
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection
