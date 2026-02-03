@@ -1,0 +1,131 @@
+terraform {
+  required_version = ">= 1.9, < 2.0"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+  storage_use_azuread = true
+}
+
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.4.2"
+}
+
+# Create hub network with Bastion for testing
+resource "azurerm_resource_group" "hub" {
+  location = "swedencentral"
+  name     = "${module.naming.resource_group.name_unique}-hub"
+}
+
+resource "azurerm_virtual_network" "hub" {
+  location            = azurerm_resource_group.hub.location
+  name                = module.naming.virtual_network.name_unique
+  resource_group_name = azurerm_resource_group.hub.name
+  address_space       = ["10.0.0.0/16"]
+}
+
+# Bastion subnet (required name and size)
+resource "azurerm_subnet" "bastion" {
+  address_prefixes     = ["10.0.1.0/27"]      # /27 is minimum for Bastion
+  name                 = "AzureBastionSubnet" # Required name
+  resource_group_name  = azurerm_resource_group.hub.name
+  virtual_network_name = azurerm_virtual_network.hub.name
+}
+
+# Public IP for Bastion
+resource "azurerm_public_ip" "bastion" {
+  allocation_method   = "Static"
+  location            = azurerm_resource_group.hub.location
+  name                = module.naming.public_ip.name_unique
+  resource_group_name = azurerm_resource_group.hub.name
+  sku                 = "Standard"
+  zones               = ["1", "2", "3"] # Zone redundant
+}
+
+# Bastion Host
+resource "azurerm_bastion_host" "this" {
+  location               = azurerm_resource_group.hub.location
+  name                   = module.naming.bastion_host.name_unique
+  resource_group_name    = azurerm_resource_group.hub.name
+  file_copy_enabled      = true
+  ip_connect_enabled     = true
+  shareable_link_enabled = true
+  sku                    = "Standard"
+  # Advanced Bastion features
+  tunneling_enabled = true
+
+  ip_configuration {
+    name                 = "configuration"
+    public_ip_address_id = azurerm_public_ip.bastion.id
+    subnet_id            = azurerm_subnet.bastion.id
+  }
+}
+
+# Test resource group for the module
+resource "azurerm_resource_group" "this" {
+  location = "swedencentral"
+  name     = module.naming.resource_group.name_unique
+}
+
+# Complex scenario: Bastion integration with zone redundancy and all features
+module "aca_lza_hosting" {
+  source = "../../"
+
+  # Full observability stack (COMPLEX)
+  application_insights_enabled = true
+  dapr_instrumentation_enabled = true
+  # Core
+  location                                      = azurerm_resource_group.this.location
+  spoke_infra_subnet_address_prefix             = "10.40.1.0/24"
+  spoke_private_endpoints_subnet_address_prefix = "10.40.2.0/24"
+  # Spoke networking - avoid overlap with hub
+  spoke_vnet_address_prefixes   = ["10.40.0.0/16"]
+  bastion_access_enabled        = true
+  bastion_subnet_address_prefix = azurerm_subnet.bastion.address_prefixes[0]
+  # DDoS protection disabled for automated testing
+  ddos_protection_enabled      = false
+  enable_telemetry             = var.enable_telemetry
+  environment                  = "test"
+  existing_resource_group_id   = azurerm_resource_group.this.id
+  existing_resource_group_used = true
+  expose_container_apps_with   = "application_gateway"
+  # Bastion Integration (COMPLEX)
+  hub_virtual_network_resource_id             = azurerm_virtual_network.hub.id
+  log_analytics_workspace_replication_enabled = false
+  route_spoke_traffic_internally              = false
+  # Deploy all optional features
+  sample_application_enabled                      = true
+  spoke_application_gateway_subnet_address_prefix = "10.40.3.0/24"
+  tags                                            = {}
+  virtual_machine_admin_password_generate         = true # Auto-generate password and store in Key Vault
+  virtual_machine_authentication_type             = "ssh_public_key"
+  virtual_machine_jumpbox_os_type                 = "linux"
+  virtual_machine_jumpbox_subnet_address_prefix   = "10.40.5.0/24"
+  # Linux VM with SSH for Bastion testing (COMPLEX)
+  virtual_machine_size                       = "Standard_D2ds_v5"
+  virtual_machine_ssh_key_generation_enabled = true
+  # Naming
+  workload_name = "bastion"
+  # Zone redundancy for maximum availability (COMPLEX)
+  zone_redundant_resources_enabled = true
+}
+
+
+
+
+
+
+

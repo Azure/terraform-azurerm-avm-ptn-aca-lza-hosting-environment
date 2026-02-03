@@ -50,5 +50,11 @@ avm.tflint_module.merged.hcl
 
 # conftest policy
 examples/*/policy
+examples/smoke-spoke/variables.tf
+examples/smoke-spoke/main.tf
+.github/copilot-instructions.md
 *.mptfbackup
 .avm
+pr-check.log
+PR_REVIEW_CHANGES.md
+*.code-workspace
