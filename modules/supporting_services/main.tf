@@ -69,6 +69,10 @@ locals {
     } : {}
   )
   tags = var.tags
+  # Whether to create ACR-related resources (UAI, DNS zone, etc.)
+  use_acr = var.deploy_acr || var.existing_acr_id != null
+  # Extract the ACR name from the existing resource ID (last segment)
+  existing_acr_name = var.existing_acr_id != null ? split("/", var.existing_acr_id)[length(split("/", var.existing_acr_id)) - 1] : null
 }
 
 # Get current Azure context for Key Vault RBAC
@@ -81,6 +85,7 @@ data "azurerm_client_config" "current" {}
 module "acr_uai" {
   source  = "Azure/avm-res-managedidentity-userassignedidentity/azurerm"
   version = "0.3.4"
+  count   = local.use_acr ? 1 : 0
 
   location            = var.location
   name                = var.resources_names.containerRegistryUserAssignedIdentity
@@ -92,6 +97,7 @@ module "acr_uai" {
 module "acr_dns_zone" {
   source  = "Azure/avm-res-network-privatednszone/azurerm"
   version = "0.4.4"
+  count   = local.use_acr ? 1 : 0
 
   domain_name           = local.acr_dns_zone_name
   parent_id             = var.resource_group_id
@@ -103,6 +109,7 @@ module "acr_dns_zone" {
 module "acr" {
   source  = "Azure/avm-res-containerregistry-registry/azurerm"
   version = "0.5.1"
+  count   = var.deploy_acr ? 1 : 0
 
   location            = var.location
   name                = var.resources_names.containerRegistry
@@ -121,14 +128,14 @@ module "acr" {
   export_policy_enabled = false
   managed_identities = {
     system_assigned            = true
-    user_assigned_resource_ids = [module.acr_uai.resource_id]
+    user_assigned_resource_ids = [module.acr_uai[0].resource_id]
   }
   network_rule_bypass_option = "AzureServices"
   private_endpoints = {
     pep = {
       name                          = var.resources_names.containerRegistryPep
       subnet_resource_id            = var.spoke_private_endpoint_subnet_resource_id
-      private_dns_zone_resource_ids = [module.acr_dns_zone.resource_id]
+      private_dns_zone_resource_ids = [module.acr_dns_zone[0].resource_id]
     }
   }
   public_network_access_enabled = false
@@ -137,13 +144,43 @@ module "acr" {
   role_assignments = {
     acr_pull = {
       role_definition_id_or_name = "AcrPull"
-      principal_id               = module.acr_uai.principal_id
+      principal_id               = module.acr_uai[0].principal_id
       principal_type             = "ServicePrincipal"
     }
   }
   sku                     = "Premium"
   tags                    = local.tags
   zone_redundancy_enabled = var.zone_redundant_resources_enabled
+}
+
+# When using an existing ACR, assign AcrPull role to the UAI and configure private endpoint
+resource "azurerm_role_assignment" "acr_pull_existing" {
+  count = !var.deploy_acr && local.use_acr ? 1 : 0
+
+  principal_id         = module.acr_uai[0].principal_id
+  role_definition_name = "AcrPull"
+  scope                = var.existing_acr_id
+}
+
+resource "azurerm_private_endpoint" "acr_existing" {
+  count = !var.deploy_acr && local.use_acr ? 1 : 0
+
+  location            = var.location
+  name                = var.resources_names.containerRegistryPep
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.spoke_private_endpoint_subnet_resource_id
+  tags                = local.tags
+
+  private_dns_zone_group {
+    name                 = "acr-dns-zone-group"
+    private_dns_zone_ids = [module.acr_dns_zone[0].resource_id]
+  }
+  private_service_connection {
+    is_manual_connection           = false
+    name                           = "acr-psc"
+    private_connection_resource_id = var.existing_acr_id
+    subresource_names              = ["registry"]
+  }
 }
 
 ###############################################

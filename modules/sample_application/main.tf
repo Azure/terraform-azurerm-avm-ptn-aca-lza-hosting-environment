@@ -34,7 +34,7 @@ module "app" {
   }
   # Assign UAI used for ACR pulls
   managed_identities = {
-    user_assigned_resource_ids = [var.container_registry_user_assigned_identity_id]
+    user_assigned_resource_ids = var.container_registry_user_assigned_identity_id != null ? [var.container_registry_user_assigned_identity_id] : []
   }
   revision_mode         = "Single"
   tags                  = var.tags

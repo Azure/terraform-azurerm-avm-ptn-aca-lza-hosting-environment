@@ -1,6 +1,7 @@
 variable "container_registry_user_assigned_identity_id" {
   type        = string
-  description = "Resource ID of the user-assigned identity used by ACA to pull from ACR."
+  default     = null
+  description = "Optional. Resource ID of the user-assigned identity used by ACA to pull from ACR. When null, no ACR pull identity is configured on the managed environment."
 }
 
 variable "infrastructure_subnet_id" {
