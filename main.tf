@@ -12,8 +12,10 @@ resource "random_string" "naming_unique_id" {
 locals {
   create_custom_named_rg = !local.existing_resource_group_used && var.created_resource_group_name != null && trimspace(var.created_resource_group_name) != ""
   # Backward compatibility: only ip_rules uses legacy ddos_protection_enabled behavior.
-  # Historically ddos_protection_enabled defaulted to false, so ip_rules remains disabled
-  # unless ddos_protection_enabled is explicitly set to true.
+  # Outcomes:
+  # 1) ip_rules + ddos_protection_enabled=false => none
+  # 2) ip_rules + ddos_protection_enabled=true  => ip_rules
+  # 3) none/protection_plan                     => pass through unchanged
   effective_ddos_protection_mode = var.ddos_protection_mode == "ip_rules" && !var.ddos_protection_enabled ? "none" : var.ddos_protection_mode
   # Determine if we're using an existing resource group from the input variable
   existing_resource_group_used = var.existing_resource_group_used

@@ -79,6 +79,11 @@ variable "existing_ddos_protection_plan_id" {
     condition     = var.ddos_protection_mode != "protection_plan" || (var.existing_ddos_protection_plan_id != null && trimspace(var.existing_ddos_protection_plan_id) != "")
     error_message = "existing_ddos_protection_plan_id must be provided when ddos_protection_mode is 'protection_plan'."
   }
+
+  validation {
+    condition     = var.ddos_protection_mode == "protection_plan" || var.existing_ddos_protection_plan_id == null
+    error_message = "existing_ddos_protection_plan_id can only be set when ddos_protection_mode is 'protection_plan'."
+  }
 }
 
 variable "egress_lockdown_enabled" {
