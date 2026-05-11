@@ -38,6 +38,7 @@ resource "azurerm_virtual_network" "hub" {
 }
 
 resource "azurerm_network_ddos_protection_plan" "hub" {
+  # Example-only hub-managed DDoS plan used by the spoke module in protection_plan mode
   location            = azurerm_resource_group.hub.location
   name                = "${module.naming.ddos_protection_plan.name_unique}-hub"
   resource_group_name = azurerm_resource_group.hub.name
@@ -110,7 +111,6 @@ module "aca_lza_hosting" {
   # Zone redundancy for high availability (COMPLEX)
   zone_redundant_resources_enabled = true
 }
-
 
 
 

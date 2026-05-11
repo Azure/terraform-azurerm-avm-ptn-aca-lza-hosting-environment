@@ -141,7 +141,8 @@ Description: Optional. DDoS protection mode for this deployment.
 
 Supported values:
 - "none": Disable DDoS protection features managed by this module.
-- "ip\_rules": Enable per-IP DDoS protection mode on the Application Gateway public IP.
+- "ip\_rules": Enable per-IP DDoS protection mode on the Application Gateway public IP.  
+  For backward compatibility, this mode is only activated when ddos\_protection\_enabled is true.
 - "protection\_plan": Associate the spoke virtual network with an existing DDoS Protection Plan.
 
 Default is "ip\_rules".
