@@ -61,14 +61,24 @@ variable "bastion_subnet_address_prefix" {
 
 variable "ddos_protection_mode" {
   type        = string
-  default     = "none"
+  default     = "ip_rules"
   description = "Optional. DDoS protection mode to apply in spoke networking. Supported values: none, ip_rules, protection_plan."
+
+  validation {
+    condition     = contains(["none", "ip_rules", "protection_plan"], var.ddos_protection_mode)
+    error_message = "ddos_protection_mode must be one of: none, ip_rules, protection_plan."
+  }
 }
 
 variable "existing_ddos_protection_plan_id" {
   type        = string
   default     = null
   description = "Optional. Existing DDoS Protection Plan resource ID used when ddos_protection_mode is 'protection_plan'."
+
+  validation {
+    condition     = var.ddos_protection_mode != "protection_plan" || (var.existing_ddos_protection_plan_id != null && trimspace(var.existing_ddos_protection_plan_id) != "")
+    error_message = "existing_ddos_protection_plan_id must be provided when ddos_protection_mode is 'protection_plan'."
+  }
 }
 
 variable "egress_lockdown_enabled" {

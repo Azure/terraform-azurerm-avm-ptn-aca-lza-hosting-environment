@@ -85,7 +85,7 @@ variable "ddos_protection_enabled" {
 
   validation {
     condition     = var.ddos_protection_mode == "ip_rules" || !var.ddos_protection_enabled
-    error_message = "ddos_protection_enabled can only be true when ddos_protection_mode is 'ip_rules'."
+    error_message = "When ddos_protection_enabled is true, ddos_protection_mode must be set to 'ip_rules' for backward compatibility."
   }
 }
 

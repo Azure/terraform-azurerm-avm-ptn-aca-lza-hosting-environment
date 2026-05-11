@@ -90,7 +90,7 @@ Description: Optional. DDoS protection mode to apply in spoke networking. Suppor
 
 Type: `string`
 
-Default: `"none"`
+Default: `"ip_rules"`
 
 ### <a name="input_egress_lockdown_enabled"></a> [egress\_lockdown\_enabled](#input\_egress\_lockdown\_enabled)
 
