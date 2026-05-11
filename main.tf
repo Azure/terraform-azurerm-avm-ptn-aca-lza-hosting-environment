@@ -11,6 +11,7 @@ resource "random_string" "naming_unique_id" {
 
 locals {
   create_custom_named_rg = !local.existing_resource_group_used && var.created_resource_group_name != null && trimspace(var.created_resource_group_name) != ""
+  effective_ddos_protection_mode = var.ddos_protection_mode == "ip_rules" && !var.ddos_protection_enabled ? "none" : var.ddos_protection_mode
   # Determine if we're using an existing resource group from the input variable
   existing_resource_group_used = var.existing_resource_group_used
   # Unique naming token from random_string resource (stored in state)
@@ -66,6 +67,8 @@ module "spoke" {
   network_appliance_ip_address                    = var.network_appliance_ip_address
   route_spoke_traffic_internally                  = var.route_spoke_traffic_internally
   spoke_application_gateway_subnet_address_prefix = var.spoke_application_gateway_subnet_address_prefix
+  ddos_protection_mode                            = local.effective_ddos_protection_mode
+  existing_ddos_protection_plan_id                = var.existing_ddos_protection_plan_id
   tags                                            = var.tags
   virtual_machine_jumpbox_os_type                 = var.virtual_machine_jumpbox_os_type
   virtual_machine_jumpbox_subnet_address_prefix   = var.virtual_machine_jumpbox_subnet_address_prefix
@@ -198,7 +201,7 @@ module "application_gateway" {
   # Backend - route to sample app if deployed, otherwise leave empty
   backend_fqdn            = var.sample_application_enabled ? module.sample_application[0].fqdn : ""
   backend_probe_path      = "/"
-  ddos_protection_enabled = var.ddos_protection_enabled
+  ddos_protection_enabled = local.effective_ddos_protection_mode == "ip_rules"
   enable_backend          = var.sample_application_enabled
   enable_diagnostics      = true
   enable_telemetry        = var.enable_telemetry
@@ -241,4 +244,3 @@ module "front_door" {
   tags            = var.tags
   waf_policy_name = var.front_door_waf_policy_name != null ? var.front_door_waf_policy_name : "${module.naming.resources_names.frontDoor}-waf"
 }
-

@@ -62,6 +62,12 @@ resource "azurerm_virtual_network" "hub" {
   address_space       = ["10.0.0.0/16"]
 }
 
+resource "azurerm_network_ddos_protection_plan" "hub" {
+  location            = azurerm_resource_group.hub.location
+  name                = "${module.naming.ddos_protection_plan.name_unique}-hub"
+  resource_group_name = azurerm_resource_group.hub.name
+}
+
 # Simulate a network appliance IP (like Azure Firewall)
 resource "azurerm_subnet" "firewall" {
   address_prefixes     = ["10.0.1.0/26"]
@@ -98,8 +104,9 @@ module "aca_lza_hosting" {
   spoke_private_endpoints_subnet_address_prefix = "10.20.2.0/24"
   # Spoke networking - avoid overlap with hub
   spoke_vnet_address_prefixes = ["10.20.0.0/16"]
-  # DDoS protection disabled for automated testing
-  ddos_protection_enabled      = false
+  # Associate spoke VNet with existing hub-managed DDoS protection plan
+  ddos_protection_mode             = "protection_plan"
+  existing_ddos_protection_plan_id = azurerm_network_ddos_protection_plan.hub.id
   egress_lockdown_enabled      = true
   enable_telemetry             = var.enable_telemetry
   environment                  = "test"
@@ -132,7 +139,6 @@ module "aca_lza_hosting" {
 
 
 
-
 ```
 
 <!-- markdownlint-disable MD033 -->
@@ -148,6 +154,7 @@ The following requirements are needed by this module:
 
 The following resources are used by this module:
 
+- [azurerm_network_ddos_protection_plan.hub](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_ddos_protection_plan) (resource)
 - [azurerm_public_ip.firewall](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) (resource)
 - [azurerm_resource_group.hub](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)

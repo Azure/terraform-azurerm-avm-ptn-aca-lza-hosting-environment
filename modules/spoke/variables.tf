@@ -59,6 +59,18 @@ variable "bastion_subnet_address_prefix" {
   description = "Optional. The CIDR address prefix of the bastion subnet. Required when bastion_access_enabled is true."
 }
 
+variable "ddos_protection_mode" {
+  type        = string
+  default     = "none"
+  description = "Optional. DDoS protection mode to apply in spoke networking. Supported values: none, ip_rules, protection_plan."
+}
+
+variable "existing_ddos_protection_plan_id" {
+  type        = string
+  default     = null
+  description = "Optional. Existing DDoS Protection Plan resource ID used when ddos_protection_mode is 'protection_plan'."
+}
+
 variable "egress_lockdown_enabled" {
   type        = bool
   default     = false
