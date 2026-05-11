@@ -113,10 +113,13 @@ Default: `null`
 
 ### <a name="input_ddos_protection_enabled"></a> [ddos\_protection\_enabled](#input\_ddos\_protection\_enabled)
 
-Description: Optional. Enable DDoS IP Protection on the Application Gateway public IP address.
+Description: Optional (legacy compatibility). Enable DDoS IP Protection on the Application Gateway public IP address.
 
 When enabled, this configures per-IP DDoS protection mode on the Application Gateway's  
 public IP only. This is NOT a DDoS Network Protection Plan.
+
+Compatibility note: when ddos\_protection\_mode is "ip\_rules", setting this value to false  
+keeps the prior default behavior of not enabling per-IP DDoS protection.
 
 Note: Per-IP DDoS protection incurs additional costs (~$199/month per protected IP).  
 For enterprise deployments using Azure Landing Zones, consider using a centralized  
