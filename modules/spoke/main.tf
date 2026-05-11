@@ -101,10 +101,6 @@ resource "azapi_resource" "log_analytics_workspace" {
 locals {
   # Align location tag name for AzureCloud service tag (Bicep used francecentral -> centralfrance)
   location_for_service_tag = var.location == "francecentral" ? "centralfrance" : var.location
-  ddos_protection_plan_config = var.ddos_protection_mode == "protection_plan" ? {
-    id     = var.existing_ddos_protection_plan_id
-    enable = true
-  } : null
 }
 
 module "nsg_container_apps_env" {
@@ -400,7 +396,10 @@ module "vnet_spoke" {
   location         = var.location
   parent_id        = var.resource_group_id
   address_space    = var.spoke_vnet_address_prefixes
-  ddos_protection_plan = local.ddos_protection_plan_config
+  ddos_protection_plan = var.ddos_protection_mode == "protection_plan" ? {
+    id     = var.existing_ddos_protection_plan_id
+    enable = true
+  } : null
   enable_telemetry = var.enable_telemetry
   name             = var.resources_names["vnetSpoke"]
   peerings = var.hub_peering_enabled ? {
