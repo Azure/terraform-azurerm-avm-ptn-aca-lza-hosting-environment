@@ -81,6 +81,11 @@ variable "ddos_protection_enabled" {
     Default is false.
   EOT
   nullable    = false
+
+  validation {
+    condition     = var.ddos_protection_mode == "ip_rules" || !var.ddos_protection_enabled
+    error_message = "ddos_protection_enabled can only be true when ddos_protection_mode is 'ip_rules'."
+  }
 }
 
 variable "ddos_protection_mode" {
