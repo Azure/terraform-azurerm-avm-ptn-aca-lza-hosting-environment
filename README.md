@@ -4,6 +4,21 @@
 
 This pattern module creates a full Azure Container Apps (ACA) landing zone hosting environment with hub-spoke networking, supporting secure container application deployment scenarios. The module provisions the complete infrastructure including virtual networks, subnets, Azure Container Apps Environment, supporting services (Key Vault, Log Analytics, Application Insights), and optional components like Application Gateway, Azure Front Door, Azure Bastion, and jumpbox VMs for secure access.
 
+## DDoS protection options
+
+Use `ddos_protection_mode` to choose how DDoS protection is handled:
+
+- `none`: no DDoS feature is configured by this module.
+- `ip_rules`: enables per-IP protection on the Application Gateway public IP.
+- `protection_plan`: associates the spoke virtual network to an existing DDoS Protection Plan using `existing_ddos_protection_plan_id`.
+
+Example (existing plan):
+
+```hcl
+ddos_protection_mode             = "protection_plan"
+existing_ddos_protection_plan_id = "/subscriptions/<subId>/resourceGroups/<rg>/providers/Microsoft.Network/ddosProtectionPlans/<name>"
+```
+
 <!-- markdownlint-disable MD033 -->
 ## Requirements
 
@@ -98,10 +113,14 @@ Default: `null`
 
 ### <a name="input_ddos_protection_enabled"></a> [ddos\_protection\_enabled](#input\_ddos\_protection\_enabled)
 
-Description: Optional. Enable DDoS IP Protection on the Application Gateway public IP address.
+Description: Optional (deprecated, legacy compatibility). Enable DDoS IP Protection on the Application Gateway public IP address.
 
 When enabled, this configures per-IP DDoS protection mode on the Application Gateway's  
 public IP only. This is NOT a DDoS Network Protection Plan.
+
+Compatibility note: for new deployments, prefer ddos\_protection\_mode = "none" to disable  
+DDoS configuration. This variable is retained so existing configurations that use  
+ddos\_protection\_enabled = false keep the prior default behavior.
 
 Note: Per-IP DDoS protection incurs additional costs (~$199/month per protected IP).  
 For enterprise deployments using Azure Landing Zones, consider using a centralized  
@@ -115,6 +134,22 @@ Default is false.
 Type: `bool`
 
 Default: `false`
+
+### <a name="input_ddos_protection_mode"></a> [ddos\_protection\_mode](#input\_ddos\_protection\_mode)
+
+Description: Optional. DDoS protection mode for this deployment.
+
+Supported values:
+- "none": Disable DDoS protection features managed by this module.
+- "ip\_rules": Enable per-IP DDoS protection mode on the Application Gateway public IP.  
+  For backward compatibility, this mode is only activated when ddos\_protection\_enabled is true.
+- "protection\_plan": Associate the spoke virtual network with an existing DDoS Protection Plan.
+
+Default is "ip\_rules".
+
+Type: `string`
+
+Default: `"ip_rules"`
 
 ### <a name="input_egress_lockdown_enabled"></a> [egress\_lockdown\_enabled](#input\_egress\_lockdown\_enabled)
 
@@ -141,6 +176,14 @@ Description: Optional. The name of the environment (e.g. "dev", "test", "prod", 
 Type: `string`
 
 Default: `"test"`
+
+### <a name="input_existing_ddos_protection_plan_id"></a> [existing\_ddos\_protection\_plan\_id](#input\_existing\_ddos\_protection\_plan\_id)
+
+Description: Optional. Resource ID of an existing Azure DDoS Protection Plan to associate with the spoke virtual network when ddos\_protection\_mode is 'protection\_plan'.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_existing_resource_group_id"></a> [existing\_resource\_group\_id](#input\_existing\_resource\_group\_id)
 

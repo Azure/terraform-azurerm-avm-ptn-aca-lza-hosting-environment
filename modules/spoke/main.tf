@@ -396,6 +396,10 @@ module "vnet_spoke" {
   location         = var.location
   parent_id        = var.resource_group_id
   address_space    = var.spoke_vnet_address_prefixes
+  ddos_protection_plan = var.ddos_protection_mode == "protection_plan" ? {
+    id     = var.existing_ddos_protection_plan_id
+    enable = true
+  } : null
   enable_telemetry = var.enable_telemetry
   name             = var.resources_names["vnetSpoke"]
   peerings = var.hub_peering_enabled ? {
@@ -461,4 +465,3 @@ module "vnet_spoke" {
 ###############################################
 # Optional Jumpbox VM                         #
 ###############################################
-
