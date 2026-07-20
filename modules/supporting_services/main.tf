@@ -80,7 +80,7 @@ data "azurerm_client_config" "current" {}
 
 module "acr_uai" {
   source  = "Azure/avm-res-managedidentity-userassignedidentity/azurerm"
-  version = "0.3.4"
+  version = "0.5.1"
 
   location            = var.location
   name                = var.resources_names.containerRegistryUserAssignedIdentity
@@ -91,7 +91,7 @@ module "acr_uai" {
 
 module "acr_dns_zone" {
   source  = "Azure/avm-res-network-privatednszone/azurerm"
-  version = "0.4.4"
+  version = "0.5.0"
 
   domain_name           = local.acr_dns_zone_name
   parent_id             = var.resource_group_id
@@ -152,7 +152,7 @@ module "acr" {
 
 module "kv_dns_zone" {
   source  = "Azure/avm-res-network-privatednszone/azurerm"
-  version = "0.4.4"
+  version = "0.5.0"
 
   domain_name           = local.kv_dns_zone_name
   parent_id             = var.resource_group_id
@@ -163,7 +163,7 @@ module "kv_dns_zone" {
 
 module "kv" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
-  version = "0.10.0"
+  version = "0.10.2"
 
   location            = var.location
   name                = var.resources_names.keyVault
@@ -209,7 +209,7 @@ module "kv" {
 
 module "st_dns_zone" {
   source  = "Azure/avm-res-network-privatednszone/azurerm"
-  version = "0.4.4"
+  version = "0.5.0"
 
   domain_name           = local.st_dns_zone_name
   parent_id             = var.resource_group_id
@@ -220,7 +220,7 @@ module "st_dns_zone" {
 
 module "st" {
   source  = "Azure/avm-res-storage-storageaccount/azurerm"
-  version = "0.6.7"
+  version = "0.7.3"
 
   location                 = var.location
   name                     = var.resources_names.storageAccount
