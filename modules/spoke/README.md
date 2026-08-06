@@ -84,6 +84,14 @@ Type: `string`
 
 Default: `null`
 
+### <a name="input_ddos_protection_mode"></a> [ddos\_protection\_mode](#input\_ddos\_protection\_mode)
+
+Description: Optional. DDoS protection mode to apply in spoke networking. Supported values: none, ip\_rules, protection\_plan.
+
+Type: `string`
+
+Default: `"ip_rules"`
+
 ### <a name="input_egress_lockdown_enabled"></a> [egress\_lockdown\_enabled](#input\_egress\_lockdown\_enabled)
 
 Description: Optional. Whether to enable egress lockdown by creating a route table. When true, network\_appliance\_ip\_address must be provided.
@@ -99,6 +107,14 @@ Description: Optional. Enable/Disable module telemetry for AVM submodules.
 Type: `bool`
 
 Default: `true`
+
+### <a name="input_existing_ddos_protection_plan_id"></a> [existing\_ddos\_protection\_plan\_id](#input\_existing\_ddos\_protection\_plan\_id)
+
+Description: Optional. Existing DDoS Protection Plan resource ID used when ddos\_protection\_mode is 'protection\_plan'.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_hub_peering_enabled"></a> [hub\_peering\_enabled](#input\_hub\_peering\_enabled)
 

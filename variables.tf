@@ -63,10 +63,14 @@ variable "ddos_protection_enabled" {
   type        = bool
   default     = false
   description = <<-EOT
-    Optional. Enable DDoS IP Protection on the Application Gateway public IP address.
+    Optional (deprecated, legacy compatibility). Enable DDoS IP Protection on the Application Gateway public IP address.
 
     When enabled, this configures per-IP DDoS protection mode on the Application Gateway's
     public IP only. This is NOT a DDoS Network Protection Plan.
+
+    Compatibility note: for new deployments, prefer ddos_protection_mode = "none" to disable
+    DDoS configuration. This variable is retained so existing configurations that use
+    ddos_protection_enabled = false keep the prior default behavior.
 
     Note: Per-IP DDoS protection incurs additional costs (~$199/month per protected IP).
     For enterprise deployments using Azure Landing Zones, consider using a centralized
@@ -78,6 +82,49 @@ variable "ddos_protection_enabled" {
     Default is false.
   EOT
   nullable    = false
+
+  validation {
+    condition     = var.ddos_protection_mode == "ip_rules" || !var.ddos_protection_enabled
+    error_message = "When ddos_protection_enabled is true, ddos_protection_mode must be set to 'ip_rules' for backward compatibility."
+  }
+}
+
+variable "ddos_protection_mode" {
+  type        = string
+  default     = "ip_rules"
+  description = <<-EOT
+    Optional. DDoS protection mode for this deployment.
+
+    Supported values:
+    - "none": Disable DDoS protection features managed by this module.
+    - "ip_rules": Enable per-IP DDoS protection mode on the Application Gateway public IP.
+      For backward compatibility, this mode is only activated when ddos_protection_enabled is true.
+    - "protection_plan": Associate the spoke virtual network with an existing DDoS Protection Plan.
+
+    Default is "ip_rules".
+  EOT
+  nullable    = false
+
+  validation {
+    condition     = contains(["none", "ip_rules", "protection_plan"], var.ddos_protection_mode)
+    error_message = "ddos_protection_mode must be one of: none, ip_rules, protection_plan."
+  }
+}
+
+variable "existing_ddos_protection_plan_id" {
+  type        = string
+  default     = null
+  description = "Optional. Resource ID of an existing Azure DDoS Protection Plan to associate with the spoke virtual network when ddos_protection_mode is 'protection_plan'."
+
+  validation {
+    condition     = var.ddos_protection_mode != "protection_plan" || (var.existing_ddos_protection_plan_id != null && trimspace(var.existing_ddos_protection_plan_id) != "")
+    error_message = "existing_ddos_protection_plan_id must be provided when ddos_protection_mode is 'protection_plan'."
+  }
+
+  validation {
+    condition     = var.ddos_protection_mode == "protection_plan" || var.existing_ddos_protection_plan_id == null
+    error_message = "existing_ddos_protection_plan_id can only be set when ddos_protection_mode is 'protection_plan'."
+  }
 }
 
 variable "egress_lockdown_enabled" {

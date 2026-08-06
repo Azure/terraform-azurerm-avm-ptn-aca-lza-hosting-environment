@@ -37,6 +37,13 @@ resource "azurerm_virtual_network" "hub" {
   address_space       = ["10.0.0.0/16"]
 }
 
+resource "azurerm_network_ddos_protection_plan" "hub" {
+  # Example-only hub-managed DDoS plan used by the spoke module in protection_plan mode
+  location            = azurerm_resource_group.hub.location
+  name                = "${module.naming.ddos_protection_plan.name_unique}-hub"
+  resource_group_name = azurerm_resource_group.hub.name
+}
+
 # Simulate a network appliance IP (like Azure Firewall)
 resource "azurerm_subnet" "firewall" {
   address_prefixes     = ["10.0.1.0/26"]
@@ -73,8 +80,9 @@ module "aca_lza_hosting" {
   spoke_private_endpoints_subnet_address_prefix = "10.20.2.0/24"
   # Spoke networking - avoid overlap with hub
   spoke_vnet_address_prefixes = ["10.20.0.0/16"]
-  # DDoS protection disabled for automated testing
-  ddos_protection_enabled      = false
+  # Associate spoke VNet with existing hub-managed DDoS protection plan
+  ddos_protection_mode             = "protection_plan"
+  existing_ddos_protection_plan_id = azurerm_network_ddos_protection_plan.hub.id
   egress_lockdown_enabled      = true
   enable_telemetry             = var.enable_telemetry
   environment                  = "test"
@@ -103,8 +111,6 @@ module "aca_lza_hosting" {
   # Zone redundancy for high availability (COMPLEX)
   zone_redundant_resources_enabled = true
 }
-
-
 
 
 
