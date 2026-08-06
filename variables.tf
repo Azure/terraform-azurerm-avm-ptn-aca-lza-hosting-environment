@@ -80,6 +80,13 @@ variable "ddos_protection_enabled" {
   nullable    = false
 }
 
+variable "deploy_acr" {
+  type        = bool
+  default     = true
+  description = "Optional. Whether to deploy a new Azure Container Registry. Set to false to skip ACR creation or to use an existing ACR via existing_acr_id. Default is true."
+  nullable    = false
+}
+
 variable "egress_lockdown_enabled" {
   type        = bool
   default     = false
@@ -107,6 +114,17 @@ variable "environment" {
   validation {
     condition     = length(var.environment) <= 8
     error_message = "environment must be at most 8 characters."
+  }
+}
+
+variable "existing_acr_id" {
+  type        = string
+  default     = null
+  description = "Optional. The resource ID of an existing Azure Container Registry to use when deploy_acr is false. When provided, a user-assigned identity with AcrPull permissions and a private endpoint will be configured for the existing ACR. Default is null."
+
+  validation {
+    condition     = var.existing_acr_id == null || can(regex("^/subscriptions/[^/]+/resourceGroups/[^/]+/providers/Microsoft\\.ContainerRegistry/registries/[^/]+$", var.existing_acr_id))
+    error_message = "existing_acr_id must be a valid Azure Container Registry resource ID."
   }
 }
 

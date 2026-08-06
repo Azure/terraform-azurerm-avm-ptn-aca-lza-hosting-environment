@@ -9,7 +9,8 @@ variable "container_app_environment_resource_id" {
 
 variable "container_registry_user_assigned_identity_id" {
   type        = string
-  description = "Resource ID of the user-assigned managed identity with ACR Pull permissions."
+  default     = null
+  description = "Optional. Resource ID of the user-assigned managed identity with ACR Pull permissions. When null, no ACR pull identity is configured."
 }
 
 variable "resource_group_name" {
