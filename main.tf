@@ -183,7 +183,6 @@ module "sample_application" {
   workload_profile_name = module.container_apps_environment.workload_profile_names[0]
 }
 
-
 # Ingress via Application Gateway (default path)
 # Routes to the sample app if deployed, providing a working demo
 module "application_gateway" {
@@ -241,4 +240,3 @@ module "front_door" {
   tags            = var.tags
   waf_policy_name = var.front_door_waf_policy_name != null ? var.front_door_waf_policy_name : "${module.naming.resources_names.frontDoor}-waf"
 }
-
