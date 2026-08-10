@@ -2,6 +2,7 @@
 # Stage 0: Variables mirroring Bicep inputs  #
 ###############################################
 
+
 # Observability & ACA
 variable "application_insights_enabled" {
   type        = bool
