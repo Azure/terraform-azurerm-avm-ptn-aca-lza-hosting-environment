@@ -103,7 +103,7 @@ module "aca_lza_hosting" {
   bastion_access_enabled        = true
   bastion_subnet_address_prefix = azurerm_subnet.bastion.address_prefixes[0]
   # DDoS protection disabled for automated testing
-  ddos_protection_enabled      = false
+  ddos_protection_mode         = "none"
   enable_telemetry             = var.enable_telemetry
   environment                  = "test"
   existing_resource_group_id   = azurerm_resource_group.this.id
@@ -129,7 +129,6 @@ module "aca_lza_hosting" {
   # Zone redundancy for maximum availability (COMPLEX)
   zone_redundant_resources_enabled = true
 }
-
 
 
 
