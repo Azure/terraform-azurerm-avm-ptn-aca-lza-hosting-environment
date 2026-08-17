@@ -11,9 +11,9 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 1.0, < 3.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.2)
 
-- <a name="requirement_pkcs12"></a> [pkcs12](#requirement\_pkcs12) (~> 0.0.7)
+- <a name="requirement_pkcs12"></a> [pkcs12](#requirement\_pkcs12) (~> 0.4.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
 
@@ -175,7 +175,7 @@ The following Modules are called:
 
 Source: Azure/avm-res-network-applicationgateway/azurerm
 
-Version: 0.4.3
+Version: 0.5.3
 
 ### <a name="module_appgw_pip"></a> [appgw\_pip](#module\_appgw\_pip)
 
