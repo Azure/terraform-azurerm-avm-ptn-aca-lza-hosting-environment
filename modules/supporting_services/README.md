@@ -11,7 +11,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 2.0.0, < 3.0.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71.0, < 5.0.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71.0, < 5.0.2)
 
 ## Resources
 
@@ -179,43 +179,43 @@ The following Modules are called:
 
 Source: Azure/avm-res-containerregistry-registry/azurerm
 
-Version: 0.5.1
+Version: 0.7.0
 
 ### <a name="module_acr_dns_zone"></a> [acr\_dns\_zone](#module\_acr\_dns\_zone)
 
 Source: Azure/avm-res-network-privatednszone/azurerm
 
-Version: 0.4.4
+Version: 0.5.0
 
 ### <a name="module_acr_uai"></a> [acr\_uai](#module\_acr\_uai)
 
 Source: Azure/avm-res-managedidentity-userassignedidentity/azurerm
 
-Version: 0.3.4
+Version: 0.5.1
 
 ### <a name="module_kv"></a> [kv](#module\_kv)
 
 Source: Azure/avm-res-keyvault-vault/azurerm
 
-Version: 0.10.0
+Version: 0.10.2
 
 ### <a name="module_kv_dns_zone"></a> [kv\_dns\_zone](#module\_kv\_dns\_zone)
 
 Source: Azure/avm-res-network-privatednszone/azurerm
 
-Version: 0.4.4
+Version: 0.5.0
 
 ### <a name="module_st"></a> [st](#module\_st)
 
 Source: Azure/avm-res-storage-storageaccount/azurerm
 
-Version: 0.6.7
+Version: 0.7.4
 
 ### <a name="module_st_dns_zone"></a> [st\_dns\_zone](#module\_st\_dns\_zone)
 
 Source: Azure/avm-res-network-privatednszone/azurerm
 
-Version: 0.4.4
+Version: 0.5.0
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection

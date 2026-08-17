@@ -13,7 +13,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71.0, < 5.0.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71.0, < 5.0.2)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (>= 3.5.0, < 4.0.0)
 
@@ -177,7 +177,7 @@ The following Modules are called:
 
 Source: Azure/avm-res-compute-virtualmachine/azurerm
 
-Version: 0.19.0
+Version: 0.21.0
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection
