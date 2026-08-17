@@ -100,7 +100,7 @@ The following Modules are called:
 
 Source: Azure/avm-res-app-containerapp/azurerm
 
-Version: 0.7.4
+Version: 0.9.0
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection
