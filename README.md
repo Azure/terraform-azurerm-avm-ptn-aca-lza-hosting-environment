@@ -506,7 +506,7 @@ Version:
 
 Source: Azure/avm-res-resources-resourcegroup/azurerm
 
-Version: 0.2.0
+Version: 0.4.0
 
 ### <a name="module_supporting_services"></a> [supporting\_services](#module\_supporting\_services)
 

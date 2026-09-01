@@ -272,37 +272,37 @@ The following Modules are called:
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.0
+Version: 0.5.1
 
 ### <a name="module_nsg_container_apps_env"></a> [nsg\_container\_apps\_env](#module\_nsg\_container\_apps\_env)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.0
+Version: 0.5.1
 
 ### <a name="module_nsg_jumpbox"></a> [nsg\_jumpbox](#module\_nsg\_jumpbox)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.0
+Version: 0.5.1
 
 ### <a name="module_nsg_pep"></a> [nsg\_pep](#module\_nsg\_pep)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.0
+Version: 0.5.1
 
 ### <a name="module_route_table"></a> [route\_table](#module\_route\_table)
 
 Source: Azure/avm-res-network-routetable/azurerm
 
-Version: 0.4.1
+Version: 0.5.0
 
 ### <a name="module_vnet_spoke"></a> [vnet\_spoke](#module\_vnet\_spoke)
 
 Source: Azure/avm-res-network-virtualnetwork/azurerm
 
-Version: 0.15.0
+Version: 0.20.0
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection
