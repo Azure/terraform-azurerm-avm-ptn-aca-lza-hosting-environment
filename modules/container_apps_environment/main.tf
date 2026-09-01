@@ -62,7 +62,7 @@ module "managed_environment" {
   log_analytics_workspace_primary_shared_key = try(data.azapi_resource_action.law_shared_keys.output.primarySharedKey, null)
   # Managed Identity for ACR pull
   managed_identities = {
-    user_assigned_resource_ids = [var.container_registry_user_assigned_identity_id]
+    user_assigned_resource_ids = var.container_registry_user_assigned_identity_id != null ? [var.container_registry_user_assigned_identity_id] : []
   }
   # Storage mounts: only include entries provided with access keys (ensure non-sensitive map for for_each downstream)
   storages = nonsensitive(local.storages_map)

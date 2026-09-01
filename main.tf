@@ -75,7 +75,9 @@ module "spoke" {
 module "supporting_services" {
   source = "./modules/supporting_services"
 
+  deploy_acr                                = var.deploy_acr
   enable_telemetry                          = var.enable_telemetry
+  existing_acr_id                           = var.existing_acr_id
   location                                  = local.safe_location
   resource_group_id                         = local.resource_group_id
   resource_group_name                       = local.resource_group_name
