@@ -56,7 +56,7 @@ module "aca_lza_hosting" {
   spoke_private_endpoints_subnet_address_prefix = "10.20.2.0/24"
   # Networking - Front Door doesn't need Application Gateway subnet
   spoke_vnet_address_prefixes  = ["10.20.0.0/16"]
-  ddos_protection_enabled      = false
+  ddos_protection_mode         = "none"
   enable_telemetry             = var.enable_telemetry
   environment                  = "test"
   existing_resource_group_id   = azurerm_resource_group.this.id
@@ -74,7 +74,6 @@ module "aca_lza_hosting" {
   workload_name                    = "fd${random_string.suffix.result}"
   zone_redundant_resources_enabled = true
 }
-
 
 
 
