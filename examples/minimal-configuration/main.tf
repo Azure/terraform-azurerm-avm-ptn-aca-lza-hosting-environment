@@ -64,7 +64,3 @@ module "aca_lza_hosting" {
   # Minimal availability - single zone
   zone_redundant_resources_enabled = false
 }
-
-
-
-

@@ -1,4 +1,3 @@
-
 # Get current Azure context for constructing resource IDs
 data "azapi_client_config" "current" {}
 

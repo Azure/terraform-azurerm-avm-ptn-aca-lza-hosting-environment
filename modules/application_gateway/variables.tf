@@ -2,6 +2,7 @@
 # Application Gateway module: variables       #
 ###############################################
 
+
 variable "location" {
   type        = string
   description = "Required. Azure region for resources."

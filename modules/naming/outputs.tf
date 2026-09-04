@@ -2,6 +2,7 @@
 # Outputs                                     #
 ###############################################
 
+
 output "resource_id" {
   description = "Not applicable for naming module - this is a utility module that does not create resources"
   value       = ""
