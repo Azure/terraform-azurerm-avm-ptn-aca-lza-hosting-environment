@@ -6,6 +6,7 @@
 # Networking outputs                          #
 ###############################################
 
+
 output "log_analytics_workspace_customer_id" {
   description = "The customer ID (workspace ID) of the Azure Log Analytics Workspace."
   value       = try(azapi_resource.log_analytics_workspace.output.properties.customerId, null)

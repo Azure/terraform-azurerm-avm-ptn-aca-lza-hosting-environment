@@ -39,10 +39,10 @@ resource "azurerm_virtual_network" "hub" {
 
 # Bastion subnet (required name and size)
 resource "azurerm_subnet" "bastion" {
-  address_prefixes     = ["10.0.1.0/27"]      # /27 is minimum for Bastion
   name                 = "AzureBastionSubnet" # Required name
   resource_group_name  = azurerm_resource_group.hub.name
   virtual_network_name = azurerm_virtual_network.hub.name
+  address_prefixes     = ["10.0.1.0/27"] # /27 is minimum for Bastion
 }
 
 # Public IP for Bastion
@@ -122,10 +122,3 @@ module "aca_lza_hosting" {
   # Zone redundancy for maximum availability (COMPLEX)
   zone_redundant_resources_enabled = true
 }
-
-
-
-
-
-
-

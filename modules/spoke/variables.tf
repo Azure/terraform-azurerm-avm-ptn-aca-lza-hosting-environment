@@ -10,6 +10,7 @@
 # Jumpbox VM inputs                           #
 ###############################################
 
+
 variable "location" {
   type        = string
   description = "Required. Azure location for the spoke resources."

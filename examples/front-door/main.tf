@@ -74,10 +74,3 @@ module "aca_lza_hosting" {
   workload_name                    = "fd${random_string.suffix.result}"
   zone_redundant_resources_enabled = true
 }
-
-
-
-
-
-
-

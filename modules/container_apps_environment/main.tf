@@ -1,5 +1,3 @@
-
-
 locals {
   # Map storages input into the AVM module's storages shape when account_name/share_name/access_key present
   storages_map = {
@@ -102,8 +100,6 @@ module "aca_privatedns" {
   tags                  = var.tags
   virtual_network_links = local.virtual_network_links
 }
-
-
 
 data "azapi_resource_action" "law_shared_keys" {
   action                 = "sharedKeys"
