@@ -57,7 +57,7 @@ module "aca_lza_hosting" {
   # Networking - Front Door doesn't need Application Gateway subnet
   spoke_vnet_address_prefixes  = ["10.20.0.0/16"]
   ddos_protection_enabled      = false
-  enable_telemetry             = var.enable_telemetry
+  enable_telemetry             = false
   environment                  = "test"
   existing_resource_group_id   = azurerm_resource_group.this.id
   existing_resource_group_used = true
