@@ -97,7 +97,7 @@ module "aca_lza_hosting" {
   bastion_subnet_address_prefix = azurerm_subnet.bastion.address_prefixes[0]
   # DDoS protection disabled for automated testing
   ddos_protection_enabled      = false
-  enable_telemetry             = false
+  enable_telemetry             = var.enable_telemetry
   environment                  = "test"
   existing_resource_group_id   = azurerm_resource_group.this.id
   existing_resource_group_used = true

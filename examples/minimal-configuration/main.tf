@@ -45,7 +45,7 @@ module "aca_lza_hosting" {
   spoke_vnet_address_prefixes = ["172.16.0.0/24"] # Small /24
   # NO DDoS protection
   ddos_protection_enabled      = false
-  enable_telemetry             = false
+  enable_telemetry             = var.enable_telemetry
   environment                  = "dev"
   existing_resource_group_id   = azurerm_resource_group.this.id
   existing_resource_group_used = true
