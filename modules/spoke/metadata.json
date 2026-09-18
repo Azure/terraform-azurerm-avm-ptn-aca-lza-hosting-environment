@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Azure Container Apps Hosting Environment Spoke Network",
+  "moduleDescription": "Deploys the spoke virtual network and subnets for the hosting environment, with optional hub peering and egress lockdown.",
+  "canonicalType": "aca-lza/hosting-environment/spoke",
+  "telemetryIdPrefix": "46d3xtrf.ptn.d3e299d"
+}

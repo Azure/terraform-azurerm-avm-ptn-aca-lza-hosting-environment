@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Azure Container Apps Sample Application",
+  "moduleDescription": "Deploys a sample Container App into an existing Container Apps environment using a user-assigned managed identity for registry access.",
+  "canonicalType": "aca-lza/hosting-environment/sample-application",
+  "telemetryIdPrefix": "46d3xtrf.ptn.579793f"
+}

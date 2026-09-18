@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Azure Container Apps Managed Environment",
+  "moduleDescription": "Deploys a Container Apps managed environment with subnet integration, Log Analytics, and a private DNS zone linked to the spoke virtual network.",
+  "canonicalType": "aca-lza/hosting-environment/container-apps-environment",
+  "telemetryIdPrefix": "46d3xtrf.ptn.c864f0e"
+}

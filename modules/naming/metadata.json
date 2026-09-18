@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Azure Container Apps Hosting Environment Resource Naming",
+  "moduleDescription": "Computes resource names and resource type abbreviations for the hosting environment from workload, environment, location, and unique ID inputs without creating resources.",
+  "canonicalType": "aca-lza/hosting-environment/naming",
+  "telemetryIdPrefix": "46d3xtrf.ptn.e041877"
+}

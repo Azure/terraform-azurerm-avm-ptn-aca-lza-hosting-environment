@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Azure Front Door Module",
+  "moduleDescription": "This module creates an Azure Front Door (Standard or Premium) with custom domain support and TLS termination using certificates from Azure Key Vault.",
+  "canonicalType": "aca-lza/hosting-environment/front-door",
+  "telemetryIdPrefix": "46d3xtrf.ptn.23dbf7c"
+}
