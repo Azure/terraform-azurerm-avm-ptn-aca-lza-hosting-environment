@@ -224,7 +224,6 @@ module "st" {
 
   location                 = var.location
   name                     = var.resources_names.storageAccount
-  resource_group_name      = var.resource_group_name
   account_kind             = "StorageV2"
   account_replication_type = "ZRS"
   account_tier             = "Standard"
@@ -251,6 +250,7 @@ module "st" {
   public_network_access_enabled = false
   shared_access_key_enabled     = true
   tags                          = local.tags
+  resource_group_name           = var.resource_group_name
 }
 
 # File shares - using AzAPI for AVM v1.0 compliance
