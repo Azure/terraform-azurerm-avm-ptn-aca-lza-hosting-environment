@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Azure Container Apps Hosting Environment Application Gateway",
+  "moduleDescription": "Deploys an Application Gateway with a public frontend and optional HTTPS backend routing for the Azure Container Apps hosting environment.",
+  "canonicalType": "aca-lza/hosting-environment/application-gateway",
+  "telemetryIdPrefix": "46d3xtrf.ptn.a8b05ee"
+}
