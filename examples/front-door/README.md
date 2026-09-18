@@ -80,7 +80,7 @@ module "aca_lza_hosting" {
   # Networking - Front Door doesn't need Application Gateway subnet
   spoke_vnet_address_prefixes  = ["10.20.0.0/16"]
   ddos_protection_enabled      = false
-  enable_telemetry             = false
+  enable_telemetry             = var.enable_telemetry
   environment                  = "test"
   existing_resource_group_id   = azurerm_resource_group.this.id
   existing_resource_group_used = true
@@ -132,7 +132,7 @@ Description: This variable controls whether or not telemetry is enabled for the 
 
 Type: `bool`
 
-Default: `true`
+Default: `false`
 
 ## Outputs
 
