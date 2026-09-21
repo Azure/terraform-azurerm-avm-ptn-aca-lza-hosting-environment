@@ -166,7 +166,7 @@ Description: This variable controls whether or not telemetry is enabled for the 
 
 Type: `bool`
 
-Default: `false`
+Default: `true`
 
 ## Outputs
 
