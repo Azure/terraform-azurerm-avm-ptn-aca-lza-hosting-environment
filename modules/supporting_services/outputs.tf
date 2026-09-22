@@ -1,21 +1,21 @@
 output "container_registry_id" {
   description = "ACR resource ID"
-  value       = module.acr.resource_id
+  value       = var.deploy_acr ? module.acr[0].resource_id : var.existing_acr_id
 }
 
 output "container_registry_login_server" {
   description = "ACR login server"
-  value       = "${module.acr.name}.azurecr.io"
+  value       = var.deploy_acr ? "${module.acr[0].name}.azurecr.io" : (local.existing_acr_name != null ? "${local.existing_acr_name}.azurecr.io" : null)
 }
 
 output "container_registry_name" {
   description = "ACR name"
-  value       = module.acr.name
+  value       = var.deploy_acr ? module.acr[0].name : local.existing_acr_name
 }
 
 output "container_registry_uai_id" {
   description = "ACR user assigned identity id"
-  value       = module.acr_uai.resource_id
+  value       = local.use_acr ? module.acr_uai[0].resource_id : null
 }
 
 output "key_vault_id" {
