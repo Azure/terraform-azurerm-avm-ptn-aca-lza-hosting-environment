@@ -13,6 +13,12 @@ variable "container_registry_user_assigned_identity_id" {
   description = "Resource ID of the user-assigned managed identity with ACR Pull permissions."
 }
 
+variable "location" {
+  type        = string
+  description = "The Azure region for this module's resources or telemetry deployment."
+  nullable    = false
+}
+
 variable "resource_group_name" {
   type        = string
   description = "Resource group name where the Container App will be deployed."
@@ -21,7 +27,12 @@ variable "resource_group_name" {
 variable "enable_telemetry" {
   type        = bool
   default     = true
-  description = "Enable/Disable usage telemetry for the module."
+  description = <<DESCRIPTION
+This variable controls whether or not telemetry is enabled for the module.
+For more information see <https://aka.ms/avm/telemetryinfo>.
+If it is set to false, then no telemetry will be collected.
+DESCRIPTION
+  nullable    = false
 }
 
 variable "name" {

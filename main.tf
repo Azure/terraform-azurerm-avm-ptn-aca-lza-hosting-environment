@@ -29,6 +29,7 @@ module "naming" {
   location                  = local.safe_location
   unique_id                 = local.naming_unique_id
   workload_name             = var.workload_name
+  enable_telemetry          = var.enable_telemetry
   spoke_resource_group_name = local.create_custom_named_rg ? var.created_resource_group_name : ""
 }
 
@@ -75,13 +76,13 @@ module "spoke" {
 module "supporting_services" {
   source = "./modules/supporting_services"
 
-  enable_telemetry                          = var.enable_telemetry
   location                                  = local.safe_location
   resource_group_id                         = local.resource_group_id
   resource_group_name                       = local.resource_group_name
   resources_names                           = module.naming.resources_names
   spoke_private_endpoint_subnet_resource_id = module.spoke.spoke_private_endpoints_subnet_id
   spoke_vnet_resource_id                    = module.spoke.spoke_vnet_id
+  enable_telemetry                          = var.enable_telemetry
   hub_peering_enabled                       = var.hub_peering_enabled
   hub_vnet_resource_id                      = var.hub_virtual_network_resource_id
   log_analytics_workspace_id                = module.spoke.log_analytics_workspace_id
@@ -99,7 +100,6 @@ module "vm_linux" {
   source = "./modules/linux_vm"
   count  = var.virtual_machine_jumpbox_os_type == "linux" ? 1 : 0
 
-  enable_telemetry                           = var.enable_telemetry
   location                                   = local.safe_location
   log_analytics_workspace_id                 = module.spoke.log_analytics_workspace_id
   name                                       = module.naming.resources_names["vmJumpBox"]
@@ -107,6 +107,7 @@ module "vm_linux" {
   resource_group_name                        = local.resource_group_name
   subnet_id                                  = module.spoke.spoke_jumpbox_subnet_id
   virtual_machine_size                       = var.virtual_machine_size
+  enable_telemetry                           = var.enable_telemetry
   key_vault_resource_id                      = module.supporting_services.key_vault_id
   storage_account_type                       = var.storage_account_type
   tags                                       = var.tags
@@ -122,7 +123,6 @@ module "vm_windows" {
   source = "./modules/windows_vm"
   count  = var.virtual_machine_jumpbox_os_type == "windows" ? 1 : 0
 
-  enable_telemetry                        = var.enable_telemetry
   location                                = local.safe_location
   log_analytics_workspace_id              = module.spoke.log_analytics_workspace_id
   name                                    = module.naming.resources_names["vmJumpBox"]
@@ -130,6 +130,7 @@ module "vm_windows" {
   resource_group_name                     = local.resource_group_name
   subnet_id                               = module.spoke.spoke_jumpbox_subnet_id
   virtual_machine_size                    = var.virtual_machine_size
+  enable_telemetry                        = var.enable_telemetry
   key_vault_resource_id                   = module.supporting_services.key_vault_id
   storage_account_type                    = var.storage_account_type
   tags                                    = var.tags
@@ -176,6 +177,7 @@ module "sample_application" {
   container_app_environment_resource_id = module.container_apps_environment.managed_environment_id
   # Identity to pull images from ACR (already created in supporting services)
   container_registry_user_assigned_identity_id = module.supporting_services.container_registry_uai_id
+  location                                     = var.location
   # Where to deploy
   resource_group_name   = local.resource_group_name
   enable_telemetry      = var.enable_telemetry
