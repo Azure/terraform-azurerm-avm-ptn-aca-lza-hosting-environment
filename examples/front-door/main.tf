@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    modtm = {
+      source  = "registry.terraform.io/azure/modtm"
+      version = "~> 0.3"
+    }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.6"
@@ -32,8 +36,8 @@ resource "random_string" "suffix" {
 
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  source  = "Azure/avm-utl-naming/azure"
+  version = "0.2.0"
 }
 
 # Test resource group for the module
@@ -45,7 +49,8 @@ resource "azurerm_resource_group" "this" {
 # Front Door Premium with Private Link scenario
 # Note: Front Door automatically uses Premium SKU with Private Link for internal Container Apps Environment
 module "aca_lza_hosting" {
-  source = "../../"
+  source    = "../../"
+  providers = { modtm = modtm }
 
   # Observability
   application_insights_enabled = true

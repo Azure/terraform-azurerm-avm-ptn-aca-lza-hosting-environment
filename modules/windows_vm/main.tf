@@ -32,8 +32,9 @@ resource "azurerm_key_vault_secret" "admin_password" {
 }
 
 module "vm" {
-  source  = "Azure/avm-res-compute-virtualmachine/azurerm"
-  version = "0.19.0"
+  source    = "Azure/avm-res-compute-virtualmachine/azurerm"
+  version   = "0.19.0"
+  providers = { modtm = modtm }
 
   location = var.location
   name     = var.name
