@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    modtm = {
+      source  = "registry.terraform.io/azure/modtm"
+      version = "~> 0.3"
+    }
   }
 }
 
@@ -20,8 +24,8 @@ provider "azurerm" {
 
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  source  = "Azure/avm-utl-naming/azure"
+  version = "0.2.0"
 }
 
 # Create a mock hub network for testing hub-spoke integration
@@ -62,7 +66,8 @@ resource "azurerm_resource_group" "this" {
 
 # Complex scenario: Hub-spoke with Linux VM and full observability
 module "aca_lza_hosting" {
-  source = "../../"
+  source    = "../../"
+  providers = { modtm = modtm }
 
   # Full observability stack (COMPLEX)
   application_insights_enabled = true

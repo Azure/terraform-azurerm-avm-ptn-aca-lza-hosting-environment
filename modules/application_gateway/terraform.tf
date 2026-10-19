@@ -10,6 +10,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = ">= 3.71, < 5.0"
     }
+    modtm = {
+      source  = "registry.terraform.io/azure/modtm"
+      version = "~> 0.3"
+    }
     pkcs12 = {
       source  = "chilicat/pkcs12"
       version = "~> 0.0.7"

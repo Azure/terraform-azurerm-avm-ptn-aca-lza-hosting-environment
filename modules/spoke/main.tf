@@ -104,8 +104,9 @@ locals {
 }
 
 module "nsg_container_apps_env" {
-  source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "0.5.0"
+  source    = "Azure/avm-res-network-networksecuritygroup/azurerm"
+  version   = "0.5.0"
+  providers = { modtm = modtm }
 
   location            = var.location
   name                = var.resources_names["containerAppsEnvironmentNsg"]
@@ -206,9 +207,10 @@ module "nsg_container_apps_env" {
 }
 
 module "nsg_appgw" {
-  source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "0.5.0"
-  count   = var.spoke_application_gateway_subnet_address_prefix != null ? 1 : 0
+  source    = "Azure/avm-res-network-networksecuritygroup/azurerm"
+  version   = "0.5.0"
+  providers = { modtm = modtm }
+  count     = var.spoke_application_gateway_subnet_address_prefix != null ? 1 : 0
 
   location            = var.location
   name                = var.resources_names["applicationGatewayNsg"]
@@ -285,8 +287,9 @@ module "nsg_appgw" {
 }
 
 module "nsg_pep" {
-  source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "0.5.0"
+  source    = "Azure/avm-res-network-networksecuritygroup/azurerm"
+  version   = "0.5.0"
+  providers = { modtm = modtm }
 
   location            = var.location
   name                = var.resources_names["pepNsg"]
@@ -315,9 +318,10 @@ module "nsg_pep" {
 }
 
 module "nsg_jumpbox" {
-  source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "0.5.0"
-  count   = var.virtual_machine_jumpbox_os_type != "none" ? 1 : 0
+  source    = "Azure/avm-res-network-networksecuritygroup/azurerm"
+  version   = "0.5.0"
+  providers = { modtm = modtm }
+  count     = var.virtual_machine_jumpbox_os_type != "none" ? 1 : 0
 
   location            = var.location
   name                = var.resources_names["vmJumpBoxNsg"]
@@ -374,9 +378,10 @@ locals {
 }
 
 module "route_table" {
-  source  = "Azure/avm-res-network-routetable/azurerm"
-  version = "0.4.1"
-  count   = local.create_route_table ? 1 : 0
+  source    = "Azure/avm-res-network-routetable/azurerm"
+  version   = "0.4.1"
+  providers = { modtm = modtm }
+  count     = local.create_route_table ? 1 : 0
 
   location            = var.location
   name                = var.resources_names["routeTable"]
@@ -391,8 +396,9 @@ module "route_table" {
 ###############################################
 
 module "vnet_spoke" {
-  source  = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version = "0.15.0"
+  source    = "Azure/avm-res-network-virtualnetwork/azurerm"
+  version   = "0.15.0"
+  providers = { modtm = modtm }
 
   location         = var.location
   parent_id        = var.resource_group_id

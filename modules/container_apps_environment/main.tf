@@ -29,9 +29,10 @@ locals {
 
 # Optional Application Insights (workspace-based)
 module "application_insights" {
-  source  = "Azure/avm-res-insights-component/azurerm"
-  version = "0.2.0"
-  count   = var.application_insights_enabled ? 1 : 0
+  source    = "Azure/avm-res-insights-component/azurerm"
+  version   = "0.2.0"
+  providers = { modtm = modtm }
+  count     = var.application_insights_enabled ? 1 : 0
 
   location            = var.location
   name                = "${var.name}-ai"
@@ -43,8 +44,9 @@ module "application_insights" {
 
 # ACA Managed Environment
 module "managed_environment" {
-  source  = "Azure/avm-res-app-managedenvironment/azurerm"
-  version = "0.3.0"
+  source    = "Azure/avm-res-app-managedenvironment/azurerm"
+  version   = "0.3.0"
+  providers = { modtm = modtm }
 
   location            = var.location
   name                = var.name
@@ -83,8 +85,9 @@ module "managed_environment" {
 
 # Private DNS zone: domain is the defaultDomain from ACA env
 module "aca_privatedns" {
-  source  = "Azure/avm-res-network-privatednszone/azurerm"
-  version = "0.4.4"
+  source    = "Azure/avm-res-network-privatednszone/azurerm"
+  version   = "0.4.4"
+  providers = { modtm = modtm }
 
   domain_name = module.managed_environment.default_domain
   parent_id   = var.resource_group_id

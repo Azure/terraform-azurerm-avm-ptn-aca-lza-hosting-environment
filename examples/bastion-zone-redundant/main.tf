@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    modtm = {
+      source  = "registry.terraform.io/azure/modtm"
+      version = "~> 0.3"
+    }
   }
 }
 
@@ -20,8 +24,8 @@ provider "azurerm" {
 
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  source  = "Azure/avm-utl-naming/azure"
+  version = "0.2.0"
 }
 
 # Create hub network with Bastion for testing
@@ -82,7 +86,8 @@ resource "azurerm_resource_group" "this" {
 
 # Complex scenario: Bastion integration with zone redundancy and all features
 module "aca_lza_hosting" {
-  source = "../../"
+  source    = "../../"
+  providers = { modtm = modtm }
 
   # Full observability stack (COMPLEX)
   application_insights_enabled = true
