@@ -31,6 +31,7 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    # tflint-ignore: terraform_unused_required_providers
     modtm = {
       source  = "registry.terraform.io/azure/modtm"
       version = "~> 0.3"
@@ -91,8 +92,7 @@ resource "azurerm_resource_group" "this" {
 
 # Complex scenario: Hub-spoke with Linux VM and full observability
 module "aca_lza_hosting" {
-  source    = "../../"
-  providers = { modtm = modtm }
+  source = "../../"
 
   # Full observability stack (COMPLEX)
   application_insights_enabled = true
