@@ -34,10 +34,9 @@ module "naming" {
 }
 
 module "spoke_resource_group" {
-  source    = "Azure/avm-res-resources-resourcegroup/azurerm"
-  version   = "0.2.0"
-  providers = { modtm = modtm }
-  count     = local.existing_resource_group_used ? 0 : 1
+  source  = "Azure/avm-res-resources-resourcegroup/azurerm"
+  version = "0.2.0"
+  count   = local.existing_resource_group_used ? 0 : 1
 
   location         = local.safe_location
   name             = local.resource_group_name
@@ -47,8 +46,7 @@ module "spoke_resource_group" {
 
 # Spoke composition module (Stage 2+: LAW first)
 module "spoke" {
-  source    = "./modules/spoke"
-  providers = { modtm = modtm }
+  source = "./modules/spoke"
 
   location                                      = local.safe_location
   resource_group_id                             = local.resource_group_id
@@ -76,8 +74,7 @@ module "spoke" {
 
 # Supporting services (ACR, Key Vault, Storage)
 module "supporting_services" {
-  source    = "./modules/supporting_services"
-  providers = { modtm = modtm }
+  source = "./modules/supporting_services"
 
   location                                  = local.safe_location
   resource_group_id                         = local.resource_group_id
@@ -100,9 +97,8 @@ module "supporting_services" {
 ###############################################
 
 module "vm_linux" {
-  source    = "./modules/linux_vm"
-  providers = { modtm = modtm }
-  count     = var.virtual_machine_jumpbox_os_type == "linux" ? 1 : 0
+  source = "./modules/linux_vm"
+  count  = var.virtual_machine_jumpbox_os_type == "linux" ? 1 : 0
 
   location                                   = local.safe_location
   log_analytics_workspace_id                 = module.spoke.log_analytics_workspace_id
@@ -124,9 +120,8 @@ module "vm_linux" {
 }
 
 module "vm_windows" {
-  source    = "./modules/windows_vm"
-  providers = { modtm = modtm }
-  count     = var.virtual_machine_jumpbox_os_type == "windows" ? 1 : 0
+  source = "./modules/windows_vm"
+  count  = var.virtual_machine_jumpbox_os_type == "windows" ? 1 : 0
 
   location                                = local.safe_location
   log_analytics_workspace_id              = module.spoke.log_analytics_workspace_id
@@ -147,8 +142,7 @@ module "vm_windows" {
 
 # Container Apps Managed Environment + Private DNS + optional App Insights
 module "container_apps_environment" {
-  source    = "./modules/container_apps_environment"
-  providers = { modtm = modtm }
+  source = "./modules/container_apps_environment"
 
   # ACR pull identity
   container_registry_user_assigned_identity_id = module.supporting_services.container_registry_uai_id
@@ -176,9 +170,8 @@ module "container_apps_environment" {
 
 # Optional sample application (Hello World) deployed into the ACA environment
 module "sample_application" {
-  source    = "./modules/sample_application"
-  providers = { modtm = modtm }
-  count     = var.sample_application_enabled ? 1 : 0
+  source = "./modules/sample_application"
+  count  = var.sample_application_enabled ? 1 : 0
 
   # Target environment and profile
   container_app_environment_resource_id = module.container_apps_environment.managed_environment_id
@@ -195,9 +188,8 @@ module "sample_application" {
 # Ingress via Application Gateway (default path)
 # Routes to the sample app if deployed, providing a working demo
 module "application_gateway" {
-  source    = "./modules/application_gateway"
-  providers = { modtm = modtm }
-  count     = var.expose_container_apps_with == "application_gateway" ? 1 : 0
+  source = "./modules/application_gateway"
+  count  = var.expose_container_apps_with == "application_gateway" ? 1 : 0
 
   location            = local.safe_location
   name                = module.naming.resources_names.applicationGateway
