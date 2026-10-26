@@ -35,10 +35,10 @@ module "application_insights" {
 
   location            = var.location
   name                = "${var.name}-ai"
-  resource_group_name = var.resource_group_name
   workspace_id        = var.log_analytics_workspace_id
   enable_telemetry    = var.enable_telemetry
   tags                = var.tags
+  resource_group_name = var.resource_group_name
 }
 
 # ACA Managed Environment
