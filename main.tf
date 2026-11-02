@@ -177,10 +177,10 @@ module "sample_application" {
   container_app_environment_resource_id = module.container_apps_environment.managed_environment_id
   # Identity to pull images from ACR (already created in supporting services)
   container_registry_user_assigned_identity_id = module.supporting_services.container_registry_uai_id
-  location                                     = var.location
   # Where to deploy
   resource_group_name   = local.resource_group_name
   enable_telemetry      = var.enable_telemetry
+  location              = var.location
   tags                  = var.tags
   workload_profile_name = module.container_apps_environment.workload_profile_names[0]
 }
