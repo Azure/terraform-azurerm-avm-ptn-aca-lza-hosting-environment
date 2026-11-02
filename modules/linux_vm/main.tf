@@ -41,21 +41,10 @@ resource "azurerm_key_vault_secret" "admin_password" {
 
 module "vm" {
   source  = "Azure/avm-res-compute-virtualmachine/azurerm"
-  version = "0.19.0"
+  version = "0.21.0"
 
-  location = var.location
-  name     = var.name
-  network_interfaces = {
-    nic1 = {
-      name = var.network_interface_name
-      ip_configurations = {
-        ipconfig1 = {
-          name                          = "ipconfig1"
-          private_ip_subnet_resource_id = var.subnet_id
-        }
-      }
-    }
-  }
+  location            = var.location
+  name                = var.name
   resource_group_name = var.resource_group_name
   zone                = var.virtual_machine_zone
   account_credentials = {
@@ -83,6 +72,17 @@ module "vm" {
   enable_telemetry = var.enable_telemetry
   # Disable encryption at host as it requires subscription feature registration
   encryption_at_host_enabled = false
+  network_interfaces = {
+    nic1 = {
+      name = var.network_interface_name
+      ip_configurations = {
+        ipconfig1 = {
+          name                          = "ipconfig1"
+          private_ip_subnet_resource_id = var.subnet_id
+        }
+      }
+    }
+  }
   os_disk = {
     caching              = "ReadWrite"
     storage_account_type = var.storage_account_type
