@@ -125,24 +125,29 @@ resource "terraform_data" "nsg_dependency" {
 # Application Gateway using AVM module
 module "app_gateway" {
   source  = "Azure/avm-res-network-applicationgateway/azurerm"
-  version = "0.4.3"
+  version = "0.5.3"
 
+  location = var.location
+  name     = var.name
+  autoscale_configuration = {
+    min_capacity = 1
+    max_capacity = 3
+  }
   backend_address_pools = {
     backend = {
       name  = "acaServiceBackend"
       fqdns = local.has_backend ? [local.backend_fqdn_clean] : null
     }
   }
-  backend_http_settings = {
-    https = {
-      name                                = "https"
-      port                                = 443
-      protocol                            = "Https"
-      request_timeout                     = 20
-      pick_host_name_from_backend_address = true
-      probe_name                          = local.has_backend ? "webProbe" : null
+  diagnostic_settings = var.enable_diagnostics ? {
+    agw = {
+      name                  = "${var.name}-diag"
+      workspace_resource_id = var.log_analytics_workspace_id
+      log_groups            = ["allLogs"]
+      metric_categories     = ["AllMetrics"]
     }
-  }
+  } : {}
+  enable_telemetry = var.enable_telemetry
   # Frontend ports - only HTTPS when backend is configured, otherwise HTTP for infrastructure only
   frontend_ports = local.has_backend ? {
     https = {
@@ -154,9 +159,6 @@ module "app_gateway" {
       name = "port_80"
       port = 80
     }
-  }
-  gateway_ip_configuration = {
-    subnet_id = var.subnet_id
   }
   http_listeners = local.has_backend ? {
     https = {
@@ -174,8 +176,6 @@ module "app_gateway" {
       protocol                       = "Http"
     }
   }
-  location = var.location
-  name     = var.name
   request_routing_rules = {
     rule1 = {
       name                       = "rule-1"
@@ -186,39 +186,6 @@ module "app_gateway" {
       priority                   = 100
     }
   }
-  resource_group_name                = var.resource_group_name
-  app_gateway_waf_policy_resource_id = local.waf_policy_id
-  autoscale_configuration = {
-    min_capacity = 1
-    max_capacity = 3
-  }
-  create_public_ip = false
-  diagnostic_settings = var.enable_diagnostics ? {
-    agw = {
-      name                  = "${var.name}-diag"
-      workspace_resource_id = var.log_analytics_workspace_id
-      log_groups            = ["allLogs"]
-      metric_categories     = ["AllMetrics"]
-    }
-  } : {}
-  enable_telemetry                      = var.enable_telemetry
-  frontend_ip_configuration_public_name = "appGwPublicFrontendIp"
-  probe_configurations = local.has_backend ? {
-    https = {
-      name                                      = "webProbe"
-      protocol                                  = "Https"
-      host                                      = local.backend_fqdn_clean
-      path                                      = var.backend_probe_path
-      interval                                  = 30
-      timeout                                   = 30
-      unhealthy_threshold                       = 3
-      pick_host_name_from_backend_http_settings = false
-      match = {
-        status_code = ["200-499"]
-      }
-    }
-  } : null
-  public_ip_resource_id = module.appgw_pip.resource_id
   sku = {
     name = "WAF_v2"
     tier = "WAF_v2"
@@ -240,6 +207,39 @@ module "app_gateway" {
   }
   tags  = var.tags
   zones = local.zones
+  backend_http_settings = {
+    https = {
+      name                                = "https"
+      port                                = 443
+      protocol                            = "Https"
+      request_timeout                     = 20
+      pick_host_name_from_backend_address = true
+      probe_name                          = local.has_backend ? "webProbe" : null
+    }
+  }
+  gateway_ip_configuration = {
+    subnet_id = var.subnet_id
+  }
+  resource_group_name                   = var.resource_group_name
+  app_gateway_waf_policy_resource_id    = local.waf_policy_id
+  create_public_ip                      = false
+  frontend_ip_configuration_public_name = "appGwPublicFrontendIp"
+  probe_configurations = local.has_backend ? {
+    https = {
+      name                                      = "webProbe"
+      protocol                                  = "Https"
+      host                                      = local.backend_fqdn_clean
+      path                                      = var.backend_probe_path
+      interval                                  = 30
+      timeout                                   = 30
+      unhealthy_threshold                       = 3
+      pick_host_name_from_backend_http_settings = false
+      match = {
+        status_code = ["200-499"]
+      }
+    }
+  } : null
+  public_ip_resource_id = module.appgw_pip.resource_id
 
   # Explicit dependency on NSG for proper destroy ordering
   depends_on = [terraform_data.nsg_dependency]
