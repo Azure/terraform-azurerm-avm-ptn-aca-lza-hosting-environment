@@ -12,7 +12,7 @@ locals {
 # Public IP for Application Gateway
 module "appgw_pip" {
   source  = "Azure/avm-res-network-publicipaddress/azurerm"
-  version = "0.2.1"
+  version = "0.3.0"
 
   location             = var.location
   name                 = var.public_ip_name
@@ -125,7 +125,7 @@ resource "terraform_data" "nsg_dependency" {
 # Application Gateway using AVM module
 module "app_gateway" {
   source  = "Azure/avm-res-network-applicationgateway/azurerm"
-  version = "0.4.3"
+  version = "0.6.0"
 
   backend_address_pools = {
     backend = {
