@@ -107,9 +107,8 @@ module "nsg_container_apps_env" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
   version = "0.6.0"
 
-  location            = var.location
-  name                = var.resources_names["containerAppsEnvironmentNsg"]
-  resource_group_name = var.resource_group_name
+  location = var.location
+  name     = var.resources_names["containerAppsEnvironmentNsg"]
   diagnostic_settings = {
     log_analytics_settings = {
       name                  = "log-analytics-settings"
@@ -202,7 +201,8 @@ module "nsg_container_apps_env" {
       destination_address_prefix = "*"
     }
   }
-  tags = var.tags
+  tags                = var.tags
+  resource_group_name = var.resource_group_name
 }
 
 module "nsg_appgw" {
@@ -210,9 +210,8 @@ module "nsg_appgw" {
   version = "0.6.0"
   count   = var.spoke_application_gateway_subnet_address_prefix != null ? 1 : 0
 
-  location            = var.location
-  name                = var.resources_names["applicationGatewayNsg"]
-  resource_group_name = var.resource_group_name
+  location = var.location
+  name     = var.resources_names["applicationGatewayNsg"]
   diagnostic_settings = {
     log_analytics_settings = {
       name                  = "log-analytics-settings"
@@ -281,16 +280,16 @@ module "nsg_appgw" {
       destination_address_prefix = "*"
     }
   }
-  tags = var.tags
+  tags                = var.tags
+  resource_group_name = var.resource_group_name
 }
 
 module "nsg_pep" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
   version = "0.6.0"
 
-  location            = var.location
-  name                = var.resources_names["pepNsg"]
-  resource_group_name = var.resource_group_name
+  location = var.location
+  name     = var.resources_names["pepNsg"]
   diagnostic_settings = {
     log_analytics_settings = {
       name                  = "log-analytics-settings"
@@ -311,7 +310,8 @@ module "nsg_pep" {
       destination_address_prefix = "*"
     }
   }
-  tags = var.tags
+  tags                = var.tags
+  resource_group_name = var.resource_group_name
 }
 
 module "nsg_jumpbox" {
@@ -319,9 +319,8 @@ module "nsg_jumpbox" {
   version = "0.6.0"
   count   = var.virtual_machine_jumpbox_os_type != "none" ? 1 : 0
 
-  location            = var.location
-  name                = var.resources_names["vmJumpBoxNsg"]
-  resource_group_name = var.resource_group_name
+  location = var.location
+  name     = var.resources_names["vmJumpBoxNsg"]
   diagnostic_settings = {
     log_analytics_settings = {
       name                  = "log-analytics-settings"
@@ -343,7 +342,8 @@ module "nsg_jumpbox" {
       direction                  = "Inbound"
     }
   } : {}
-  tags = var.tags
+  tags                = var.tags
+  resource_group_name = var.resource_group_name
 }
 
 ###############################################
