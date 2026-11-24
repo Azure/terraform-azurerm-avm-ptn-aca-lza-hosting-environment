@@ -33,12 +33,12 @@ module "application_insights" {
   version = "0.5.0"
   count   = var.application_insights_enabled ? 1 : 0
 
-  location            = var.location
-  name                = "${var.name}-ai"
-  workspace_id        = var.log_analytics_workspace_id
-  enable_telemetry    = var.enable_telemetry
-  tags                = var.tags
-  resource_group_name = var.resource_group_name
+  location         = var.location
+  name             = "${var.name}-ai"
+  parent_id        = var.resource_group_id
+  workspace_id     = var.log_analytics_workspace_id
+  enable_telemetry = var.enable_telemetry
+  tags             = var.tags
 }
 
 # ACA Managed Environment

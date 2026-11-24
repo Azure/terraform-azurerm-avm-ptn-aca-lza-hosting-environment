@@ -163,10 +163,11 @@ module "kv_dns_zone" {
 
 module "kv" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
-  version = "0.13.1"
+  version = "0.13.2"
 
   location  = var.location
   name      = var.resources_names.keyVault
+  parent_id = var.resource_group_id
   tenant_id = data.azurerm_client_config.current.tenant_id
   diagnostic_settings = var.enable_diagnostics ? {
     kv = {
@@ -200,7 +201,6 @@ module "kv" {
   sku_name                   = "standard"
   soft_delete_retention_days = 7
   tags                       = local.tags
-  resource_group_name        = var.resource_group_name
 }
 
 ###############################################
@@ -224,6 +224,7 @@ module "st" {
 
   location                 = var.location
   name                     = var.resources_names.storageAccount
+  parent_id                = var.resource_group_id
   account_kind             = "StorageV2"
   account_replication_type = "ZRS"
   account_tier             = "Standard"
@@ -250,7 +251,6 @@ module "st" {
   public_network_access_enabled = false
   shared_access_key_enabled     = true
   tags                          = local.tags
-  resource_group_name           = var.resource_group_name
 }
 
 # File shares - using AzAPI for AVM v1.0 compliance

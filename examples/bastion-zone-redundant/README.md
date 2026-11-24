@@ -6,17 +6,12 @@ This example demonstrates the most advanced networking scenario with Azure Basti
 
 ```hcl
 terraform {
-  required_version = ">= 1.9, < 2.0"
+  required_version = ">= 1.16, < 2.0"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
-    }
-    # tflint-ignore: terraform_unused_required_providers
-    modtm = {
-      source  = "registry.terraform.io/azure/modtm"
-      version = "~> 0.3"
     }
   }
 }
@@ -141,11 +136,9 @@ module "aca_lza_hosting" {
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.16, < 2.0)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
-
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
 ## Resources
 

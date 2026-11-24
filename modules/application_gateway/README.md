@@ -7,15 +7,13 @@
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.6, < 2.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.12, < 2.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0)
 
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
-
-- <a name="requirement_pkcs12"></a> [pkcs12](#requirement\_pkcs12) (~> 0.0.7)
+- <a name="requirement_pkcs12"></a> [pkcs12](#requirement\_pkcs12) (~> 0.4.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
 
@@ -33,7 +31,6 @@ The following resources are used by this module:
 - [terraform_data.telemetry](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) (resource)
 - [tls_private_key.appgw](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) (resource)
 - [tls_self_signed_cert.appgw](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert) (resource)
-- [azapi_client_config.current](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 - [azapi_client_config.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 - [azurerm_public_ip.pip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/public_ip) (data source)
 
@@ -57,6 +54,12 @@ Type: `string`
 ### <a name="input_public_ip_name"></a> [public\_ip\_name](#input\_public\_ip\_name)
 
 Description: Required. Name of the Public IP to create for the Application Gateway frontend.
+
+Type: `string`
+
+### <a name="input_resource_group_id"></a> [resource\_group\_id](#input\_resource\_group\_id)
+
+Description: Required. Resource group ID to deploy resources into.
 
 Type: `string`
 
@@ -182,13 +185,13 @@ The following Modules are called:
 
 Source: Azure/avm-res-network-applicationgateway/azurerm
 
-Version: 0.4.3
+Version: 0.6.0
 
 ### <a name="module_appgw_pip"></a> [appgw\_pip](#module\_appgw\_pip)
 
 Source: Azure/avm-res-network-publicipaddress/azurerm
 
-Version: 0.2.1
+Version: 0.3.0
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection

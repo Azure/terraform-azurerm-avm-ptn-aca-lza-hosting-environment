@@ -19,6 +19,11 @@ variable "public_ip_name" {
   description = "Required. Name of the Public IP to create for the Application Gateway frontend."
 }
 
+variable "resource_group_id" {
+  type        = string
+  description = "Required. Resource group ID to deploy resources into."
+}
+
 variable "resource_group_name" {
   type        = string
   description = "Required. Resource group name to deploy resources into."

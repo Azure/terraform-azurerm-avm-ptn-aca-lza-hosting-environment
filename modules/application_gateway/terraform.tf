@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.6, < 2.0"
+  required_version = ">= 1.12, < 2.0"
 
   required_providers {
     azapi = {
@@ -9,11 +9,6 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">= 3.71, < 5.0"
-    }
-    # tflint-ignore: terraform_unused_required_providers
-    modtm = {
-      source  = "registry.terraform.io/azure/modtm"
-      version = "~> 0.3"
     }
     pkcs12 = {
       source  = "chilicat/pkcs12"

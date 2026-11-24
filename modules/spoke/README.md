@@ -7,11 +7,9 @@
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.6, < 2.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.11, < 2.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
-
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
 ## Resources
 
@@ -36,12 +34,6 @@ Type: `string`
 ### <a name="input_resource_group_id"></a> [resource\_group\_id](#input\_resource\_group\_id)
 
 Description: Required. The ID of the resource group to deploy spoke resources into.
-
-Type: `string`
-
-### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
-
-Description: Required. The name of the resource group to deploy spoke resources into.
 
 Type: `string`
 
@@ -279,37 +271,37 @@ The following Modules are called:
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.0
+Version: 0.7.0
 
 ### <a name="module_nsg_container_apps_env"></a> [nsg\_container\_apps\_env](#module\_nsg\_container\_apps\_env)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.0
+Version: 0.7.0
 
 ### <a name="module_nsg_jumpbox"></a> [nsg\_jumpbox](#module\_nsg\_jumpbox)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.0
+Version: 0.7.0
 
 ### <a name="module_nsg_pep"></a> [nsg\_pep](#module\_nsg\_pep)
 
 Source: Azure/avm-res-network-networksecuritygroup/azurerm
 
-Version: 0.5.0
+Version: 0.7.0
 
 ### <a name="module_route_table"></a> [route\_table](#module\_route\_table)
 
 Source: Azure/avm-res-network-routetable/azurerm
 
-Version: 0.4.1
+Version: 0.7.0
 
 ### <a name="module_vnet_spoke"></a> [vnet\_spoke](#module\_vnet\_spoke)
 
 Source: Azure/avm-res-network-virtualnetwork/azurerm
 
-Version: 0.15.0
+Version: 0.23.0
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection
