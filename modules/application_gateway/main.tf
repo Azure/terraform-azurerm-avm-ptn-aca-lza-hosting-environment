@@ -1,6 +1,3 @@
-# Get current Azure context for constructing resource IDs
-data "azapi_client_config" "current" {}
-
 locals {
   # Strip protocol from backend FQDN for Application Gateway compatibility
   backend_fqdn_clean   = replace(replace(var.backend_fqdn, "https://", ""), "http://", "")
@@ -12,11 +9,11 @@ locals {
 # Public IP for Application Gateway
 module "appgw_pip" {
   source  = "Azure/avm-res-network-publicipaddress/azurerm"
-  version = "0.2.1"
+  version = "0.3.0"
 
   location             = var.location
   name                 = var.public_ip_name
-  resource_group_name  = var.resource_group_name
+  parent_id            = var.resource_group_id
   allocation_method    = "Static"
   ddos_protection_mode = var.ddos_protection_enabled ? "Enabled" : "Disabled"
   diagnostic_settings = var.enable_diagnostics ? {
@@ -80,7 +77,7 @@ resource "pkcs12_from_pem" "appgw" {
 resource "azapi_resource" "waf" {
   location  = var.location
   name      = "${var.name}Policy001"
-  parent_id = "/subscriptions/${data.azapi_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}"
+  parent_id = var.resource_group_id
   type      = "Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies@2024-01-01"
   body = {
     properties = {
@@ -125,74 +122,34 @@ resource "terraform_data" "nsg_dependency" {
 # Application Gateway using AVM module
 module "app_gateway" {
   source  = "Azure/avm-res-network-applicationgateway/azurerm"
-  version = "0.4.3"
+  version = "0.6.0"
 
-  backend_address_pools = {
-    backend = {
-      name  = "acaServiceBackend"
-      fqdns = local.has_backend ? [local.backend_fqdn_clean] : null
-    }
-  }
-  backend_http_settings = {
-    https = {
-      name                                = "https"
-      port                                = 443
-      protocol                            = "Https"
-      request_timeout                     = 20
-      pick_host_name_from_backend_address = true
-      probe_name                          = local.has_backend ? "webProbe" : null
-    }
-  }
-  # Frontend ports - only HTTPS when backend is configured, otherwise HTTP for infrastructure only
-  frontend_ports = local.has_backend ? {
-    https = {
-      name = "port_443"
-      port = 443
-    }
-    } : {
-    http = {
-      name = "port_80"
-      port = 80
-    }
-  }
-  gateway_ip_configuration = {
-    subnet_id = var.subnet_id
-  }
-  http_listeners = local.has_backend ? {
-    https = {
-      name                           = "https-listener"
-      frontend_port_name             = "port_443"
-      frontend_ip_configuration_name = "appGwPublicFrontendIp"
-      ssl_certificate_name           = "appgw-demo-cert"
-      protocol                       = "Https"
-    }
-    } : {
-    http = {
-      name                           = "http-listener"
-      frontend_port_name             = "port_80"
-      frontend_ip_configuration_name = "appGwPublicFrontendIp"
-      protocol                       = "Http"
-    }
-  }
-  location = var.location
-  name     = var.name
-  request_routing_rules = {
-    rule1 = {
-      name                       = "rule-1"
-      rule_type                  = "Basic"
-      http_listener_name         = local.has_backend ? "https-listener" : "http-listener"
-      backend_address_pool_name  = "acaServiceBackend"
-      backend_http_settings_name = "https"
-      priority                   = 100
-    }
-  }
-  resource_group_name                = var.resource_group_name
-  app_gateway_waf_policy_resource_id = local.waf_policy_id
+  location  = var.location
+  name      = var.name
+  parent_id = var.resource_group_id
   autoscale_configuration = {
     min_capacity = 1
     max_capacity = 3
   }
-  create_public_ip = false
+  backend_address_pools = [
+    {
+      name = "acaServiceBackend"
+      backend_addresses = local.has_backend ? [
+        { fqdn = local.backend_fqdn_clean }
+      ] : null
+    }
+  ]
+  backend_http_settings_collection = [
+    {
+      name                                = "https"
+      cookie_based_affinity               = "Disabled"
+      port                                = 443
+      protocol                            = "Https"
+      request_timeout                     = 20
+      pick_host_name_from_backend_address = true
+      probe                               = local.has_backend ? { probe_key = "webProbe" } : null
+    }
+  ]
   diagnostic_settings = var.enable_diagnostics ? {
     agw = {
       name                  = "${var.name}-diag"
@@ -201,10 +158,43 @@ module "app_gateway" {
       metric_categories     = ["AllMetrics"]
     }
   } : {}
-  enable_telemetry                      = var.enable_telemetry
-  frontend_ip_configuration_public_name = "appGwPublicFrontendIp"
-  probe_configurations = local.has_backend ? {
-    https = {
+  enable_telemetry = var.enable_telemetry
+  firewall_policy  = { id = local.waf_policy_id }
+  frontend_ip_configurations = [
+    {
+      name              = "appGwPublicFrontendIp"
+      public_ip_address = { id = module.appgw_pip.resource_id }
+    }
+  ]
+  # Frontend ports - only HTTPS when backend is configured, otherwise HTTP for infrastructure only
+  frontend_ports = local.has_backend ? [
+    {
+      name = "port_443"
+      port = 443
+    }
+    ] : [
+    {
+      name = "port_80"
+      port = 80
+    }
+  ]
+  gateway_ip_configurations = [
+    {
+      name   = "${var.name}-gwipc"
+      subnet = { id = var.subnet_id }
+    }
+  ]
+  http_listeners = [
+    {
+      name                      = local.has_backend ? "https-listener" : "http-listener"
+      frontend_port             = { frontend_port_key = local.has_backend ? "port_443" : "port_80" }
+      frontend_ip_configuration = { frontend_ip_configuration_key = "appGwPublicFrontendIp" }
+      ssl_certificate           = local.has_backend ? { ssl_certificate_key = "appgw-demo-cert" } : null
+      protocol                  = local.has_backend ? "Https" : "Http"
+    }
+  ]
+  probes = local.has_backend ? [
+    {
       name                                      = "webProbe"
       protocol                                  = "Https"
       host                                      = local.backend_fqdn_clean
@@ -214,22 +204,31 @@ module "app_gateway" {
       unhealthy_threshold                       = 3
       pick_host_name_from_backend_http_settings = false
       match = {
-        status_code = ["200-499"]
+        status_codes = ["200-499"]
       }
     }
-  } : null
-  public_ip_resource_id = module.appgw_pip.resource_id
+  ] : null
+  request_routing_rules = [
+    {
+      name                  = "rule-1"
+      rule_type             = "Basic"
+      http_listener         = { http_listener_key = local.has_backend ? "https-listener" : "http-listener" }
+      backend_address_pool  = { backend_address_pool_key = "acaServiceBackend" }
+      backend_http_settings = { backend_http_settings_key = "https" }
+      priority              = 100
+    }
+  ]
   sku = {
     name = "WAF_v2"
     tier = "WAF_v2"
   }
-  ssl_certificates = local.has_backend ? {
-    "appgw-demo-cert" = {
+  ssl_certificates = local.has_backend ? [
+    {
       name     = "appgw-demo-cert"
       data     = pkcs12_from_pem.appgw[0].result
       password = local.certificate_password
     }
-  } : null
+  ] : null
   ssl_policy = {
     policy_type          = "Custom"
     min_protocol_version = "TLSv1_2"

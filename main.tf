@@ -35,7 +35,7 @@ module "naming" {
 
 module "spoke_resource_group" {
   source  = "Azure/avm-res-resources-resourcegroup/azurerm"
-  version = "0.2.0"
+  version = "0.5.0"
   count   = local.existing_resource_group_used ? 0 : 1
 
   location         = local.safe_location
@@ -50,7 +50,6 @@ module "spoke" {
 
   location                                      = local.safe_location
   resource_group_id                             = local.resource_group_id
-  resource_group_name                           = local.resource_group_name
   resources_names                               = module.naming.resources_names
   spoke_infra_subnet_address_prefix             = var.spoke_infra_subnet_address_prefix
   spoke_private_endpoints_subnet_address_prefix = var.spoke_private_endpoints_subnet_address_prefix
@@ -177,10 +176,10 @@ module "sample_application" {
   container_app_environment_resource_id = module.container_apps_environment.managed_environment_id
   # Identity to pull images from ACR (already created in supporting services)
   container_registry_user_assigned_identity_id = module.supporting_services.container_registry_uai_id
+  location                                     = local.safe_location
   # Where to deploy
   resource_group_name   = local.resource_group_name
   enable_telemetry      = var.enable_telemetry
-  location              = var.location
   tags                  = var.tags
   workload_profile_name = module.container_apps_environment.workload_profile_names[0]
 }
@@ -194,6 +193,7 @@ module "application_gateway" {
   location            = local.safe_location
   name                = module.naming.resources_names.applicationGateway
   public_ip_name      = module.naming.resources_names.applicationGatewayPip
+  resource_group_id   = local.resource_group_id
   resource_group_name = local.resource_group_name
   subnet_id           = module.spoke.spoke_application_gateway_subnet_id
   # Backend - route to sample app if deployed, otherwise leave empty

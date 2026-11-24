@@ -105,11 +105,11 @@ locals {
 
 module "nsg_container_apps_env" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "0.5.0"
+  version = "0.7.0"
 
-  location            = var.location
-  name                = var.resources_names["containerAppsEnvironmentNsg"]
-  resource_group_name = var.resource_group_name
+  location  = var.location
+  name      = var.resources_names["containerAppsEnvironmentNsg"]
+  parent_id = var.resource_group_id
   diagnostic_settings = {
     log_analytics_settings = {
       name                  = "log-analytics-settings"
@@ -207,12 +207,12 @@ module "nsg_container_apps_env" {
 
 module "nsg_appgw" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "0.5.0"
+  version = "0.7.0"
   count   = var.spoke_application_gateway_subnet_address_prefix != null ? 1 : 0
 
-  location            = var.location
-  name                = var.resources_names["applicationGatewayNsg"]
-  resource_group_name = var.resource_group_name
+  location  = var.location
+  name      = var.resources_names["applicationGatewayNsg"]
+  parent_id = var.resource_group_id
   diagnostic_settings = {
     log_analytics_settings = {
       name                  = "log-analytics-settings"
@@ -286,11 +286,11 @@ module "nsg_appgw" {
 
 module "nsg_pep" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "0.5.0"
+  version = "0.7.0"
 
-  location            = var.location
-  name                = var.resources_names["pepNsg"]
-  resource_group_name = var.resource_group_name
+  location  = var.location
+  name      = var.resources_names["pepNsg"]
+  parent_id = var.resource_group_id
   diagnostic_settings = {
     log_analytics_settings = {
       name                  = "log-analytics-settings"
@@ -316,12 +316,12 @@ module "nsg_pep" {
 
 module "nsg_jumpbox" {
   source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
-  version = "0.5.0"
+  version = "0.7.0"
   count   = var.virtual_machine_jumpbox_os_type != "none" ? 1 : 0
 
-  location            = var.location
-  name                = var.resources_names["vmJumpBoxNsg"]
-  resource_group_name = var.resource_group_name
+  location  = var.location
+  name      = var.resources_names["vmJumpBoxNsg"]
+  parent_id = var.resource_group_id
   diagnostic_settings = {
     log_analytics_settings = {
       name                  = "log-analytics-settings"
@@ -375,15 +375,15 @@ locals {
 
 module "route_table" {
   source  = "Azure/avm-res-network-routetable/azurerm"
-  version = "0.4.1"
+  version = "0.7.0"
   count   = local.create_route_table ? 1 : 0
 
-  location            = var.location
-  name                = var.resources_names["routeTable"]
-  resource_group_name = var.resource_group_name
-  enable_telemetry    = var.enable_telemetry
-  routes              = local.route_table_routes
-  tags                = var.tags
+  location         = var.location
+  name             = var.resources_names["routeTable"]
+  parent_id        = var.resource_group_id
+  enable_telemetry = var.enable_telemetry
+  routes           = local.route_table_routes
+  tags             = var.tags
 }
 
 ###############################################
@@ -392,7 +392,7 @@ module "route_table" {
 
 module "vnet_spoke" {
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version = "0.15.0"
+  version = "0.23.0"
 
   location         = var.location
   parent_id        = var.resource_group_id

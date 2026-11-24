@@ -1,9 +1,10 @@
 # Azure Container App using AVM module
 module "app" {
   source  = "Azure/avm-res-app-containerapp/azurerm"
-  version = "0.7.4"
+  version = "0.10.0"
 
   container_app_environment_resource_id = var.container_app_environment_resource_id
+  location                              = var.location
   name                                  = var.name
   resource_group_name                   = var.resource_group_name
   # Simple hello world image, externally exposed as in Bicep sample

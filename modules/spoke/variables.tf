@@ -22,11 +22,6 @@ variable "resource_group_id" {
   description = "Required. The ID of the resource group to deploy spoke resources into."
 }
 
-variable "resource_group_name" {
-  type        = string
-  description = "Required. The name of the resource group to deploy spoke resources into."
-}
-
 variable "resources_names" {
   type        = map(string)
   description = "Required. Computed resource names from naming module (expects key 'logAnalyticsWorkspace')."

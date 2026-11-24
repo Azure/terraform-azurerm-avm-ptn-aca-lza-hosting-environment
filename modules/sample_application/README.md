@@ -7,11 +7,9 @@
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.6, < 2.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.11, < 2.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
-
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
 ## Resources
 
@@ -38,6 +36,12 @@ Description: Resource ID of the user-assigned managed identity with ACR Pull per
 
 Type: `string`
 
+### <a name="input_location"></a> [location](#input\_location)
+
+Description: Azure region for the sample Container App.
+
+Type: `string`
+
 ### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
 
 Description: Resource group name where the Container App will be deployed.
@@ -57,14 +61,6 @@ If it is set to false, then no telemetry will be collected.
 Type: `bool`
 
 Default: `true`
-
-### <a name="input_location"></a> [location](#input\_location)
-
-Description: The Azure region for this module's resources or telemetry deployment.
-
-Type: `string`
-
-Default: `null`
 
 ### <a name="input_name"></a> [name](#input\_name)
 
@@ -118,7 +114,7 @@ The following Modules are called:
 
 Source: Azure/avm-res-app-containerapp/azurerm
 
-Version: 0.7.4
+Version: 0.10.0
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection
