@@ -23,10 +23,11 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          Install-Module -Name 'Microsoft.PowerShell.PSResourceGet' -MinimumVersion 1.2.0 -Scope CurrentUser -Force -AllowClobber
-          Import-Module 'Microsoft.PowerShell.PSResourceGet' -MinimumVersion 1.2.0
-          Register-PSResourceRepository -Name MAR -Uri 'https://mcr.microsoft.com' -ApiVersion ContainerRegistry -Trusted
-          Install-PSResource -Name Avm.Authoring -Repository MAR -Scope CurrentUser -TrustRepository
+          if (-not (Get-Module -ListAvailable -Name 'Microsoft.PowerShell.PSResourceGet')) {
+            Install-Module -Name 'Microsoft.PowerShell.PSResourceGet' -Scope CurrentUser -Force -AllowClobber
+          }
+          Import-Module 'Microsoft.PowerShell.PSResourceGet'
+          Install-PSResource -Name Avm.Authoring -Scope CurrentUser -TrustRepository
           Import-Module Avm.Authoring
           avm version
 
