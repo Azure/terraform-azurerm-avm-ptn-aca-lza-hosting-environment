@@ -100,7 +100,19 @@ resource "azapi_resource" "log_analytics_workspace" {
 
 locals {
   # Align location tag name for AzureCloud service tag (Bicep used francecentral -> centralfrance)
-  location_for_service_tag = var.location == "francecentral" ? "centralfrance" : var.location
+  location_for_service_tag = lookup({
+    francecentral      = "centralfrance"
+    francesouth        = "southfrance"
+    germanywestcentral = "germanywc"
+    germanynorth       = "germanyn"
+    norwayeast         = "norwaye"
+    norwaywest         = "norwayw"
+    switzerlandnorth   = "switzerlandn"
+    switzerlandwest    = "switzerlandw"
+    eastusstg          = "usstagee"
+    southcentralusstg  = "usstagec"
+    brazilsoutheast    = "brazilse"
+  }, var.location, var.location)
 }
 
 module "nsg_container_apps_env" {
